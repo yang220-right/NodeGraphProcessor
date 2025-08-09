@@ -4,18 +4,45 @@ using UnityEngine;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 暴露参数类
+	/// 用于在图形中暴露可配置的参数，支持序列化和反序列化
+	/// 提供各种数据类型的参数支持，如浮点数、向量、颜色等
+	/// </summary>
 	[Serializable]
 	public class ExposedParameter : ISerializationCallbackReceiver
 	{
+        /// <summary>
+        /// 参数设置类
+        /// 存储参数的显示和行为设置
+        /// </summary>
         [Serializable]
         public class Settings
         {
+            /// <summary>
+            /// 参数是否隐藏
+            /// 控制参数在UI中是否可见
+            /// </summary>
             public bool isHidden = false;
+            
+            /// <summary>
+            /// 参数是否展开
+            /// 控制参数在UI中的展开状态
+            /// </summary>
             public bool expanded = false;
 
+            /// <summary>
+            /// 参数的唯一标识符
+            /// 用于跟踪和识别参数
+            /// </summary>
             [SerializeField]
             internal string guid = null;
 
+            /// <summary>
+            /// 比较两个Settings对象是否相等
+            /// </summary>
+            /// <param name="obj">要比较的对象</param>
+            /// <returns>如果相等则返回true</returns>
             public override bool Equals(object obj)
             {
                 if (obj is Settings s && s != null)
@@ -24,23 +51,70 @@ namespace GraphProcessor
                     return false;
             }
 
+            /// <summary>
+            /// 比较两个Settings对象是否相等
+            /// </summary>
+            /// <param name="param">要比较的Settings</param>
+            /// <returns>如果相等则返回true</returns>
             public virtual bool Equals(Settings param)
                 => isHidden == param.isHidden && expanded == param.expanded;
 
+            /// <summary>
+            /// 获取哈希码
+            /// </summary>
+            /// <returns>哈希码</returns>
             public override int GetHashCode() => base.GetHashCode();
         }
 
-		public string				guid; // 用于跟踪参数的唯一id
+		/// <summary>
+		/// 参数的唯一标识符
+		/// 用于跟踪参数的唯一ID
+		/// </summary>
+		public string				guid;
+		
+		/// <summary>
+		/// 参数名称
+		/// 在UI中显示的参数名称
+		/// </summary>
 		public string				name;
+		
+		/// <summary>
+		/// 参数类型（已过时）
+		/// 使用GetValueType()替代
+		/// </summary>
 		[Obsolete("Use GetValueType()")]
 		public string				type;
+		
+		/// <summary>
+		/// 序列化值（已过时）
+		/// 使用value替代
+		/// </summary>
 		[Obsolete("Use value instead")]
 		public SerializableObject	serializedValue;
+		
+		/// <summary>
+		/// 是否为输入参数
+		/// true表示输入参数，false表示输出参数
+		/// </summary>
 		public bool					input = true;
+        
+        /// <summary>
+        /// 参数设置
+        /// 包含参数的显示和行为配置
+        /// </summary>
         [SerializeReference]
 		public Settings             settings;
+		
+		/// <summary>
+		/// 参数类型的简短名称
+		/// </summary>
 		public string shortType => GetValueType()?.Name;
 
+        /// <summary>
+        /// 初始化参数
+        /// </summary>
+        /// <param name="name">参数名称</param>
+        /// <param name="value">参数值</param>
         public void Initialize(string name, object value)
         {
 			guid = Guid.NewGuid().ToString(); // 每个参数生成一次且唯一
@@ -50,6 +124,10 @@ namespace GraphProcessor
 			this.value = value;
         }
 
+		/// <summary>
+		/// 反序列化后的回调
+		/// 处理从旧版本迁移数据
+		/// </summary>
 		void ISerializationCallbackReceiver.OnAfterDeserialize()
 		{
 			// SerializeReference迁移步骤：
@@ -63,16 +141,44 @@ namespace GraphProcessor
 #pragma warning restore CS0618
 		}
 
+		/// <summary>
+		/// 序列化前的回调
+		/// </summary>
 		void ISerializationCallbackReceiver.OnBeforeSerialize() {}
 
+        /// <summary>
+        /// 创建设置对象
+        /// 子类可以重写此方法以提供自定义设置
+        /// </summary>
+        /// <returns>设置对象</returns>
         protected virtual Settings CreateSettings() => new Settings();
 
+        /// <summary>
+        /// 参数值
+        /// 存储参数的实际数据
+        /// </summary>
         public virtual object value { get; set; }
+        
+        /// <summary>
+        /// 获取参数值的类型
+        /// </summary>
+        /// <returns>参数值的类型</returns>
         public virtual Type GetValueType() => value == null ? typeof(object) : value.GetType();
 
+        /// <summary>
+        /// 暴露参数类型缓存
+        /// 用于快速查找参数类型
+        /// </summary>
         static Dictionary<Type, Type> exposedParameterTypeCache = new Dictionary<Type, Type>();
+        
+        /// <summary>
+        /// 迁移参数到新版本
+        /// 用于处理版本升级时的数据迁移
+        /// </summary>
+        /// <returns>迁移后的参数对象</returns>
         internal ExposedParameter Migrate()
         {
+            // 初始化类型缓存
             if (exposedParameterTypeCache.Count == 0)
             {
                 foreach (var type in AppDomain.CurrentDomain.GetAllTypes())

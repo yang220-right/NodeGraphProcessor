@@ -11,39 +11,58 @@ using System;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// 描述端口创建属性的类
+	/// 端口数据类
+	/// 描述端口创建属性的类，包含端口的显示、行为和连接信息
 	/// </summary>
 	public class PortData : IEquatable< PortData >
 	{
 		/// <summary>
 		/// 端口的唯一标识符
+		/// 用于在代码中唯一标识端口
 		/// </summary>
 		public string	identifier;
+		
 		/// <summary>
 		/// 节点上的显示名称
+		/// 在图形界面中显示的端口名称
 		/// </summary>
 		public string	displayName;
+		
 		/// <summary>
 		/// 将用于类型样式表着色的类型
+		/// 决定端口的颜色和样式
 		/// </summary>
 		public Type		displayType;
+		
 		/// <summary>
 		/// 端口是否接受多个连接
+		/// 控制端口是否可以连接多条边
 		/// </summary>
 		public bool		acceptMultipleEdges;
+		
 		/// <summary>
 		/// 端口大小，也会影响连接边的大小
+		/// 以像素为单位的端口显示大小
 		/// </summary>
 		public int		sizeInPixel;
+		
 		/// <summary>
 		/// 端口的工具提示
+		/// 鼠标悬停时显示的提示信息
 		/// </summary>
 		public string	tooltip;
+		
 		/// <summary>
 		/// 端口是否垂直
+		/// 控制端口的显示方向
 		/// </summary>
 		public bool		vertical;
 
+        /// <summary>
+        /// 比较两个PortData是否相等
+        /// </summary>
+        /// <param name="other">要比较的PortData</param>
+        /// <returns>如果相等则返回true</returns>
         public bool Equals(PortData other)
         {
 			return identifier == other.identifier
@@ -55,6 +74,10 @@ namespace GraphProcessor
 				&& vertical == other.vertical;
         }
 
+		/// <summary>
+		/// 从另一个PortData复制数据
+		/// </summary>
+		/// <param name="other">要复制的PortData</param>
 		public void CopyFrom(PortData other)
 		{
 			identifier = other.identifier;
@@ -68,35 +91,63 @@ namespace GraphProcessor
     }
 
 	/// <summary>
+	/// 节点端口类
 	/// 运行时类，存储处理所需的一个端口的所有信息
+	/// 负责管理端口的数据传输、连接状态和自定义IO操作
 	/// </summary>
 	public class NodePort
 	{
 		/// <summary>
 		/// 端口后面的属性的实际名称（必须准确，用于反射）
+		/// 对应节点类中的字段名
 		/// </summary>
 		public string				fieldName;
+		
 		/// <summary>
 		/// 端口所在的节点
+		/// 引用拥有此端口的节点对象
 		/// </summary>
 		public BaseNode				owner;
+		
 		/// <summary>
 		/// 来自fieldName的fieldInfo
+		/// 通过反射获取的字段信息，用于数据访问
 		/// </summary>
 		public FieldInfo			fieldInfo;
+		
 		/// <summary>
 		/// 端口的数据
+		/// 包含端口的显示和行为配置
 		/// </summary>
 		public PortData				portData;
+		
+		/// <summary>
+		/// 与此端口相连的边列表
+		/// </summary>
 		List< SerializableEdge >	edges = new List< SerializableEdge >();
+		
+		/// <summary>
+		/// 推送数据委托字典
+		/// 存储每条边对应的数据推送委托
+		/// </summary>
 		Dictionary< SerializableEdge, PushDataDelegate >	pushDataDelegates = new Dictionary< SerializableEdge, PushDataDelegate >();
+		
+		/// <summary>
+		/// 具有远程自定义IO的边列表
+		/// 存储使用自定义IO方法的边
+		/// </summary>
 		List< SerializableEdge >	edgeWithRemoteCustomIO = new List< SerializableEdge >();
 
 		/// <summary>
 		/// FieldInfo的所有者，在Get/SetValue情况下使用
+		/// 通常是节点对象，但也可以是其他对象
 		/// </summary>
 		public object				fieldOwner;
 
+		/// <summary>
+		/// 自定义端口IO方法
+		/// 用于处理自定义的输入输出逻辑
+		/// </summary>
 		CustomPortIODelegate		customPortIOMethod;
 
 		/// <summary>

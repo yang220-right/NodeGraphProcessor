@@ -15,81 +15,243 @@ using NodeView = UnityEditor.Experimental.GraphView.Node;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 基础节点视图类
+	/// 继承自Unity的Node，为BaseNode提供可视化表示
+	/// 提供节点的UI显示、端口管理、设置面板、调试功能等核心功能
+	/// 所有具体的节点视图都应该继承此类
+	/// </summary>
 	[NodeCustomEditor(typeof(BaseNode))]
 	public class BaseNodeView : NodeView
 	{
+		/// <summary>
+		/// 目标节点
+		/// 对应的BaseNode对象
+		/// </summary>
 		public BaseNode							nodeTarget;
 
+		/// <summary>
+		/// 输入端口视图列表
+		/// 节点的所有输入端口视图
+		/// </summary>
 		public List< PortView >					inputPortViews = new List< PortView >();
+		
+		/// <summary>
+		/// 输出端口视图列表
+		/// 节点的所有输出端口视图
+		/// </summary>
 		public List< PortView >					outputPortViews = new List< PortView >();
 
+		/// <summary>
+		/// 所有者图形视图
+		/// 节点视图所属的图形视图
+		/// </summary>
 		public BaseGraphView					owner { private set; get; }
 
+		/// <summary>
+		/// 按字段名分组的端口字典
+		/// 用于快速查找特定字段的端口视图
+		/// </summary>
 		protected Dictionary< string, List< PortView > > portsPerFieldName = new Dictionary< string, List< PortView > >();
 
+        /// <summary>
+        /// 控件容器
+        /// 用于容纳节点控件的UI元素
+        /// </summary>
         public VisualElement 					controlsContainer;
+        
+        /// <summary>
+        /// 调试容器
+        /// 用于显示调试信息的UI元素
+        /// </summary>
 		protected VisualElement					debugContainer;
+		
+		/// <summary>
+		/// 右侧标题容器
+		/// 用于显示右侧标题的UI元素
+		/// </summary>
 		protected VisualElement					rightTitleContainer;
+		
+		/// <summary>
+		/// 顶部端口容器
+		/// 用于容纳顶部端口的UI元素
+		/// </summary>
 		protected VisualElement					topPortContainer;
+		
+		/// <summary>
+		/// 底部端口容器
+		/// 用于容纳底部端口的UI元素
+		/// </summary>
 		protected VisualElement					bottomPortContainer;
+		
+		/// <summary>
+		/// 输入容器元素
+		/// 用于容纳输入控件的UI元素
+		/// </summary>
 		private VisualElement 					inputContainerElement;
 
+		/// <summary>
+		/// 设置面板
+		/// 节点的设置面板UI元素
+		/// </summary>
 		VisualElement							settings;
+		
+		/// <summary>
+		/// 设置容器
+		/// 设置面板的容器UI元素
+		/// </summary>
 		NodeSettingsView						settingsContainer;
+		
+		/// <summary>
+		/// 设置按钮
+		/// 用于打开/关闭设置面板的按钮
+		/// </summary>
 		Button									settingButton;
+		
+		/// <summary>
+		/// 标题文本字段
+		/// 用于编辑节点标题的文本字段
+		/// </summary>
 		TextField								titleTextField;
 
+		/// <summary>
+		/// 计算顺序标签
+		/// 显示节点计算顺序的标签
+		/// </summary>
 		Label									computeOrderLabel = new Label();
 
+		/// <summary>
+		/// 端口连接事件
+		/// 当端口被连接时触发
+		/// </summary>
 		public event Action< PortView >			onPortConnected;
+		
+		/// <summary>
+		/// 端口断开事件
+		/// 当端口被断开时触发
+		/// </summary>
 		public event Action< PortView >			onPortDisconnected;
 
+		/// <summary>
+		/// 是否有设置面板
+		/// 标识节点是否具有设置面板
+		/// </summary>
 		protected virtual bool					hasSettings { get; set; }
 
-        public bool								initializing = false; //Used for applying SetPosition on locked node at init.
+        /// <summary>
+        /// 是否正在初始化
+        /// 用于在初始化时对锁定节点应用SetPosition
+        /// </summary>
+        public bool								initializing = false;
 
+        /// <summary>
+        /// 基础节点样式路径
+        /// 基础节点视图的样式定义文件路径
+        /// </summary>
         readonly string							baseNodeStyle = "GraphProcessorStyles/BaseNodeView";
 
+		/// <summary>
+		/// 设置面板是否展开
+		/// 标识设置面板的展开状态
+		/// </summary>
 		bool									settingsExpanded = false;
 
+		/// <summary>
+		/// 徽章列表
+		/// 存储节点的消息徽章
+		/// </summary>
 		[System.NonSerialized]
 		List< IconBadge >						badges = new List< IconBadge >();
 
+		/// <summary>
+		/// 选中的节点列表
+		/// 当前选中的节点集合
+		/// </summary>
 		private List<Node> selectedNodes = new List<Node>();
+		
+		/// <summary>
+		/// 选中节点的最左边界
+		/// </summary>
 		private float      selectedNodesFarLeft;
+		
+		/// <summary>
+		/// 选中节点的最近左边界
+		/// </summary>
 		private float      selectedNodesNearLeft;
+		
+		/// <summary>
+		/// 选中节点的最右边界
+		/// </summary>
 		private float      selectedNodesFarRight;
+		
+		/// <summary>
+		/// 选中节点的最近右边界
+		/// </summary>
 		private float      selectedNodesNearRight;
+		
+		/// <summary>
+		/// 选中节点的最上边界
+		/// </summary>
 		private float      selectedNodesFarTop;
+		
+		/// <summary>
+		/// 选中节点的最近上边界
+		/// </summary>
 		private float      selectedNodesNearTop;
+		
+		/// <summary>
+		/// 选中节点的最下边界
+		/// </summary>
 		private float      selectedNodesFarBottom;
+		
+		/// <summary>
+		/// 选中节点的最近下边界
+		/// </summary>
 		private float      selectedNodesNearBottom;
+		
+		/// <summary>
+		/// 选中节点的平均水平位置
+		/// </summary>
 		private float      selectedNodesAvgHorizontal;
+		
+		/// <summary>
+		/// 选中节点的平均垂直位置
+		/// </summary>
 		private float      selectedNodesAvgVertical;
 		
 		#region  Initialization
 		
+		/// <summary>
+		/// 初始化节点视图
+		/// 设置节点视图的基本属性和事件监听
+		/// </summary>
+		/// <param name="owner">所有者图形视图</param>
+		/// <param name="node">目标节点</param>
 		public void Initialize(BaseGraphView owner, BaseNode node)
 		{
 			nodeTarget = node;
 			this.owner = owner;
 
+			// 设置节点能力
 			if (!node.deletable)
 				capabilities &= ~Capabilities.Deletable;
 			// 注意，可重命名功能目前无用，因为它尚未在Graphview中实现
 			if (node.isRenamable)
 				capabilities |= Capabilities.Renamable;
 
+			// 订阅事件
 			owner.computeOrderUpdated += ComputeOrderUpdatedCallback;
 			node.onMessageAdded += AddMessageView;
 			node.onMessageRemoved += RemoveMessageView;
 			node.onPortsUpdated += a => schedule.Execute(_ => UpdatePortsForField(a)).ExecuteLater(0);
 
+            // 加载样式表
             styleSheets.Add(Resources.Load<StyleSheet>(baseNodeStyle));
 
             if (!string.IsNullOrEmpty(node.layoutStyle))
                 styleSheets.Add(Resources.Load<StyleSheet>(node.layoutStyle));
 
+			// 初始化各个组件
 			InitializeView();
 			InitializePorts();
 			InitializeDebug();

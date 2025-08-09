@@ -8,94 +8,157 @@ using UnityEngine.SceneManagement;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 图形变化记录类
+	/// 用于记录图形中发生的各种变化，如节点和边的添加、删除等
+	/// </summary>
 	public class GraphChanges
 	{
+		/// <summary>
+		/// 被移除的边
+		/// </summary>
 		public SerializableEdge	removedEdge;
+		
+		/// <summary>
+		/// 被添加的边
+		/// </summary>
 		public SerializableEdge	addedEdge;
+		
+		/// <summary>
+		/// 被移除的节点
+		/// </summary>
 		public BaseNode			removedNode;
+		
+		/// <summary>
+		/// 被添加的节点
+		/// </summary>
 		public BaseNode			addedNode;
+		
+		/// <summary>
+		/// 发生变化的节点
+		/// </summary>
 		public BaseNode			nodeChanged;
+		
+		/// <summary>
+		/// 被添加的组
+		/// </summary>
 		public Group			addedGroups;
+		
+		/// <summary>
+		/// 被移除的组
+		/// </summary>
 		public Group			removedGroups;
+		
+		/// <summary>
+		/// 被添加的堆栈节点
+		/// </summary>
 		public BaseStackNode	addedStackNode;
+		
+		/// <summary>
+		/// 被移除的堆栈节点
+		/// </summary>
 		public BaseStackNode	removedStackNode;
+		
+		/// <summary>
+		/// 被添加的便签
+		/// </summary>
 		public StickyNote		addedStickyNotes;
+		
+		/// <summary>
+		/// 被移除的便签
+		/// </summary>
 		public StickyNote		removedStickyNotes;
 	}
 
 	/// <summary>
+	/// 计算顺序类型枚举
 	/// 用于确定节点计算顺序整数的计算顺序类型
 	/// </summary>
 	public enum ComputeOrderType
 	{
+		/// <summary>
+		/// 深度优先搜索
+		/// 优先处理深层依赖的节点
+		/// </summary>
 		DepthFirst,
+		
+		/// <summary>
+		/// 广度优先搜索
+		/// 优先处理同层级的节点
+		/// </summary>
 		BreadthFirst,
 	}
 
+	/// <summary>
+	/// 图形基类
+	/// 所有图形都应该继承此类，提供图形的核心功能
+	/// 包括节点管理、边管理、计算顺序更新、暴露参数管理等
+	/// </summary>
 	[System.Serializable]
 	public class BaseGraph : ScriptableObject, ISerializationCallbackReceiver
 	{
+		/// <summary>
+		/// 最大计算顺序深度
+		/// 防止无限递归
+		/// </summary>
 		static readonly int			maxComputeOrderDepth = 1000;
 		
-		/// <summary>节点在循环内时的无效计算顺序号</summary>
+		/// <summary>
+		/// 节点在循环内时的无效计算顺序号
+		/// </summary>
 		public static readonly int loopComputeOrder = -2;
-		/// <summary>无法处理的节点的无效计算顺序号</summary>
+		
+		/// <summary>
+		/// 无法处理的节点的无效计算顺序号
+		/// </summary>
 		public static readonly int invalidComputeOrder = -1;
 
 		/// <summary>
-		/// 仅用于编辑器中复制粘贴的序列化节点的Json列表。注意此字段不会被序列化
+		/// 仅用于编辑器中复制粘贴的序列化节点的Json列表
+		/// 注意此字段不会被序列化，已过时
 		/// </summary>
-		/// <typeparam name="JsonElement"></typeparam>
-		/// <returns></returns>
 		[SerializeField, Obsolete("Use BaseGraph.nodes instead")]
 		public List< JsonElement >						serializedNodes = new List< JsonElement >();
 
 		/// <summary>
-		/// 图形中所有节点的列表。
+		/// 图形中所有节点的列表
+		/// 存储图形中的所有节点对象
 		/// </summary>
-		/// <typeparam name="BaseNode"></typeparam>
-		/// <returns></returns>
 		[SerializeReference]
 		public List< BaseNode >							nodes = new List< BaseNode >();
 
 		/// <summary>
 		/// 通过GUID访问节点的字典，比在列表中搜索更快
+		/// 提供O(1)的节点查找性能
 		/// </summary>
-		/// <typeparam name="string"></typeparam>
-		/// <typeparam name="BaseNode"></typeparam>
-		/// <returns></returns>
 		[System.NonSerialized]
 		public Dictionary< string, BaseNode >			nodesPerGUID = new Dictionary< string, BaseNode >();
 
 		/// <summary>
-		/// 边的Json列表
+		/// 边的列表
+		/// 存储图形中所有的边对象
 		/// </summary>
-		/// <typeparam name="SerializableEdge"></typeparam>
-		/// <returns></returns>
 		[SerializeField]
 		public List< SerializableEdge >					edges = new List< SerializableEdge >();
+		
 		/// <summary>
 		/// 通过GUID访问边的字典，比在列表中搜索更快
+		/// 提供O(1)的边查找性能
 		/// </summary>
-		/// <typeparam name="string"></typeparam>
-		/// <typeparam name="SerializableEdge"></typeparam>
-		/// <returns></returns>
 		[System.NonSerialized]
 		public Dictionary< string, SerializableEdge >	edgesPerGUID = new Dictionary< string, SerializableEdge >();
 
 		/// <summary>
 		/// 图形中的所有组
+		/// 用于组织和分组节点
 		/// </summary>
-		/// <typeparam name="Group"></typeparam>
-		/// <returns></returns>
         [SerializeField, FormerlySerializedAs("commentBlocks")]
         public List< Group >                     		groups = new List< Group >();
 
 		/// <summary>
 		/// 图形中的所有堆栈节点
+		/// 用于创建可折叠的节点组
 		/// </summary>
-		/// <typeparam name="stackNodes"></typeparam>
-		/// <returns></returns>
 		[SerializeField, SerializeReference] // 多态序列化
 		public List< BaseStackNode >					stackNodes = new List< BaseStackNode >();
 

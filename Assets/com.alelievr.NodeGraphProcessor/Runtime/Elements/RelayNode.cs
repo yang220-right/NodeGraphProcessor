@@ -5,43 +5,118 @@ using GraphProcessor;
 using System.Linq;
 using System;
 
+/// <summary>
+/// 中继节点类
+/// 用于在图形中传递和转换数据，支持数据打包和解包
+/// 可以动态创建端口来处理不同类型的数据
+/// </summary>
 [System.Serializable, NodeMenuItem("Utils/Relay")]
 public class RelayNode : BaseNode
 {
+	/// <summary>
+	/// 打包标识符
+	/// 用于标识打包端口的特殊标识符
+	/// </summary>
 	const string packIdentifier = "_Pack";
 
+	/// <summary>
+	/// 打包的中继数据结构
+	/// 用于存储多个数据值及其相关信息
+	/// </summary>
 	[HideInInspector]
 	public struct PackedRelayData
 	{
+		/// <summary>
+		/// 数据值列表
+		/// 存储所有传递的数据值
+		/// </summary>
 		public List<object>	values;
+		
+		/// <summary>
+		/// 数据名称列表
+		/// 存储每个数据值的显示名称
+		/// </summary>
 		public List<string>	names;
+		
+		/// <summary>
+		/// 数据类型列表
+		/// 存储每个数据值的类型
+		/// </summary>
 		public List<Type>	types;
 	}
 
+	/// <summary>
+	/// 输入数据
+	/// 接收来自其他节点的数据
+	/// </summary>
 	[Input(name = "In")]
     public PackedRelayData	input;
 
+	/// <summary>
+	/// 输出数据
+	/// 向其他节点传递数据
+	/// </summary>
 	[Output(name = "Out")]
 	public PackedRelayData	output;
 
+	/// <summary>
+	/// 是否解包输出
+	/// 控制是否将打包的数据解包为多个单独的输出
+	/// </summary>
 	public bool		unpackOutput = false;
+	
+	/// <summary>
+	/// 是否打包输入
+	/// 控制是否将多个输入打包为单个数据
+	/// </summary>
 	public bool		packInput = false;
+	
+	/// <summary>
+	/// 输入边数量
+	/// 记录连接到输入端口的边数量
+	/// </summary>
 	public int		inputEdgeCount = 0;
+	
+	/// <summary>
+	/// 输出索引
+	/// 用于跟踪当前输出的数据索引
+	/// </summary>
 	[System.NonSerialized]
 	int				outputIndex = 0;
 
+	/// <summary>
+	/// 输入类型
+	/// 存储输入数据的类型信息
+	/// </summary>
 	SerializableType inputType = new SerializableType(typeof(object));
 
+	/// <summary>
+	/// 最大端口大小
+	/// 限制动态创建的端口数量
+	/// </summary>
 	const int		k_MaxPortSize = 14;
 
+	/// <summary>
+	/// 处理节点逻辑
+	/// 将输入数据传递给输出
+	/// </summary>
 	protected override void Process()
 	{
 		outputIndex = 0;
 		output = input;
 	}
 
+	/// <summary>
+	/// 节点布局样式
+	/// 指定节点在UI中的显示样式
+	/// </summary>
 	public override string layoutStyle => "GraphProcessorStyles/RelayNode";
 
+	/// <summary>
+	/// 获取输入数据
+	/// 自定义端口输入处理，从连接的边中获取数据
+	/// </summary>
+	/// <param name="edges">连接的边列表</param>
 	[CustomPortInput(nameof(input), typeof(object), true)]
 	public void GetInputs(List< SerializableEdge > edges)
 	{
@@ -61,6 +136,12 @@ public class RelayNode : BaseNode
 		}
 	}
 
+	/// <summary>
+	/// 推送输出数据
+	/// 自定义端口输出处理，将数据推送到连接的边
+	/// </summary>
+	/// <param name="edges">连接的边列表</param>
+	/// <param name="outputPort">输出端口</param>
 	[CustomPortOutput(nameof(output), typeof(object), true)]
 	public void PushOutputs(List< SerializableEdge > edges, NodePort outputPort)
 	{
@@ -92,6 +173,12 @@ public class RelayNode : BaseNode
 		}
 	}
 
+	/// <summary>
+	/// 输入端口行为
+	/// 自定义输入端口的动态行为
+	/// </summary>
+	/// <param name="edges">连接的边列表</param>
+	/// <returns>端口数据集合</returns>
 	[CustomPortBehavior(nameof(input))]
 	IEnumerable< PortData > InputPortBehavior(List< SerializableEdge > edges)
 	{
@@ -118,6 +205,12 @@ public class RelayNode : BaseNode
 		};
 	}
 
+	/// <summary>
+	/// 输出端口行为
+	/// 自定义输出端口的动态行为
+	/// </summary>
+	/// <param name="edges">连接的边列表</param>
+	/// <returns>端口数据集合</returns>
 	[CustomPortBehavior(nameof(output))]
 	IEnumerable< PortData > OutputPortBehavior(List< SerializableEdge > edges)
 	{

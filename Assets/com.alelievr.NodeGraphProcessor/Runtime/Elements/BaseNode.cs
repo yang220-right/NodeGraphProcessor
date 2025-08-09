@@ -8,34 +8,62 @@ using System.Linq;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 自定义端口行为委托
+	/// 用于定义端口的动态行为，根据连接的边来生成端口数据
+	/// </summary>
+	/// <param name="edges">与端口相连的边列表</param>
+	/// <returns>端口数据集合</returns>
 	public delegate IEnumerable< PortData > CustomPortBehaviorDelegate(List< SerializableEdge > edges);
+	
+	/// <summary>
+	/// 自定义端口类型行为委托
+	/// 用于根据字段名、显示名和值来生成端口数据
+	/// </summary>
+	/// <param name="fieldName">字段名</param>
+	/// <param name="displayName">显示名称</param>
+	/// <param name="value">字段值</param>
+	/// <returns>端口数据集合</returns>
 	public delegate IEnumerable< PortData > CustomPortTypeBehaviorDelegate(string fieldName, string displayName, object value);
 
+	/// <summary>
+	/// 节点基类
+	/// 所有图形节点都应该继承此类，提供节点的基本功能和属性
+	/// 包括端口管理、事件处理、生命周期管理等核心功能
+	/// </summary>
 	[Serializable]
 	public abstract class BaseNode
 	{
+		/// <summary>
+		/// 节点的自定义名称
+		/// 当用户重命名节点时存储的自定义名称
+		/// </summary>
 		[SerializeField]
-		internal string nodeCustomName = null; // 节点在用户重命名情况下的名称
+		internal string nodeCustomName = null;
 
 		/// <summary>
 		/// 节点的名称，将显示在标题部分
+		/// 默认返回类型名称，子类可以重写此属性
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>节点显示名称</returns>
 		public virtual string       name => GetType().Name;
 		
 		/// <summary>
 		/// 节点的强调色
+		/// 用于在图形视图中突出显示节点
 		/// </summary>
 		public virtual Color color => Color.clear;
 		
 		/// <summary>
-		/// 为节点设置自定义uss文件。我们使用Resources.Load来获取样式表，所以请确保放置正确的资源路径
+		/// 为节点设置自定义USS文件路径
+		/// 使用Resources.Load来获取样式表，请确保放置正确的资源路径
 		/// https://docs.unity3d.com/ScriptReference/Resources.Load.html
 		/// </summary>
         public virtual string       layoutStyle => string.Empty;
 
 		/// <summary>
 		/// 节点是否可以锁定
+		/// 控制节点是否可以被锁定以防止移动
 		/// </summary>
         public virtual bool         unlockable => true; 
 
@@ -44,65 +72,104 @@ namespace GraphProcessor
 		/// </summary>
         public virtual bool         isLocked => nodeLock; 
 
-        //id
+        /// <summary>
+        /// 节点的唯一标识符
+        /// </summary>
         public string				GUID;
 
+		/// <summary>
+		/// 节点的计算顺序
+		/// 用于确定节点在图形中的执行顺序，-1表示未设置
+		/// </summary>
 		public int					computeOrder = -1;
 
-		/// <summary>告诉节点是否可以处理。不要检查输入的任何内容，因为此步骤发生在输入发送到节点之前</summary>
+		/// <summary>
+		/// 告诉节点是否可以处理
+		/// 不要检查输入的任何内容，因为此步骤发生在输入发送到节点之前
+		/// </summary>
 		public virtual bool			canProcess => true;
 
-		/// <summary>仅当鼠标悬停在节点上时显示节点控制容器</summary>
+		/// <summary>
+		/// 仅当鼠标悬停在节点上时显示节点控制容器
+		/// 用于控制节点UI的显示行为
+		/// </summary>
 		public virtual bool			showControlsOnHover => false;
 
-		/// <summary>如果节点可以删除则为true，否则为false</summary>
+		/// <summary>
+		/// 如果节点可以删除则为true，否则为false
+		/// 控制节点是否可以被用户删除
+		/// </summary>
 		public virtual bool			deletable => true;
 
 		/// <summary>
 		/// 输入端口容器
+		/// 管理节点的所有输入端口
 		/// </summary>
 		[NonSerialized]
 		public readonly NodeInputPortContainer	inputPorts;
+		
 		/// <summary>
 		/// 输出端口容器
+		/// 管理节点的所有输出端口
 		/// </summary>
 		[NonSerialized]
 		public readonly NodeOutputPortContainer	outputPorts;
 
-		//节点视图数据
+		/// <summary>
+		/// 节点在图形中的位置
+		/// </summary>
 		public Rect					position;
+		
 		/// <summary>
 		/// 节点是否展开
+		/// 控制节点在UI中的展开/折叠状态
 		/// </summary>
 		public bool					expanded;
+		
 		/// <summary>
-		/// 调试是否可见
+		/// 调试信息是否可见
+		/// 控制是否显示节点的调试信息
 		/// </summary>
 		public bool					debug;
+		
 		/// <summary>
 		/// 节点锁定状态
+		/// 控制节点是否被锁定
 		/// </summary>
         public bool                 nodeLock;
 
+        /// <summary>
+        /// 处理委托类型
+        /// </summary>
         public delegate void		ProcessDelegate();
 
 		/// <summary>
-		/// 当节点被处理时触发
+		/// 当节点被处理时触发的事件
 		/// </summary>
 		public event ProcessDelegate	onProcessed;
-		public event Action< string, NodeMessageType >	onMessageAdded;
-		public event Action< string >					onMessageRemoved;
+		
 		/// <summary>
-		/// 在节点上连接边后触发
+		/// 当添加消息时触发的事件
+		/// </summary>
+		public event Action< string, NodeMessageType >	onMessageAdded;
+		
+		/// <summary>
+		/// 当移除消息时触发的事件
+		/// </summary>
+		public event Action< string >					onMessageRemoved;
+		
+		/// <summary>
+		/// 在节点上连接边后触发的事件
 		/// </summary>
 		public event Action< SerializableEdge >			onAfterEdgeConnected;
+		
 		/// <summary>
-		/// 在节点上断开边后触发
+		/// 在节点上断开边后触发的事件
 		/// </summary>
 		public event Action< SerializableEdge >			onAfterEdgeDisconnected;
-
+		
 		/// <summary>
-		/// Triggered after a single/list of port(s) is updated, the parameter is the field name
+		/// 当端口更新时触发的事件
 		/// </summary>
 		public event Action< string >					onPortsUpdated;
 

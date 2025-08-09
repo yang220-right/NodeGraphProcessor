@@ -9,50 +9,148 @@ using UnityEditor.Experimental.GraphView;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 节点提供者类
+	/// 静态工具类，负责管理节点的注册、发现和创建
+	/// 提供节点菜单、脚本缓存和端口描述等功能
+	/// </summary>
 	public static class NodeProvider
 	{
+		/// <summary>
+		/// 端口描述结构体
+		/// 描述节点的端口信息，用于边创建和端口连接
+		/// </summary>
 		public struct PortDescription
 		{
+			/// <summary>
+			/// 节点类型
+			/// </summary>
 			public Type nodeType;
+			
+			/// <summary>
+			/// 端口类型
+			/// </summary>
 			public Type portType;
+			
+			/// <summary>
+			/// 是否为输入端口
+			/// </summary>
 			public bool isInput;
+			
+			/// <summary>
+			/// 端口字段名
+			/// </summary>
 			public string portFieldName;
+			
+			/// <summary>
+			/// 端口标识符
+			/// </summary>
 			public string portIdentifier;
+			
+			/// <summary>
+			/// 端口显示名称
+			/// </summary>
 			public string portDisplayName;
 		}
 
+		/// <summary>
+		/// 节点视图脚本缓存
+		/// 存储节点视图类型到MonoScript的映射
+		/// </summary>
 		static Dictionary< Type, MonoScript >	nodeViewScripts = new Dictionary< Type, MonoScript >();
+		
+		/// <summary>
+		/// 节点脚本缓存
+		/// 存储节点类型到MonoScript的映射
+		/// </summary>
 		static Dictionary< Type, MonoScript >	nodeScripts = new Dictionary< Type, MonoScript >();
+		
+		/// <summary>
+		/// 节点视图类型映射
+		/// 存储节点类型到节点视图类型的映射
+		/// </summary>
 		static Dictionary< Type, Type >			nodeViewPerType = new Dictionary< Type, Type >();
 
+		/// <summary>
+		/// 节点描述类
+		/// 包含特定图形的节点描述信息
+		/// </summary>
 		public class NodeDescriptions
 		{
+			/// <summary>
+			/// 菜单标题到节点类型的映射
+			/// </summary>
 			public Dictionary< string, Type >		nodePerMenuTitle = new Dictionary< string, Type >();
+			
+			/// <summary>
+			/// 槽位类型列表
+			/// </summary>
 			public List< Type >						slotTypes = new List< Type >();
+			
+			/// <summary>
+			/// 节点创建端口描述列表
+			/// </summary>
 			public List< PortDescription >			nodeCreatePortDescription = new List<PortDescription>();
 		}
 
+		/// <summary>
+		/// 特定图形节点结构体
+		/// 描述特定于某个图形类型的节点信息
+		/// </summary>
 		public struct NodeSpecificToGraph
 		{
+			/// <summary>
+			/// 节点类型
+			/// </summary>
 			public Type				nodeType;
+			
+			/// <summary>
+			/// 图形兼容性检查方法列表
+			/// </summary>
 			public List<MethodInfo>	isCompatibleWithGraph;
+			
+			/// <summary>
+			/// 兼容的图形类型
+			/// </summary>
 			public Type				compatibleWithGraphType;
 		} 
 
+		/// <summary>
+		/// 特定图形节点描述缓存
+		/// 存储每个图形的特定节点描述
+		/// </summary>
 		static Dictionary<BaseGraph, NodeDescriptions>	specificNodeDescriptions = new Dictionary<BaseGraph, NodeDescriptions>();
+		
+		/// <summary>
+		/// 特定节点列表
+		/// 存储所有特定于图形的节点信息
+		/// </summary>
 		static List<NodeSpecificToGraph>				specificNodes = new List<NodeSpecificToGraph>();
 
+		/// <summary>
+		/// 通用节点描述
+		/// 存储不特定于任何图形的通用节点信息
+		/// </summary>
 		static NodeDescriptions							genericNodes = new NodeDescriptions();
 
+		/// <summary>
+		/// 静态构造函数
+		/// 初始化节点提供者，构建脚本缓存和通用节点缓存
+		/// </summary>
 		static NodeProvider()
 		{
 			BuildScriptCache();
 			BuildGenericNodeCache();
 		}
 
+		/// <summary>
+		/// 加载图形
+		/// 为指定图形构建节点描述缓存
+		/// </summary>
+		/// <param name="graph">要加载的图形</param>
 		public static void LoadGraph(BaseGraph graph)
 		{
-			// Clear old graph data in case there was some
+			// 清除旧的图形数据
 			specificNodeDescriptions.Remove(graph);
 			var descriptions = new NodeDescriptions();
 			specificNodeDescriptions.Add(graph, descriptions);
@@ -73,11 +171,20 @@ namespace GraphProcessor
 			}
 		}
 
+		/// <summary>
+		/// 卸载图形
+		/// 从缓存中移除指定图形的节点描述
+		/// </summary>
+		/// <param name="graph">要卸载的图形</param>
 		public static void UnloadGraph(BaseGraph graph)
 		{
 			specificNodeDescriptions.Remove(graph);
 		}
 
+		/// <summary>
+		/// 构建通用节点缓存
+		/// 扫描所有继承自BaseNode的类型并构建缓存
+		/// </summary>
 		static void BuildGenericNodeCache()
 		{
 			foreach (var nodeType in TypeCache.GetTypesDerivedFrom<BaseNode>())
@@ -92,6 +199,13 @@ namespace GraphProcessor
 			}
 		}
 
+		/// <summary>
+		/// 为节点构建缓存
+		/// 处理单个节点的缓存构建逻辑
+		/// </summary>
+		/// <param name="nodeType">节点类型</param>
+		/// <param name="targetDescription">目标描述对象</param>
+		/// <param name="graph">图形对象（可选）</param>
 		static void BuildCacheForNode(Type nodeType, NodeDescriptions targetDescription, BaseGraph graph = null)
 		{
 			var attrs = nodeType.GetCustomAttributes(typeof(NodeMenuItemAttribute), false) as NodeMenuItemAttribute[];

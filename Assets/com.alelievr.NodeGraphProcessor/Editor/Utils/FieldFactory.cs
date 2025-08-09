@@ -10,15 +10,33 @@ using System.Globalization;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 字段工厂类（已过时）
+	/// 用于创建UI字段的工厂类，现在可以直接使用SerializedProperty替代
+	/// 提供类型到UI字段的映射和创建功能
+	/// </summary>
 	[Obsolete("Field Factory is not necessary anymore. You can use a SerializedProperty directly instead.")]
 	public static class FieldFactory
 	{
+		/// <summary>
+		/// 字段绘制器映射
+		/// 存储类型到对应UI字段类型的映射
+		/// </summary>
 		static readonly Dictionary< Type, Type >    fieldDrawers = new Dictionary< Type, Type >();
 
+		/// <summary>
+		/// 创建字段方法信息
+		/// 通过反射获取CreateFieldSpecific方法的MethodInfo
+		/// </summary>
 		static readonly MethodInfo	        		createFieldMethod = typeof(FieldFactory).GetMethod("CreateFieldSpecific", BindingFlags.Static | BindingFlags.Public);
 
+		/// <summary>
+		/// 静态构造函数
+		/// 初始化字段工厂，注册所有字段绘制器
+		/// </summary>
 		static FieldFactory()
 		{
+			// 扫描所有类型，查找带有FieldDrawerAttribute的类型
 			foreach (var type in AppDomain.CurrentDomain.GetAllTypes())
 			{
 				var drawerAttribute = type.GetCustomAttributes(typeof(FieldDrawerAttribute), false).FirstOrDefault() as FieldDrawerAttribute;
@@ -29,7 +47,7 @@ namespace GraphProcessor
 				AddDrawer(drawerAttribute.fieldType, type);
 			}
 
-			// щ(ºДºщ) ...
+			// 注册内置类型的字段绘制器
             AddDrawer(typeof(bool), typeof(Toggle));
             AddDrawer(typeof(int), typeof(IntegerField));
             AddDrawer(typeof(long), typeof(LongField));
@@ -50,6 +68,12 @@ namespace GraphProcessor
 			AddDrawer(typeof(Rect), typeof(RectField));
 		}
 
+		/// <summary>
+		/// 添加绘制器
+		/// 将字段类型和对应的UI字段类型添加到映射中
+		/// </summary>
+		/// <param name="fieldType">字段类型</param>
+		/// <param name="drawerType">绘制器类型</param>
 		static void AddDrawer(Type fieldType, Type drawerType)
 		{
 			var iNotifyType = typeof(INotifyValueChanged<>).MakeGenericType(fieldType);
@@ -63,17 +87,34 @@ namespace GraphProcessor
 			fieldDrawers[fieldType] = drawerType;
 		}
 
+		/// <summary>
+		/// 创建泛型字段
+		/// 为指定类型创建UI字段
+		/// </summary>
+		/// <typeparam name="T">字段类型</typeparam>
+		/// <param name="value">字段值</param>
+		/// <param name="label">字段标签</param>
+		/// <returns>创建的UI字段</returns>
 		public static INotifyValueChanged< T > CreateField< T >(T value, string label = null)
 		{
 			return CreateField(value != null ? value.GetType() : typeof(T), label) as INotifyValueChanged< T >;
 		}
 
+		/// <summary>
+		/// 创建字段
+		/// 根据类型创建对应的UI字段
+		/// </summary>
+		/// <param name="t">字段类型</param>
+		/// <param name="label">字段标签</param>
+		/// <returns>创建的UI字段</returns>
 		public static VisualElement CreateField(Type t, string label)
 		{
 			Type drawerType;
 
+			// 尝试直接查找类型映射
 			fieldDrawers.TryGetValue(t, out drawerType);
 
+			// 如果没有直接匹配，尝试查找可分配的类型
 			if (drawerType == null)
 				drawerType = fieldDrawers.FirstOrDefault(kp => kp.Key.IsReallyAssignableFrom(t)).Value;
 
@@ -83,7 +124,7 @@ namespace GraphProcessor
 				return null;
 			}
 
-			// Call the constructor that have a label
+			// 调用带标签的构造函数
 			object field;
 			
 			if (drawerType == typeof(EnumField))

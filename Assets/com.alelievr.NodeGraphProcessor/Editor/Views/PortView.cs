@@ -8,28 +8,99 @@ using System.Reflection;
 
 namespace GraphProcessor
 {
+	/// <summary>
+	/// 端口视图类
+	/// 继承自Unity的Port类，提供图形中端口的可视化表示
+	/// 负责端口的显示、连接管理和用户交互
+	/// </summary>
 	public class PortView : Port
 	{
+		/// <summary>
+		/// 字段名称
+		/// 端口对应的字段名
+		/// </summary>
 		public string				fieldName => fieldInfo.Name;
+		
+		/// <summary>
+		/// 字段类型
+		/// 端口对应的字段类型
+		/// </summary>
 		public Type					fieldType => fieldInfo.FieldType;
+		
+		/// <summary>
+		/// 端口类型
+		/// 端口的显示类型，可能与字段类型不同
+		/// </summary>
 		public new Type				portType;
+        
+		/// <summary>
+		/// 端口所有者
+		/// 拥有此端口的节点视图
+		/// </summary>
         public BaseNodeView     	owner { get; private set; }
+		
+		/// <summary>
+		/// 端口数据
+		/// 包含端口的配置和显示信息
+		/// </summary>
 		public PortData				portData;
 
+		/// <summary>
+		/// 端口连接事件
+		/// 当端口被连接时触发
+		/// </summary>
 		public event Action< PortView, Edge >	OnConnected;
+		
+		/// <summary>
+		/// 端口断开连接事件
+		/// 当端口断开连接时触发
+		/// </summary>
 		public event Action< PortView, Edge >	OnDisconnected;
 
+		/// <summary>
+		/// 字段信息
+		/// 通过反射获取的字段信息
+		/// </summary>
 		protected FieldInfo		fieldInfo;
+		
+		/// <summary>
+		/// 边连接监听器
+		/// 处理边的连接和断开逻辑
+		/// </summary>
 		protected BaseEdgeConnectorListener	listener;
 
+		/// <summary>
+		/// 用户端口样式文件
+		/// 自定义端口样式的文件名
+		/// </summary>
 		string userPortStyleFile = "PortViewTypes";
 
+		/// <summary>
+		/// 连接的边列表
+		/// 存储与此端口连接的所有边
+		/// </summary>
 		List< EdgeView >		edges = new List< EdgeView >();
 
+		/// <summary>
+		/// 连接数量
+		/// 当前端口连接的边数量
+		/// </summary>
 		public int connectionCount => edges.Count;
 
+		/// <summary>
+		/// 端口样式表路径
+		/// 默认端口样式的路径
+		/// </summary>
 		readonly string portStyle = "GraphProcessorStyles/PortView";
 
+        /// <summary>
+        /// 端口视图构造函数
+        /// 创建新的端口视图实例
+        /// </summary>
+        /// <param name="direction">端口方向（输入/输出）</param>
+        /// <param name="fieldInfo">字段信息</param>
+        /// <param name="portData">端口数据</param>
+        /// <param name="edgeConnectorListener">边连接监听器</param>
         protected PortView(Direction direction, FieldInfo fieldInfo, PortData portData, BaseEdgeConnectorListener edgeConnectorListener)
             : base(portData.vertical ? Orientation.Vertical : Orientation.Horizontal, direction, Capacity.Multi, portData.displayType ?? fieldInfo.FieldType)
 		{
@@ -39,20 +110,32 @@ namespace GraphProcessor
 			this.portData = portData;
 			this.portName = fieldName;
 
+			// 添加默认样式表
 			styleSheets.Add(Resources.Load<StyleSheet>(portStyle));
 
 			UpdatePortSize();
 
+			// 添加用户自定义样式表
 			var userPortStyle = Resources.Load<StyleSheet>(userPortStyleFile);
 			if (userPortStyle != null)
 				styleSheets.Add(userPortStyle);
 			
+			// 如果是垂直端口，添加垂直样式类
 			if (portData.vertical)
 				AddToClassList("Vertical");
 			
 			this.tooltip = portData.tooltip;
 		}
 
+		/// <summary>
+		/// 创建端口视图
+		/// 静态工厂方法，创建并配置端口视图
+		/// </summary>
+		/// <param name="direction">端口方向</param>
+		/// <param name="fieldInfo">字段信息</param>
+		/// <param name="portData">端口数据</param>
+		/// <param name="edgeConnectorListener">边连接监听器</param>
+		/// <returns>配置好的端口视图</returns>
 		public static PortView CreatePortView(Direction direction, FieldInfo fieldInfo, PortData portData, BaseEdgeConnectorListener edgeConnectorListener)
 		{
 			var pv = new PortView(direction, fieldInfo, portData, edgeConnectorListener);
@@ -79,7 +162,8 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// 更新端口视图的大小（使用portData.sizeInPixel属性）
+		/// 更新端口视图的大小
+		/// 使用portData.sizeInPixel属性设置端口大小
 		/// </summary>
 		public void UpdatePortSize()
 		{
@@ -91,10 +175,16 @@ namespace GraphProcessor
 			cap.style.width = size - 4;
 			cap.style.height = size - 4;
 
-			// 更新连接的边大小：
+			// 更新连接的边大小
 			edges.ForEach(e => e.UpdateEdgeSize());
 		}
 
+		/// <summary>
+		/// 初始化端口视图
+		/// 设置端口的所有者节点视图
+		/// </summary>
+		/// <param name="nodeView">节点视图</param>
+		/// <param name="name">端口名称</param>
 		public virtual void Initialize(BaseNodeView nodeView, string name)
 		{
 			this.owner = nodeView;

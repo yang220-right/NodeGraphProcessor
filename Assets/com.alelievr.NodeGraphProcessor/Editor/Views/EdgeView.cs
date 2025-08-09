@@ -52,7 +52,7 @@ namespace GraphProcessor
 		{
 			if (e.clickCount == 2)
 			{
-				// Empirical offset:
+				// 经验偏移：
 				var position = e.mousePosition;
                 position += new Vector2(-10f, -28);
                 Vector2 mousePos = owner.ChangeCoordinatesTo(owner.contentViewContainer, position);

@@ -25,7 +25,7 @@ namespace GraphProcessor
 		[System.NonSerialized]
 		public NodePort outputPort;
 
-		//temporary object used to send port to port data when a custom input/output function is used.
+		//当使用自定义输入/输出函数时，用于在端口之间发送数据的临时对象。
 		[System.NonSerialized]
 		public object	passThroughBuffer;
 
@@ -35,7 +35,7 @@ namespace GraphProcessor
 		public string	inputFieldName;
 		public string	outputFieldName;
 
-		// Use to store the id of the field that generate multiple ports
+		// 用于存储生成多个端口的字段的id
 		public string	inputPortIdentifier;
 		public string	outputPortIdentifier;
 
@@ -70,7 +70,7 @@ namespace GraphProcessor
 
 		public void OnAfterDeserialize() {}
 
-		//here our owner have been deserialized
+		//这里我们的所有者已经被反序列化
 		public void Deserialize()
 		{
 			if (!owner.nodesPerGUID.ContainsKey(outputNodeGUID) || !owner.nodesPerGUID.ContainsKey(inputNodeGUID))

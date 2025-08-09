@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Custom editor of the node inspector, you can inherit from this class to customize your node inspector.
+    /// 节点检查器的自定义编辑器，您可以继承此类来自定义节点检查器。
     /// </summary>
     [CustomEditor(typeof(NodeInspectorObject))]
     public class NodeInspectorObjectEditor : Editor
@@ -67,19 +67,19 @@ namespace GraphProcessor
     }
 
     /// <summary>
-    /// Node inspector object, you can inherit from this class to customize your node inspector.
+    /// 节点检查器对象，您可以继承此类来自定义节点检查器。
     /// </summary>
     public class NodeInspectorObject : ScriptableObject
     {
-        /// <summary>Previously selected object by the inspector</summary>
+        /// <summary>检查器之前选择的对象</summary>
         public Object previouslySelectedObject;
-        /// <summary>List of currently selected nodes</summary>
+        /// <summary>当前选择的节点列表</summary>
         public HashSet<BaseNodeView> selectedNodes { get; private set; } = new HashSet<BaseNodeView>();
 
-        /// <summary>Triggered when the selection is updated</summary>
+        /// <summary>当选择更新时触发</summary>
         public event Action nodeSelectionUpdated;
 
-        /// <summary>Updates the selection from the graph</summary>
+        /// <summary>从图形更新选择</summary>
         public virtual void UpdateSelectedNodes(HashSet<BaseNodeView> views)
         {
             selectedNodes = views;

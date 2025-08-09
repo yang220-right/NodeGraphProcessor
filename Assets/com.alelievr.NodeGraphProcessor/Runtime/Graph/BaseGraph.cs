@@ -24,7 +24,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Compute order type used to determine the compute order integer on the nodes
+	/// 用于确定节点计算顺序整数的计算顺序类型
 	/// </summary>
 	public enum ComputeOrderType
 	{
@@ -37,13 +37,13 @@ namespace GraphProcessor
 	{
 		static readonly int			maxComputeOrderDepth = 1000;
 		
-		/// <summary>Invalid compute order number of a node when it's inside a loop</summary>
+		/// <summary>节点在循环内时的无效计算顺序号</summary>
 		public static readonly int loopComputeOrder = -2;
-		/// <summary>Invalid compute order number of a node can't process</summary>
+		/// <summary>无法处理的节点的无效计算顺序号</summary>
 		public static readonly int invalidComputeOrder = -1;
 
 		/// <summary>
-		/// Json list of serialized nodes only used for copy pasting in the editor. Note that this field isn't serialized
+		/// 仅用于编辑器中复制粘贴的序列化节点的Json列表。注意此字段不会被序列化
 		/// </summary>
 		/// <typeparam name="JsonElement"></typeparam>
 		/// <returns></returns>
@@ -51,7 +51,7 @@ namespace GraphProcessor
 		public List< JsonElement >						serializedNodes = new List< JsonElement >();
 
 		/// <summary>
-		/// List of all the nodes in the graph.
+		/// 图形中所有节点的列表。
 		/// </summary>
 		/// <typeparam name="BaseNode"></typeparam>
 		/// <returns></returns>
@@ -59,7 +59,7 @@ namespace GraphProcessor
 		public List< BaseNode >							nodes = new List< BaseNode >();
 
 		/// <summary>
-		/// Dictionary to access node per GUID, faster than a search in a list
+		/// 通过GUID访问节点的字典，比在列表中搜索更快
 		/// </summary>
 		/// <typeparam name="string"></typeparam>
 		/// <typeparam name="BaseNode"></typeparam>
@@ -68,14 +68,14 @@ namespace GraphProcessor
 		public Dictionary< string, BaseNode >			nodesPerGUID = new Dictionary< string, BaseNode >();
 
 		/// <summary>
-		/// Json list of edges
+		/// 边的Json列表
 		/// </summary>
 		/// <typeparam name="SerializableEdge"></typeparam>
 		/// <returns></returns>
 		[SerializeField]
 		public List< SerializableEdge >					edges = new List< SerializableEdge >();
 		/// <summary>
-		/// Dictionary of edges per GUID, faster than a search in a list
+		/// 通过GUID访问边的字典，比在列表中搜索更快
 		/// </summary>
 		/// <typeparam name="string"></typeparam>
 		/// <typeparam name="SerializableEdge"></typeparam>
@@ -84,7 +84,7 @@ namespace GraphProcessor
 		public Dictionary< string, SerializableEdge >	edgesPerGUID = new Dictionary< string, SerializableEdge >();
 
 		/// <summary>
-		/// All groups in the graph
+		/// 图形中的所有组
 		/// </summary>
 		/// <typeparam name="Group"></typeparam>
 		/// <returns></returns>
@@ -92,15 +92,15 @@ namespace GraphProcessor
         public List< Group >                     		groups = new List< Group >();
 
 		/// <summary>
-		/// All Stack Nodes in the graph
+		/// 图形中的所有堆栈节点
 		/// </summary>
 		/// <typeparam name="stackNodes"></typeparam>
 		/// <returns></returns>
-		[SerializeField, SerializeReference] // Polymorphic serialization
+		[SerializeField, SerializeReference] // 多态序列化
 		public List< BaseStackNode >					stackNodes = new List< BaseStackNode >();
 
 		/// <summary>
-		/// All pinned elements in the graph
+		/// 图形中的所有固定元素
 		/// </summary>
 		/// <typeparam name="PinnedElement"></typeparam>
 		/// <returns></returns>
@@ -108,14 +108,14 @@ namespace GraphProcessor
 		public List< PinnedElement >					pinnedElements = new List< PinnedElement >();
 
 		/// <summary>
-		/// All exposed parameters in the graph
+		/// 图形中的所有暴露参数
 		/// </summary>
 		/// <typeparam name="ExposedParameter"></typeparam>
 		/// <returns></returns>
 		[SerializeField, SerializeReference]
 		public List< ExposedParameter >					exposedParameters = new List< ExposedParameter >();
 
-		[SerializeField, FormerlySerializedAs("exposedParameters")] // We keep this for upgrade
+		[SerializeField, FormerlySerializedAs("exposedParameters")] // 我们保留这个用于升级
 		List< ExposedParameter >						serializedParameterList = new List<ExposedParameter>();
 
 		[SerializeField]
@@ -127,33 +127,33 @@ namespace GraphProcessor
 		[NonSerialized]
 		Scene							linkedScene;
 
-		// Trick to keep the node inspector alive during the editor session
+		// 在编辑器会话期间保持节点检查器活跃的技巧
 		[SerializeField]
 		internal UnityEngine.Object		nodeInspectorReference;
 
-		//graph visual properties
+		//图形视觉属性
 		public Vector3					position = Vector3.zero;
 		public Vector3					scale = Vector3.one;
 
 		/// <summary>
-		/// Triggered when something is changed in the list of exposed parameters
+		/// 当暴露参数列表中的某些内容发生变化时触发
 		/// </summary>
 		public event Action						onExposedParameterListChanged;
 		public event Action< ExposedParameter >	onExposedParameterModified;
 		public event Action< ExposedParameter >	onExposedParameterValueChanged;
 
 		/// <summary>
-		/// Triggered when the graph is linked to an active scene.
+		/// 当图形链接到活动场景时触发。
 		/// </summary>
 		public event Action< Scene >			onSceneLinked;
 
 		/// <summary>
-		/// Triggered when the graph is enabled
+		/// 当图形启用时触发
 		/// </summary>
 		public event Action				onEnabled;
 
 		/// <summary>
-		/// Triggered when the graph is changed
+		/// 当图形发生变化时触发
 		/// </summary>
 		public event Action< GraphChanges > onGraphChanges;
 
@@ -178,8 +178,8 @@ namespace GraphProcessor
 
 		void InitializeGraphElements()
 		{
-			// Sanitize the element lists (it's possible that nodes are null if their full class name have changed)
-			// If you rename / change the assembly of a node or parameter, please use the MovedFrom() attribute to avoid breaking the graph.
+			// 清理元素列表（如果节点的完整类名已更改，节点可能为null）
+			// 如果您重命名/更改节点或参数的程序集，请使用MovedFrom()属性以避免破坏图形。
 			nodes.RemoveAll(n => n == null);
 			exposedParameters.RemoveAll(e => e == null);
 
@@ -194,14 +194,14 @@ namespace GraphProcessor
 				edge.Deserialize();
 				edgesPerGUID[edge.GUID] = edge;
 
-				// Sanity check for the edge:
+				// 边的完整性检查：
 				if (edge.inputPort == null || edge.outputPort == null)
 				{
 					Disconnect(edge.GUID);
 					continue;
 				}
 
-				// Add the edge to the non-serialized port data
+				// 将边添加到非序列化的端口数据
 				edge.inputPort.owner.OnEdgeConnected(edge);
 				edge.outputPort.owner.OnEdgeConnected(edge);
 			}
@@ -217,7 +217,7 @@ namespace GraphProcessor
 		public virtual void OnAssetDeleted() {}
 
 		/// <summary>
-		/// Adds a node to the graph
+		/// 向图形添加节点
 		/// </summary>
 		/// <param name="node"></param>
 		/// <returns></returns>
@@ -234,7 +234,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Removes a node from the graph
+		/// 从图形中移除节点
 		/// </summary>
 		/// <param name="node"></param>
 		public void RemoveNode(BaseNode node)
@@ -250,38 +250,38 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Connect two ports with an edge
+		/// 用边连接两个端口
 		/// </summary>
-		/// <param name="inputPort">input port</param>
-		/// <param name="outputPort">output port</param>
-		/// <param name="DisconnectInputs">is the edge allowed to disconnect another edge</param>
-		/// <returns>the connecting edge</returns>
+		/// <param name="inputPort">输入端口</param>
+		/// <param name="outputPort">输出端口</param>
+		/// <param name="DisconnectInputs">边是否允许断开另一个边</param>
+		/// <returns>连接的边</returns>
 		public SerializableEdge Connect(NodePort inputPort, NodePort outputPort, bool autoDisconnectInputs = true)
 		{
 			var edge = SerializableEdge.CreateNewEdge(this, inputPort, outputPort);
 			
-			//If the input port does not support multi-connection, we remove them
+			//如果输入端口不支持多连接，我们移除它们
 			if (autoDisconnectInputs && !inputPort.portData.acceptMultipleEdges)
 			{
 				foreach (var e in inputPort.GetEdges().ToList())
 				{
-					// TODO: do not disconnect them if the connected port is the same than the old connected
+					// TODO: 如果连接的端口与旧连接的端口相同，则不要断开它们
 					Disconnect(e);
 				}
 			}
-			// same for the output port:
+			// 对输出端口也是如此：
 			if (autoDisconnectInputs && !outputPort.portData.acceptMultipleEdges)
 			{
 				foreach (var e in outputPort.GetEdges().ToList())
 				{
-					// TODO: do not disconnect them if the connected port is the same than the old connected
+					// TODO: 如果连接的端口与旧连接的端口相同，则不要断开它们
 					Disconnect(e);
 				}
 			}
 
 			edges.Add(edge);
 			
-			// Add the edge to the list of connected edges in the nodes
+			// 将边添加到节点的连接边列表中
 			inputPort.owner.OnEdgeConnected(edge);
 			outputPort.owner.OnEdgeConnected(edge);
 
@@ -291,12 +291,12 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Disconnect two ports
+		/// 断开两个端口
 		/// </summary>
-		/// <param name="inputNode">input node</param>
-		/// <param name="inputFieldName">input field name</param>
-		/// <param name="outputNode">output node</param>
-		/// <param name="outputFieldName">output field name</param>
+		/// <param name="inputNode">输入节点</param>
+		/// <param name="inputFieldName">输入字段名</param>
+		/// <param name="outputNode">输出节点</param>
+		/// <param name="outputFieldName">输出字段名</param>
 		public void Disconnect(BaseNode inputNode, string inputFieldName, BaseNode outputNode, string outputFieldName)
 		{
 			edges.RemoveAll(r => {
@@ -317,13 +317,13 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Disconnect an edge
+		/// 断开边
 		/// </summary>
 		/// <param name="edge"></param>
 		public void Disconnect(SerializableEdge edge) => Disconnect(edge.GUID);
 
 		/// <summary>
-		/// Disconnect an edge
+		/// 断开边
 		/// </summary>
 		/// <param name="edgeGUID"></param>
 		public void Disconnect(string edgeGUID)
@@ -340,13 +340,13 @@ namespace GraphProcessor
 				return r.GUID == edgeGUID;
 			});
 
-			// Delay the edge disconnect event to avoid recursion
+			// 延迟边断开事件以避免递归
 			foreach (var (node, edge) in disconnectEvents)
 				node?.OnEdgeDisconnected(edge);
 		}
 
 		/// <summary>
-		/// Add a group
+		/// 添加组
 		/// </summary>
 		/// <param name="block"></param>
         public void AddGroup(Group block)
@@ -356,7 +356,7 @@ namespace GraphProcessor
         }
 
 		/// <summary>
-		/// Removes a group
+		/// 移除组
 		/// </summary>
 		/// <param name="block"></param>
         public void RemoveGroup(Group block)
@@ -366,7 +366,7 @@ namespace GraphProcessor
         }
 
 		/// <summary>
-		/// Add a StackNode
+		/// 添加堆栈节点
 		/// </summary>
 		/// <param name="stackNode"></param>
 		public void AddStackNode(BaseStackNode stackNode)
@@ -376,7 +376,7 @@ namespace GraphProcessor
 		}
 		
 		/// <summary>
-		/// Remove a StackNode
+		/// 移除堆栈节点
 		/// </summary>
 		/// <param name="stackNode"></param>
 		public void RemoveStackNode(BaseStackNode stackNode)
@@ -386,7 +386,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Add a sticky note 
+		/// 添加便签
 		/// </summary>
 		/// <param name="note"></param>
         public void AddStickyNote(StickyNote note)
@@ -396,7 +396,7 @@ namespace GraphProcessor
         }
 
 		/// <summary>
-		/// Removes a sticky note 
+		/// 移除便签
 		/// </summary>
 		/// <param name="note"></param>
         public void RemoveStickyNote(StickyNote note)
@@ -406,16 +406,16 @@ namespace GraphProcessor
         }
 
 		/// <summary>
-		/// Invoke the onGraphChanges event, can be used as trigger to execute the graph when the content of a node is changed 
+		/// 调用onGraphChanges事件，当节点内容发生变化时可用作执行图形的触发器
 		/// </summary>
 		/// <param name="node"></param>
 		public void NotifyNodeChanged(BaseNode node) => onGraphChanges?.Invoke(new GraphChanges { nodeChanged = node });
 
 		/// <summary>
-		/// Open a pinned element of type viewType
+		/// 打开类型为viewType的固定元素
 		/// </summary>
-		/// <param name="viewType">type of the pinned element</param>
-		/// <returns>the pinned element</returns>
+		/// <param name="viewType">固定元素的类型</param>
+		/// <returns>固定元素</returns>
 		public PinnedElement OpenPinned(Type viewType)
 		{
 			var pinned = pinnedElements.Find(p => p.editorType.type == viewType);
@@ -432,9 +432,9 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Closes a pinned element of type viewType
+		/// 关闭类型为viewType的固定元素
 		/// </summary>
-		/// <param name="viewType">type of the pinned element</param>
+		/// <param name="viewType">固定元素的类型</param>
 		public void ClosePinned(Type viewType)
 		{
 			var pinned = pinnedElements.Find(p => p.editorType.type == viewType);
@@ -444,16 +444,16 @@ namespace GraphProcessor
 
 		public void OnBeforeSerialize()
 		{
-			// Cleanup broken elements
+			// 清理损坏的元素
 			stackNodes.RemoveAll(s => s == null);
 			nodes.RemoveAll(n => n == null);
 		}
 
-		// We can deserialize data here because it's called in a unity context
-		// so we can load objects references
+		// 我们可以在这里反序列化数据，因为它是在unity上下文中调用的
+		// 所以我们可以加载对象引用
 		public void Deserialize()
 		{
-			// Disable nodes correctly before removing them:
+			// 在移除节点之前正确禁用它们：
 			if (nodes != null)
 			{
 				foreach (var node in nodes)
@@ -468,7 +468,7 @@ namespace GraphProcessor
 		public void MigrateGraphIfNeeded()
 		{
 #pragma warning disable CS0618
-			// Migration step from JSON serialized nodes to [SerializeReference]
+			// 从JSON序列化节点到[SerializeReference]的迁移步骤
 			if (serializedNodes.Count > 0)
 			{
 				nodes.Clear();
@@ -480,7 +480,7 @@ namespace GraphProcessor
 				}
 				serializedNodes.Clear();
 
-				// we also migrate parameters here:
+				// 我们在这里也迁移参数：
 				var paramsToMigrate = serializedParameterList.ToList();
 				exposedParameters.Clear();
 				foreach (var param in paramsToMigrate)
@@ -505,15 +505,15 @@ namespace GraphProcessor
 		public void OnAfterDeserialize() {}
 
 		/// <summary>
-		/// Update the compute order of the nodes in the graph
+		/// 更新图形中节点的计算顺序
 		/// </summary>
-		/// <param name="type">Compute order type</param>
+		/// <param name="type">计算顺序类型</param>
 		public void UpdateComputeOrder(ComputeOrderType type = ComputeOrderType.DepthFirst)
 		{
 			if (nodes.Count == 0)
 				return ;
 
-			// Find graph outputs (end nodes) and reset compute order
+			// 查找图形输出（结束节点）并重置计算顺序
 			graphOutputs.Clear();
 			foreach (var node in nodes)
 			{
@@ -539,12 +539,12 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Add an exposed parameter
+		/// 添加暴露参数
 		/// </summary>
-		/// <param name="name">parameter name</param>
-		/// <param name="type">parameter type (must be a subclass of ExposedParameter)</param>
-		/// <param name="value">default value</param>
-		/// <returns>The unique id of the parameter</returns>
+		/// <param name="name">参数名称</param>
+		/// <param name="type">参数类型（必须是ExposedParameter的子类）</param>
+		/// <param name="value">默认值</param>
+		/// <returns>参数的唯一id</returns>
 		public string AddExposedParameter(string name, Type type, object value = null)
 		{
 
@@ -555,7 +555,7 @@ namespace GraphProcessor
 
 			var param = Activator.CreateInstance(type) as ExposedParameter;
 
-			// patch value with correct type:
+			// 用正确的类型修补值：
 			if (param.GetValueType().IsValueType)
 				value = Activator.CreateInstance(param.GetValueType());
 			
@@ -568,13 +568,13 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Add an already allocated / initialized parameter to the graph
+		/// 向图形添加已分配/初始化的参数
 		/// </summary>
-		/// <param name="parameter">The parameter to add</param>
-		/// <returns>The unique id of the parameter</returns>
+		/// <param name="parameter">要添加的参数</param>
+		/// <returns>参数的唯一id</returns>
 		public string AddExposedParameter(ExposedParameter parameter)
 		{
-			string guid = Guid.NewGuid().ToString(); // Generated once and unique per parameter
+			string guid = Guid.NewGuid().ToString(); // 每个参数生成一次且唯一
 
 			parameter.guid = guid;
 			exposedParameters.Add(parameter);
@@ -585,9 +585,9 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Remove an exposed parameter
+		/// 移除暴露参数
 		/// </summary>
-		/// <param name="ep">the parameter to remove</param>
+		/// <param name="ep">要移除的参数</param>
 		public void RemoveExposedParameter(ExposedParameter ep)
 		{
 			exposedParameters.Remove(ep);
@@ -596,9 +596,9 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Remove an exposed parameter
+		/// 移除暴露参数
 		/// </summary>
-		/// <param name="guid">GUID of the parameter</param>
+		/// <param name="guid">参数的GUID</param>
 		public void RemoveExposedParameter(string guid)
 		{
 			if (exposedParameters.RemoveAll(e => e.guid == guid) != 0)
@@ -609,10 +609,10 @@ namespace GraphProcessor
 			=> onExposedParameterListChanged?.Invoke();
 
 		/// <summary>
-		/// Update an exposed parameter value
+		/// 更新暴露参数值
 		/// </summary>
-		/// <param name="guid">GUID of the parameter</param>
-		/// <param name="value">new value</param>
+		/// <param name="guid">参数的GUID</param>
+		/// <param name="value">新值</param>
 		public void UpdateExposedParameter(string guid, object value)
 		{
 			var param = exposedParameters.Find(e => e.guid == guid);
@@ -627,10 +627,10 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Update the exposed parameter name
+		/// 更新暴露参数名称
 		/// </summary>
-		/// <param name="parameter">The parameter</param>
-		/// <param name="name">new name</param>
+		/// <param name="parameter">参数</param>
+		/// <param name="name">新名称</param>
 		public void UpdateExposedParameterName(ExposedParameter parameter, string name)
 		{
 			parameter.name = name;
@@ -638,10 +638,10 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Update parameter visibility
+		/// 更新参数可见性
 		/// </summary>
-		/// <param name="parameter">The parameter</param>
-		/// <param name="isHidden">is Hidden</param>
+		/// <param name="parameter">参数</param>
+		/// <param name="isHidden">是否隐藏</param>
 		public void NotifyExposedParameterChanged(ExposedParameter parameter)
 		{
 			onExposedParameterModified?.Invoke(parameter);
@@ -653,31 +653,31 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Get the exposed parameter from name
+		/// 从名称获取暴露参数
 		/// </summary>
-		/// <param name="name">name</param>
-		/// <returns>the parameter or null</returns>
+		/// <param name="name">名称</param>
+		/// <returns>参数或null</returns>
 		public ExposedParameter GetExposedParameter(string name)
 		{
 			return exposedParameters.FirstOrDefault(e => e.name == name);
 		}
 
 		/// <summary>
-		/// Get exposed parameter from GUID
+		/// 从GUID获取暴露参数
 		/// </summary>
-		/// <param name="guid">GUID of the parameter</param>
-		/// <returns>The parameter</returns>
+		/// <param name="guid">参数的GUID</param>
+		/// <returns>参数</returns>
 		public ExposedParameter GetExposedParameterFromGUID(string guid)
 		{
 			return exposedParameters.FirstOrDefault(e => e?.guid == guid);
 		}
 
 		/// <summary>
-		/// Set parameter value from name. (Warning: the parameter name can be changed by the user)
+		/// 从名称设置参数值。（警告：参数名称可以被用户更改）
 		/// </summary>
-		/// <param name="name">name of the parameter</param>
-		/// <param name="value">new value</param>
-		/// <returns>true if the value have been assigned</returns>
+		/// <param name="name">参数名称</param>
+		/// <param name="value">新值</param>
+		/// <returns>如果值已被分配则为true</returns>
 		public bool SetParameterValue(string name, object value)
 		{
 			var e = exposedParameters.FirstOrDefault(p => p.name == name);
@@ -691,24 +691,24 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Get the parameter value
+		/// 获取参数值
 		/// </summary>
-		/// <param name="name">parameter name</param>
-		/// <returns>value</returns>
+		/// <param name="name">参数名称</param>
+		/// <returns>值</returns>
 		public object GetParameterValue(string name) => exposedParameters.FirstOrDefault(p => p.name == name)?.value;
 
 		/// <summary>
-		/// Get the parameter value template
+		/// 获取参数值模板
 		/// </summary>
-		/// <param name="name">parameter name</param>
-		/// <typeparam name="T">type of the parameter</typeparam>
-		/// <returns>value</returns>
+		/// <param name="name">参数名称</param>
+		/// <typeparam name="T">参数类型</typeparam>
+		/// <returns>值</returns>
 		public T GetParameterValue< T >(string name) => (T)GetParameterValue(name);
 
 		/// <summary>
-		/// Link the current graph to the scene in parameter, allowing the graph to pick and serialize objects from the scene.
+		/// 将当前图形链接到参数中的场景，允许图形从场景中选择和序列化对象。
 		/// </summary>
-		/// <param name="scene">Target scene to link</param>
+		/// <param name="scene">要链接的目标场景</param>
 		public void LinkToScene(Scene scene)
 		{
 			linkedScene = scene;
@@ -716,12 +716,12 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Return true when the graph is linked to a scene, false otherwise.
+		/// 当图形链接到场景时返回true，否则返回false。
 		/// </summary>
 		public bool IsLinkedToScene() => linkedScene.IsValid();
 
 		/// <summary>
-		/// Get the linked scene. If there is no linked scene, it returns an invalid scene
+		/// 获取链接的场景。如果没有链接的场景，则返回无效场景
 		/// </summary>
 		public Scene GetLinkedScene() => linkedScene;
 
@@ -821,7 +821,7 @@ namespace GraphProcessor
 		}
 		
 		/// <summary>
-		/// Tell if two types can be connected in the context of a graph
+		/// 判断在图形上下文中两个类型是否可以连接
 		/// </summary>
 		/// <param name="t1"></param>
 		/// <param name="t2"></param>
@@ -834,15 +834,15 @@ namespace GraphProcessor
 			if (TypeAdapter.AreIncompatible(t1, t2))
 				return false;
 
-			//Check if there is custom adapters for this assignation
+			//检查是否有用于此分配的自定义适配器
 			if (CustomPortIO.IsAssignable(t1, t2))
 				return true;
 
-			//Check for type assignability
+			//检查类型可分配性
 			if (t2.IsReallyAssignableFrom(t1))
 				return true;
 
-			// User defined type convertions
+			// 用户定义的类型转换
 			if (TypeAdapter.AreAssignable(t1, t2))
 				return true;
 

@@ -22,20 +22,20 @@ public class ForLoopNode : ConditionalNode
 
 	public override string		name => "ForLoop";
 
-	protected override void Process() => index++; // Implement all logic that affects the loop inner fields
+	protected override void Process() => index++; // 实现影响循环内部字段的所有逻辑
 
 	public override IEnumerable< ConditionalNode >	GetExecutedNodes() => throw new System.Exception("Do not use GetExecutedNoes in for loop to get it's dependencies");
 
 	public IEnumerable< ConditionalNode >	GetExecutedNodesLoopBody()
 	{
-		// Return all the nodes connected to the executes port
+		// 返回连接到executes端口的所有节点
 		return outputPorts.FirstOrDefault(n => n.fieldName == nameof(loopBody))
 			.GetEdges().Select(e => e.inputNode as ConditionalNode);
 	}
 
 	public IEnumerable< ConditionalNode >	GetExecutedNodesLoopCompleted()
 	{
-		// Return all the nodes connected to the executes port
+		// 返回连接到executes端口的所有节点
 		return outputPorts.FirstOrDefault(n => n.fieldName == nameof(loopCompleted))
 			.GetEdges().Select(e => e.inputNode as ConditionalNode);
 	}

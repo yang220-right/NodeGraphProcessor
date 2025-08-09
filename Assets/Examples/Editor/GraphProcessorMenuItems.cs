@@ -9,5 +9,5 @@ public class GraphProcessorMenuItems : NodeGraphProcessorMenuItems
 	[MenuItem("Assets/Create/Node View C# Script", false, MenuItemPosition.afterCreateScript + 1)]
 	private static void CreateNodeViewCSharpScritpt() => CreateDefaultNodeViewCSharpScritpt();
 
-	// To add your C# script creation with you own templates, use ProjectWindowUtil.CreateScriptAssetFromTemplateFile(templatePath, defaultFileName)
+	// 要使用您自己的模板添加C#脚本创建，请使用ProjectWindowUtil.CreateScriptAssetFromTemplateFile(templatePath, defaultFileName)
 }

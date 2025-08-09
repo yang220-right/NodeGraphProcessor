@@ -76,7 +76,7 @@ namespace GraphProcessor
 
 			if (!node.deletable)
 				capabilities &= ~Capabilities.Deletable;
-			// Note that the Renamable capability is useless right now as it haven't been implemented in Graphview
+			// 注意，可重命名功能目前无用，因为它尚未在Graphview中实现
 			if (node.isRenamable)
 				capabilities |= Capabilities.Renamable;
 
@@ -94,7 +94,7 @@ namespace GraphProcessor
 			InitializePorts();
 			InitializeDebug();
 
-			// If the standard Enable method is still overwritten, we call it
+			// 如果标准的Enable方法仍然被重写，我们调用它
 			if (GetType().GetMethod(nameof(Enable), new Type[]{}).DeclaringType != typeof(BaseNodeView))
 				ExceptionToLog.Call(() => Enable());
 			else
@@ -205,7 +205,7 @@ namespace GraphProcessor
 
 			void OpenTitleEditor()
 			{
-				// show title textbox
+				// 显示标题文本框
 				titleTextField.style.display = DisplayStyle.Flex;
 				titleLabel.style.display = DisplayStyle.None;
 				titleTextField.focusable = true;
@@ -220,7 +220,7 @@ namespace GraphProcessor
 				owner.RegisterCompleteObjectUndo("Renamed node " + newTitle);
 				nodeTarget.SetCustomName(newTitle);
 
-				// hide title TextBox
+				// 隐藏标题文本框
 				titleTextField.style.display = DisplayStyle.None;
 				titleLabel.style.display = DisplayStyle.Flex;
 				titleTextField.focusable = false;
@@ -236,14 +236,14 @@ namespace GraphProcessor
 
 		void InitializeSettings()
 		{
-			// Initialize settings button:
+			// 初始化设置按钮：
 			if (hasSettings)
 			{
 				CreateSettingButton();
 				settingsContainer = new NodeSettingsView();
 				settingsContainer.visible = false;
 				settings = new VisualElement();
-				// Add Node type specific settings
+				// 添加节点类型特定设置
 				settings.Add(CreateSettingsView());
 				settingsContainer.Add(settings);
 				Add(settingsContainer);
@@ -266,7 +266,7 @@ namespace GraphProcessor
 			}
 		}
 
-		// Workaround for bug in GraphView that makes the node selection border way too big
+		// 修复GraphView中使节点选择边框过大的bug的变通方法
 		VisualElement selectionBorder, nodeBorder;
 		internal void EnableSyncSelectionBorderHeight()
 		{
@@ -413,7 +413,7 @@ namespace GraphProcessor
 
 		public void RemovePort(PortView p)
 		{
-			// Remove all connected edges:
+			// 移除所有连接的边：
 			var edgesCopy = p.GetEdges().ToList();
 			foreach (var e in edgesCopy)
 				owner.Disconnect(e, refreshPorts: false);
@@ -669,8 +669,8 @@ namespace GraphProcessor
 		protected virtual void DrawDefaultInspector(bool fromInspector = false)
 		{
 			var fields = nodeTarget.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-				// Filter fields from the BaseNode type since we are only interested in user-defined fields
-				// (better than BindingFlags.DeclaredOnly because we keep any inherited user-defined fields) 
+				// 从BaseNode类型过滤字段，因为我们只对用户定义的字段感兴趣
+				// （比BindingFlags.DeclaredOnly更好，因为我们保留任何继承的用户定义字段） 
 				.Where(f => f.DeclaringType != typeof(BaseNode));
 
 			fields = nodeTarget.OverrideFieldOrder(fields).Reverse();
@@ -709,7 +709,7 @@ namespace GraphProcessor
 					continue;
 				}
 
-				// Hide the field if we want to display in in the inspector
+				// 如果我们想在检查器中显示，则隐藏字段
 				var showInInspector = field.GetCustomAttribute<ShowInInspector>();
 				if (!serializeField && showInInspector != null && !showInInspector.showInNode && !fromInspector)
 				{
@@ -719,7 +719,7 @@ namespace GraphProcessor
 
 				var showInputDrawer = field.GetCustomAttribute(typeof(InputAttribute)) != null && field.GetCustomAttribute(typeof(SerializeField)) != null;
 				showInputDrawer |= field.GetCustomAttribute(typeof(InputAttribute)) != null && field.GetCustomAttribute(typeof(ShowAsDrawer)) != null;
-				showInputDrawer &= !fromInspector; // We can't show a drawer in the inspector
+				showInputDrawer &= !fromInspector; // 我们不能在检查器中显示抽屉
 				showInputDrawer &= !typeof(IList).IsAssignableFrom(field.FieldType);
 
 				string displayName = ObjectNames.NicifyVariableName(field.Name);
@@ -733,7 +733,7 @@ namespace GraphProcessor
 				{
 					hideElementIfConnected[field.Name] = elem;
 
-					// Hide the field right away if there is already a connection:
+					// 如果已经有连接，立即隐藏字段：
 					if (portsPerFieldName.TryGetValue(field.Name, out var pvs))
 						if (pvs.Any(pv => pv.GetEdges().Count > 0))
 							elem.style.display = DisplayStyle.None;
@@ -828,7 +828,7 @@ namespace GraphProcessor
 		{
 			int nodeIndex = owner.graph.nodes.FindIndex(n => n == nodeTarget);
 
-			// If the node is not found, then it means that it has been deleted from serialized data.
+			// 如果找不到节点，则意味着它已从序列化数据中删除。
 			if (nodeIndex == -1)
 				return;
 
@@ -836,8 +836,8 @@ namespace GraphProcessor
 			foreach (var propertyField in this.Query<PropertyField>().ToList())
 			{
 				propertyField.Unbind();
-				// The property path look like this: nodes.Array.data[x].fieldName
-				// And we want to update the value of x with the new node index:
+				// 属性路径看起来像这样：nodes.Array.data[x].fieldName
+				// 我们想要用新的节点索引更新x的值：
 				propertyField.bindingPath = s_ReplaceNodeIndexPropertyPath.Replace(propertyField.bindingPath, m => m.Groups[1].Value + nodeIndexString + m.Groups[3].Value);
 				propertyField.Bind(owner.serializedGraph);
 			}
@@ -857,7 +857,7 @@ namespace GraphProcessor
 			var element = new PropertyField(FindSerializedProperty(field.Name), showInputDrawer ? "" : label);
 			element.Bind(owner.serializedGraph);
 
-#if UNITY_2020_3 // In Unity 2020.3 the empty label on property field doesn't hide it, so we do it manually
+#if UNITY_2020_3 // 在Unity 2020.3中，属性字段上的空标签不会隐藏它，所以我们手动处理
 			if ((showInputDrawer || String.IsNullOrEmpty(label)) && element != null)
 				element.AddToClassList("DrawerField_2020_3");
 #endif
@@ -871,7 +871,7 @@ namespace GraphProcessor
 				NotifyNodeChanged();
 			});
 
-			// Disallow picking scene objects when the graph is not linked to a scene
+			// 当图形未链接到场景时，禁止选择场景对象
 			if (element != null && !owner.graph.IsLinkedToScene())
 			{
 				var objectField = element.Q<ObjectField>();
@@ -900,14 +900,14 @@ namespace GraphProcessor
 			}
 			else
 			{
-				// Make sure we create an empty placeholder if FieldFactory can not provide a drawer
+				// 确保如果FieldFactory无法提供抽屉，我们创建一个空的占位符
 				if (showInputDrawer) AddEmptyField(field, false);
 			}
 
 			var visibleCondition = field.GetCustomAttribute(typeof(VisibleIf)) as VisibleIf;
 			if (visibleCondition != null)
 			{
-				// Check if target field exists:
+				// 检查目标字段是否存在：
 				var conditionField = nodeTarget.GetType().GetField(visibleCondition.fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				if (conditionField == null)
 					Debug.LogError($"[VisibleIf] Field {visibleCondition.fieldName} does not exists in node {nodeTarget.GetType()}");
@@ -1082,7 +1082,7 @@ namespace GraphProcessor
 
 			foreach (var p in ports)
 			{
-				// Add missing port views
+				// 添加缺失的端口视图
 				if (!portViews.Any(pv => p.portData.identifier == pv.portData.identifier))
 				{
 					Direction portDirection = nodeTarget.IsFieldInput(p.fieldName) ? Direction.Input : Direction.Output;
@@ -1099,7 +1099,7 @@ namespace GraphProcessor
 			var portViewList = portViews.ToList();
 			var portsList = ports.ToList();
 
-			// Re-order the port views to match the ports order in case a custom behavior re-ordered the ports
+			// 重新排序端口视图以匹配端口顺序，以防自定义行为重新排序端口
 			for (int i = 0; i < portsList.Count; i++)
 			{
 				var id = portsList[i].portData.identifier;
@@ -1112,21 +1112,21 @@ namespace GraphProcessor
 
 		public virtual new bool RefreshPorts()
 		{
-			// If a port behavior was attached to one port, then
-			// the port count might have been updated by the node
-			// so we have to refresh the list of port views.
+			// 如果端口行为附加到一个端口，那么
+			// 端口数量可能已被节点更新
+			// 所以我们必须刷新端口视图列表。
 			UpdatePortViewWithPorts(nodeTarget.inputPorts, inputPortViews);
 			UpdatePortViewWithPorts(nodeTarget.outputPorts, outputPortViews);
 
 			void UpdatePortViewWithPorts(NodePortContainer ports, List< PortView > portViews)
 			{
-				if (ports.Count == 0 && portViews.Count == 0) // Nothing to update
+				if (ports.Count == 0 && portViews.Count == 0) // 无需更新
 					return;
 
-				// When there is no current portviews, we can't zip the list so we just add all
+				// 当没有当前端口视图时，我们无法压缩列表，所以我们只添加所有
 				if (portViews.Count == 0)
 					SyncPortCounts(ports, new PortView[]{});
-				else if (ports.Count == 0) // Same when there is no ports
+				else if (ports.Count == 0) // 当没有端口时相同
 					SyncPortCounts(new NodePort[]{}, portViews);
 				else if (portViews.Count != ports.Count)
 					SyncPortCounts(ports, portViews);
@@ -1139,13 +1139,13 @@ namespace GraphProcessor
 						if (portPerFieldName.Count() != portViewPerFieldName.Count())
 							portViewsList = SyncPortCounts(portPerFieldName, portViewPerFieldName);
 						SyncPortOrder(portPerFieldName, portViewsList);
-						// We don't care about the result, we just iterate over port and portView
+						// 我们不关心结果，我们只是遍历端口和端口视图
 						return "";
 					}).ToList();
 				}
 
-				// Here we're sure that we have the same amount of port and portView
-				// so we can update the view with the new port data (if the name of a port have been changed for example)
+				// 这里我们确定我们有相同数量的端口和端口视图
+				// 所以我们可以用新的端口数据更新视图（例如，如果端口的名称已更改）
 
 				for (int i = 0; i < portViews.Count; i++)
 					portViews[i].UpdatePortView(ports[i].portData);
@@ -1163,14 +1163,14 @@ namespace GraphProcessor
 
 		void UpdatePortsForField(string fieldName)
 		{
-			// TODO: actual code
+			// TODO: 实际代码
 			RefreshPorts();
 		}
 
 		protected virtual VisualElement CreateSettingsView() => new Label("Settings") {name = "header"};
 
 		/// <summary>
-		/// Send an event to the graph telling that the content of this node have changed
+		/// 向图形发送事件，告知此节点的内容已更改
 		/// </summary>
 		public void NotifyNodeChanged() => owner.graph.NotifyNodeChanged(nodeTarget);
 

@@ -16,6 +16,6 @@ public class OutputNode : BaseNode
 
 	protected override void Process()
 	{
-		// Do stuff
+		// 执行操作
 	}
 }

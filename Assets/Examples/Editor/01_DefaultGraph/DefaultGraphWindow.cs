@@ -13,7 +13,7 @@ public class DefaultGraphWindow : BaseGraphWindow
 	{
 		var graphWindow = CreateWindow< DefaultGraphWindow >();
 
-		// When the graph is opened from the window, we don't save the graph to disk
+		// 当从窗口打开图形时，我们不将图形保存到磁盘
 		graphWindow.tmpGraph = ScriptableObject.CreateInstance<BaseGraph>();
 		graphWindow.tmpGraph.hideFlags = HideFlags.HideAndDontSave;
 		graphWindow.InitializeGraph(graphWindow.tmpGraph);

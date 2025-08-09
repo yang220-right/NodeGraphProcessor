@@ -7,6 +7,6 @@ namespace NodeGraphProcessor.Examples
 	{
 		IEnumerable< ConditionalNode >	GetExecutedNodes();
 
-		FieldInfo[] GetNodeFields(); // Provide a custom order for fields (so conditional links are always at the top of the node)
+		FieldInfo[] GetNodeFields(); // 为字段提供自定义顺序（使条件链接始终位于节点顶部）
 	}
 }

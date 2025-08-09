@@ -5,16 +5,16 @@ using Object = UnityEngine.Object;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Implement this interface on a BaseNode, it allows you to automatically spawn a node if an asset of type T is dropped in the graphview area
+    /// 在BaseNode上实现此接口，如果类型为T的资源被拖放到图形视图区域，它允许您自动生成节点
     /// </summary>
-    /// <typeparam name="T">The type object your node will be created from, it must be a subclass of UnityEngine.Object</typeparam>
+    /// <typeparam name="T">您的节点将从中创建的类型对象，它必须是UnityEngine.Object的子类</typeparam>
     public interface ICreateNodeFrom<T> where T : Object
     {
         /// <summary>
-        /// This function is called just after creating the node from an object and allows you to initialize the node with the object data.
+        /// 从对象创建节点后立即调用此函数，它允许您使用对象数据初始化节点。
         /// </summary>
-        /// <param name="value">Object value</param>
-        /// <returns>True if the initialization happened correctly. False otherwise, returning false will discard your node.</returns>
+        /// <param name="value">对象值</param>
+        /// <returns>如果初始化正确发生则为True。否则为False，返回false将丢弃您的节点。</returns>
         bool InitializeNodeFromObject(T value);
     }
 }

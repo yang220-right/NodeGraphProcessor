@@ -9,8 +9,8 @@ using UnityEditor.ProjectWindowCallback;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// To add the menu items that create node C# script templates files you can inherit from this class and use it's API combined with [MenuItem]
-	/// See GraphProcessorMenuItems.cs in examples for implementation details
+	/// 要添加创建节点C#脚本模板文件的菜单项，您可以继承此类并使用其API结合[MenuItem]
+	/// 有关实现详细信息，请参阅examples中的GraphProcessorMenuItems.cs
 	/// </summary>
 	public class NodeGraphProcessorMenuItems
 	{

@@ -11,36 +11,36 @@ using System;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// Class that describe port attributes for it's creation
+	/// 描述端口创建属性的类
 	/// </summary>
 	public class PortData : IEquatable< PortData >
 	{
 		/// <summary>
-		/// Unique identifier for the port
+		/// 端口的唯一标识符
 		/// </summary>
 		public string	identifier;
 		/// <summary>
-		/// Display name on the node
+		/// 节点上的显示名称
 		/// </summary>
 		public string	displayName;
 		/// <summary>
-		/// The type that will be used for coloring with the type stylesheet
+		/// 将用于类型样式表着色的类型
 		/// </summary>
 		public Type		displayType;
 		/// <summary>
-		/// If the port accept multiple connection
+		/// 端口是否接受多个连接
 		/// </summary>
 		public bool		acceptMultipleEdges;
 		/// <summary>
-		/// Port size, will also affect the size of the connected edge
+		/// 端口大小，也会影响连接边的大小
 		/// </summary>
 		public int		sizeInPixel;
 		/// <summary>
-		/// Tooltip of the port
+		/// 端口的工具提示
 		/// </summary>
 		public string	tooltip;
 		/// <summary>
-		/// Is the port vertical
+		/// 端口是否垂直
 		/// </summary>
 		public bool		vertical;
 
@@ -68,24 +68,24 @@ namespace GraphProcessor
     }
 
 	/// <summary>
-	/// Runtime class that stores all info about one port that is needed for the processing
+	/// 运行时类，存储处理所需的一个端口的所有信息
 	/// </summary>
 	public class NodePort
 	{
 		/// <summary>
-		/// The actual name of the property behind the port (must be exact, it is used for Reflection)
+		/// 端口后面的属性的实际名称（必须准确，用于反射）
 		/// </summary>
 		public string				fieldName;
 		/// <summary>
-		/// The node on which the port is
+		/// 端口所在的节点
 		/// </summary>
 		public BaseNode				owner;
 		/// <summary>
-		/// The fieldInfo from the fieldName
+		/// 来自fieldName的fieldInfo
 		/// </summary>
 		public FieldInfo			fieldInfo;
 		/// <summary>
-		/// Data of the port
+		/// 端口的数据
 		/// </summary>
 		public PortData				portData;
 		List< SerializableEdge >	edges = new List< SerializableEdge >();
@@ -93,34 +93,34 @@ namespace GraphProcessor
 		List< SerializableEdge >	edgeWithRemoteCustomIO = new List< SerializableEdge >();
 
 		/// <summary>
-		/// Owner of the FieldInfo, to be used in case of Get/SetValue
+		/// FieldInfo的所有者，在Get/SetValue情况下使用
 		/// </summary>
 		public object				fieldOwner;
 
 		CustomPortIODelegate		customPortIOMethod;
 
 		/// <summary>
-		/// Delegate that is made to send the data from this port to another port connected through an edge
-		/// This is an optimization compared to dynamically setting values using Reflection (which is really slow)
-		/// More info: https://codeblog.jonskeet.uk/2008/08/09/making-reflection-fly-and-exploring-delegates/
+		/// 用于将数据从此端口发送到通过边连接的另一端口的委托
+		/// 与使用反射动态设置值相比，这是一种优化（反射真的很慢）
+		/// 更多信息：https://codeblog.jonskeet.uk/2008/08/09/making-reflection-fly-and-exploring-delegates/
 		/// </summary>
 		public delegate void PushDataDelegate();
 
 		/// <summary>
-		/// Constructor
+		/// 构造函数
 		/// </summary>
-		/// <param name="owner">owner node</param>
-		/// <param name="fieldName">the C# property name</param>
-		/// <param name="portData">Data of the port</param>
+		/// <param name="owner">所有者节点</param>
+		/// <param name="fieldName">C#属性名称</param>
+		/// <param name="portData">端口数据</param>
 		public NodePort(BaseNode owner, string fieldName, PortData portData) : this(owner, owner, fieldName, portData) {}
 
 		/// <summary>
-		/// Constructor
+		/// 构造函数
 		/// </summary>
-		/// <param name="owner">owner node</param>
+		/// <param name="owner">所有者节点</param>
 		/// <param name="fieldOwner"></param>
-		/// <param name="fieldName">the C# property name</param>
-		/// <param name="portData">Data of the port</param>
+		/// <param name="fieldName">C#属性名称</param>
+		/// <param name="portData">端口数据</param>
 		public NodePort(BaseNode owner, object fieldOwner, string fieldName, PortData portData)
 		{
 			this.fieldName = fieldName;
@@ -135,7 +135,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Connect an edge to this port
+		/// 将边连接到此端口
 		/// </summary>
 		/// <param name="edge"></param>
 		public void Add(SerializableEdge edge)
@@ -154,7 +154,7 @@ namespace GraphProcessor
 					edgeWithRemoteCustomIO.Add(edge);
 			}
 
-			//if we have a custom io implementation, we don't need to genereate the defaut one
+			//如果我们有自定义io实现，我们不需要生成默认的
 			if (edge.inputPort.customPortIOMethod != null || edge.outputPort.customPortIOMethod != null)
 				return ;
 
@@ -168,7 +168,7 @@ namespace GraphProcessor
 		{
 			try
 			{
-				//Creation of the delegate to move the data from the input node to the output node:
+				//创建委托以将数据从输入节点移动到输出节点：
 				FieldInfo inputField = edge.inputNode.GetType().GetField(edge.inputFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				FieldInfo outputField = edge.outputNode.GetType().GetField(edge.outputFieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
 				Type inType, outType;
@@ -192,7 +192,7 @@ namespace GraphProcessor
 				});
 #endif
 
-// We keep slow checks inside the editor
+// 我们在编辑器内保持慢速检查
 #if UNITY_EDITOR
 				if (!BaseGraph.TypesAreConnectable(inputField.FieldType, outputField.FieldType))
 				{
@@ -207,17 +207,17 @@ namespace GraphProcessor
 				inType = edge.inputPort.portData.displayType ?? inputField.FieldType;
 				outType = edge.outputPort.portData.displayType ?? outputField.FieldType;
 
-				// If there is a user defined convertion function, then we call it
+				// 如果有用户定义的转换函数，则我们调用它
 				if (TypeAdapter.AreAssignable(outType, inType))
 				{
-					// We add a cast in case there we're calling the conversion method with a base class parameter (like object)
+					// 我们添加一个转换，以防我们使用基类参数（如object）调用转换方法
 					var convertedParam = Expression.Convert(outputParamField, outType);
 					outputParamField = Expression.Call(TypeAdapter.GetConvertionMethod(outType, inType), convertedParam);
-					// In case there is a custom port behavior in the output, then we need to re-cast to the base type because
-					// the convertion method return type is not always assignable directly:
+					// 如果输出中有自定义端口行为，那么我们需要重新转换为基类型，因为
+					// 转换方法的返回类型并不总是可以直接分配的：
 					outputParamField = Expression.Convert(outputParamField, inputField.FieldType);
 				}
-				else // otherwise we cast
+				else // 否则我们进行转换
 					outputParamField = Expression.Convert(outputParamField, inputField.FieldType);
 
 				BinaryExpression assign = Expression.Assign(inputParamField, outputParamField);
@@ -229,7 +229,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Disconnect an Edge from this port
+		/// 从此端口断开边
 		/// </summary>
 		/// <param name="edge"></param>
 		public void Remove(SerializableEdge edge)
@@ -243,14 +243,14 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Get all the edges connected to this port
+		/// 获取连接到此端口的所有边
 		/// </summary>
 		/// <returns></returns>
 		public List< SerializableEdge > GetEdges() => edges;
 
 		/// <summary>
-		/// Push the value of the port through the edges
-		/// This method can only be called on output ports
+		/// 通过边推送端口的值
+		/// 此方法只能在输出端口上调用
 		/// </summary>
 		public void PushData()
 		{
@@ -266,18 +266,18 @@ namespace GraphProcessor
 			if (edgeWithRemoteCustomIO.Count == 0)
 				return ;
 
-			//if there are custom IO implementation on the other ports, they'll need our value in the passThrough buffer
+			//如果其他端口有自定义IO实现，它们将需要我们在passThrough缓冲区中的值
 			object ourValue = fieldInfo.GetValue(fieldOwner);
 			foreach (var edge in edgeWithRemoteCustomIO)
 				edge.passThroughBuffer = ourValue;
 		}
 
 		/// <summary>
-		/// Reset the value of the field to default if possible
+		/// 如果可能，将字段的值重置为默认值
 		/// </summary>
 		public void ResetToDefault()
 		{
-			// Clear lists, set classes to null and struct to default value.
+			// 清除列表，将类设置为null，结构体设置为默认值。
 			if (typeof(IList).IsAssignableFrom(fieldInfo.FieldType))
 				(fieldInfo.GetValue(fieldOwner) as IList)?.Clear();
 			else if (fieldInfo.FieldType.GetTypeInfo().IsClass)
@@ -287,13 +287,13 @@ namespace GraphProcessor
 				try
 				{
 					fieldInfo.SetValue(fieldOwner, Activator.CreateInstance(fieldInfo.FieldType));
-				} catch {} // Catch types that don't have any constructors
+				} catch {} // 捕获没有任何构造函数的类型
 			}
 		}
 
 		/// <summary>
-		/// Pull values from the edge (in case of a custom convertion method)
-		/// This method can only be called on input ports
+		/// 从边拉取值（在自定义转换方法的情况下）
+		/// 此方法只能在输入端口上调用
 		/// </summary>
 		public void PullData()
 		{
@@ -303,17 +303,17 @@ namespace GraphProcessor
 				return ;
 			}
 
-			// check if this port have connection to ports that have custom output functions
+			// 检查此端口是否连接到具有自定义输出函数的端口
 			if (edgeWithRemoteCustomIO.Count == 0)
 				return ;
 
-			// Only one input connection is handled by this code, if you want to
-			// take multiple inputs, you must create a custom input function see CustomPortsNode.cs
+			// 此代码只处理一个输入连接，如果您想要
+			// 接受多个输入，您必须创建一个自定义输入函数，请参阅CustomPortsNode.cs
 			if (edges.Count > 0)
 			{
 				var passThroughObject = edges.First().passThroughBuffer;
 
-				// We do an extra convertion step in case the buffer output is not compatible with the input port
+				// 我们执行额外的转换步骤，以防缓冲区输出与输入端口不兼容
 				if (passThroughObject != null)
 					if (TypeAdapter.AreAssignable(fieldInfo.FieldType, passThroughObject.GetType()))
 						passThroughObject = TypeAdapter.Convert(passThroughObject, fieldInfo.FieldType);
@@ -324,7 +324,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Container of ports and the edges connected to these ports
+	/// 端口和连接到这些端口的边的容器
 	/// </summary>
 	public abstract class NodePortContainer : List< NodePort >
 	{
@@ -336,7 +336,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Remove an edge that is connected to one of the node in the container
+		/// 移除连接到容器中某个节点的边
 		/// </summary>
 		/// <param name="edge"></param>
 		public void Remove(SerializableEdge edge)
@@ -345,7 +345,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Add an edge that is connected to one of the node in the container
+		/// 添加连接到容器中某个节点的边
 		/// </summary>
 		/// <param name="edge"></param>
 		public void Add(SerializableEdge edge)
@@ -353,7 +353,7 @@ namespace GraphProcessor
 			string portFieldName = (edge.inputNode == node) ? edge.inputFieldName : edge.outputFieldName;
 			string portIdentifier = (edge.inputNode == node) ? edge.inputPortIdentifier : edge.outputPortIdentifier;
 
-			// Force empty string to null since portIdentifier is a serialized value
+			// 强制空字符串为null，因为portIdentifier是序列化值
 			if (String.IsNullOrEmpty(portIdentifier))
 				portIdentifier = null;
 

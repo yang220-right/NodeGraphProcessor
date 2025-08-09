@@ -8,7 +8,7 @@ using UnityEditor;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Base class to write your own edge handling connection system
+    /// 编写您自己的边处理连接系统的基类
     /// </summary>
     public class BaseEdgeConnectorListener : IEdgeConnectorListener
     {

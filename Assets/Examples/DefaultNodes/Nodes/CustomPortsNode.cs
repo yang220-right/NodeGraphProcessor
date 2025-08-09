@@ -11,7 +11,7 @@ public class CustomPortsNode : BaseNode
 	public List< float >       	inputs;
 
 	[Output]
-	public List< float >		outputs; // TODO: custom function for this one
+	public List< float >		outputs; // TODO: 为这个自定义函数
 
 	List< object >				values = new List< object >();
 
@@ -19,13 +19,13 @@ public class CustomPortsNode : BaseNode
 
     public override string      layoutStyle => "TestType";
 
-    // We keep the max port count so it doesn't cause binding issues
+    // 我们保持最大端口计数以避免绑定问题
     [SerializeField, HideInInspector]
 	int							portCount = 1;
 
 	protected override void Process()
 	{
-		// do things with values
+		// 对值进行处理
 	}
 
 	[CustomPortBehavior(nameof(inputs))]
@@ -38,13 +38,13 @@ public class CustomPortsNode : BaseNode
 			yield return new PortData {
 				displayName = "In " + i,
 				displayType = typeof(float),
-				identifier = i.ToString(), // Must be unique
+				identifier = i.ToString(), // 必须唯一
 			};
 		}
 	}
 
-	// This function will be called once per port created from the `inputs` custom port function
-	// will in parameter the list of the edges connected to this port
+	// 这个函数将从`inputs`自定义端口函数创建的每个端口调用一次
+	// 参数将是连接到此端口的边的列表
 	[CustomPortInput(nameof(inputs), typeof(float))]
 	void PullInputs(List< SerializableEdge > inputEdges)
 	{
@@ -54,11 +54,11 @@ public class CustomPortsNode : BaseNode
 	[CustomPortOutput(nameof(outputs), typeof(float))]
 	void PushOutputs(List< SerializableEdge > connectedEdges)
 	{
-		// Values length is supposed to match connected edges length
+		// 值的长度应该匹配连接的边的长度
 		for (int i = 0; i < connectedEdges.Count; i++)
 			connectedEdges[i].passThroughBuffer = values[Mathf.Min(i, values.Count - 1)];
 			
-		// once the outputs are pushed, we don't need the inputs data anymore
+		// 一旦输出被推送，我们就不再需要输入数据了
 		values.Clear();
 	}
 }

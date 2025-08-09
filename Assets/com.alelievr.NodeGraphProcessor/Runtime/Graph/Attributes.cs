@@ -6,7 +6,7 @@ using System;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// Tell that this field is will generate an input port
+	/// 告诉这个字段将生成一个输入端口
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class InputAttribute : Attribute
@@ -15,10 +15,10 @@ namespace GraphProcessor
 		public bool			allowMultiple = false;
 
 		/// <summary>
-		/// Mark the field as an input port
+		/// 将字段标记为输入端口
 		/// </summary>
-		/// <param name="name">display name</param>
-		/// <param name="allowMultiple">is connecting multiple edges allowed</param>
+		/// <param name="name">显示名称</param>
+		/// <param name="allowMultiple">是否允许连接多条边</param>
 		public InputAttribute(string name = null, bool allowMultiple = false)
 		{
 			this.name = name;
@@ -27,7 +27,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Tell that this field is will generate an output port
+	/// 告诉这个字段将生成一个输出端口
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class OutputAttribute : Attribute
@@ -36,10 +36,10 @@ namespace GraphProcessor
 		public bool			allowMultiple = true;
 
 		/// <summary>
-		/// Mark the field as an output port
+		/// 将字段标记为输出端口
 		/// </summary>
-		/// <param name="name">display name</param>
-		/// <param name="allowMultiple">is connecting multiple edges allowed</param>
+		/// <param name="name">显示名称</param>
+		/// <param name="allowMultiple">是否允许连接多条边</param>
 		public OutputAttribute(string name = null, bool allowMultiple = true)
 		{
 			this.name = name;
@@ -48,7 +48,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Creates a vertical port instead of the default horizontal one
+	/// 创建垂直端口而不是默认的水平端口
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
 	public class VerticalAttribute : Attribute
@@ -56,7 +56,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Register the node in the NodeProvider class. The node will also be available in the node creation window.
+	/// 在NodeProvider类中注册节点。节点也将在节点创建窗口中可用。
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 	public class NodeMenuItemAttribute : Attribute
@@ -65,9 +65,9 @@ namespace GraphProcessor
 		public Type		onlyCompatibleWithGraph;
 
 		/// <summary>
-		/// Register the node in the NodeProvider class. The node will also be available in the node creation window.
+		/// 在NodeProvider类中注册节点。节点也将在节点创建窗口中可用。
 		/// </summary>
-		/// <param name="menuTitle">Path in the menu, use / as folder separators</param>
+		/// <param name="menuTitle">菜单中的路径，使用/作为文件夹分隔符</param>
 		public NodeMenuItemAttribute(string menuTitle = null, Type onlyCompatibleWithGraph = null)
 		{
 			this.menuTitle = menuTitle;
@@ -76,7 +76,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Set a custom drawer for a field. It can then be created using the FieldFactory
+	/// 为字段设置自定义绘制器。然后可以使用FieldFactory创建它
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	[Obsolete("You can use the standard Unity CustomPropertyDrawer instead.")]
@@ -85,7 +85,7 @@ namespace GraphProcessor
 		public Type		fieldType;
 
 		/// <summary>
-		/// Register a custom view for a type in the FieldFactory class
+		/// 在FieldFactory类中为类型注册自定义视图
 		/// </summary>
 		/// <param name="fieldType"></param>
 		public FieldDrawerAttribute(Type fieldType)
@@ -95,7 +95,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Allow you to customize the input function of a port
+	/// 允许您自定义端口的输入函数
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class CustomPortInputAttribute : Attribute
@@ -105,12 +105,12 @@ namespace GraphProcessor
 		public bool		allowCast;
 
 		/// <summary>
-		/// Allow you to customize the input function of a port.
-		/// See CustomPortsNode example in Samples.
+		/// 允许您自定义端口的输入函数。
+		/// 请参阅Samples中的CustomPortsNode示例。
 		/// </summary>
-		/// <param name="fieldName">local field of the node</param>
-		/// <param name="inputType">type of input of the port</param>
-		/// <param name="allowCast">if cast is allowed when connecting an edge</param>
+		/// <param name="fieldName">节点的本地字段</param>
+		/// <param name="inputType">端口的输入类型</param>
+		/// <param name="allowCast">连接边时是否允许转换</param>
 		public CustomPortInputAttribute(string fieldName, Type inputType, bool allowCast = true)
 		{
 			this.fieldName = fieldName;
@@ -120,7 +120,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Allow you to customize the input function of a port
+	/// 允许您自定义端口的输出函数
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class CustomPortOutputAttribute : Attribute
@@ -130,12 +130,12 @@ namespace GraphProcessor
 		public bool		allowCast;
 
 		/// <summary>
-		/// Allow you to customize the output function of a port.
-		/// See CustomPortsNode example in Samples.
+		/// 允许您自定义端口的输出函数。
+		/// 请参阅Samples中的CustomPortsNode示例。
 		/// </summary>
-		/// <param name="fieldName">local field of the node</param>
-		/// <param name="inputType">type of input of the port</param>
-		/// <param name="allowCast">if cast is allowed when connecting an edge</param>
+		/// <param name="fieldName">节点的本地字段</param>
+		/// <param name="inputType">端口的输入类型</param>
+		/// <param name="allowCast">连接边时是否允许转换</param>
 		public CustomPortOutputAttribute(string fieldName, Type outputType, bool allowCast = true)
 		{
 			this.fieldName = fieldName;
@@ -145,7 +145,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Allow you to modify the generated port view from a field. Can be used to generate multiple ports from one field.
+	/// 允许您修改从字段生成的端口视图。可用于从一个字段生成多个端口。
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
 	public class CustomPortBehaviorAttribute : Attribute
@@ -153,13 +153,13 @@ namespace GraphProcessor
 		public string		fieldName;
 
 		/// <summary>
-		/// Allow you to modify the generated port view from a field. Can be used to generate multiple ports from one field.
-		/// You must add this attribute on a function of this signature
+		/// 允许您修改从字段生成的端口视图。可用于从一个字段生成多个端口。
+		/// 您必须在此签名的函数上添加此属性
 		/// <code>
 		/// IEnumerable&lt;PortData&gt; MyCustomPortFunction(List&lt;SerializableEdge&gt; edges);
 		/// </code>
 		/// </summary>
-		/// <param name="fieldName">local node field name</param>
+		/// <param name="fieldName">本地节点字段名</param>
 		public CustomPortBehaviorAttribute(string fieldName)
 		{
 			this.fieldName = fieldName;
@@ -167,13 +167,13 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Allow to bind a method to generate a specific set of ports based on a field type in a node
+	/// 允许绑定方法以基于节点中的字段类型生成特定的端口集
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 	public class CustomPortTypeBehavior : Attribute
 	{
 		/// <summary>
-		/// Target type
+		/// 目标类型
 		/// </summary>
 		public Type type;
 
@@ -184,7 +184,7 @@ namespace GraphProcessor
 	}
 
 	/// <summary>
-	/// Allow you to have a custom view for your stack nodes
+	/// 允许您为堆栈节点拥有自定义视图
 	/// </summary>
 	[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 	public class CustomStackNodeView : Attribute
@@ -192,9 +192,9 @@ namespace GraphProcessor
 		public Type	stackNodeType;
 
 		/// <summary>
-		/// Allow you to have a custom view for your stack nodes
+		/// 允许您为堆栈节点拥有自定义视图
 		/// </summary>
-		/// <param name="stackNodeType">The type of the stack node you target</param>
+		/// <param name="stackNodeType">您目标的堆栈节点类型</param>
 		public CustomStackNodeView(Type stackNodeType)
 		{
 			this.stackNodeType = stackNodeType;

@@ -45,13 +45,13 @@ namespace GraphProcessor
 					var p = method.GetParameters();
 					bool nodePortSignature = false;
 
-					// Check if the function can take a NodePort in optional param
+					// 检查函数是否可以在可选参数中接受NodePort
 					if (p.Length == 2 && p[1].ParameterType == typeof(NodePort))
 						nodePortSignature = true;
 
 					CustomPortIODelegate deleg;
 #if ENABLE_IL2CPP
-					// IL2CPP doesn't support expression builders
+					// IL2CPP不支持表达式构建器
 					if (nodePortSignature)
 					{
 						deleg = new CustomPortIODelegate((node, edges, port) => {
@@ -81,7 +81,7 @@ namespace GraphProcessor
 
 					if (deleg == null)
 					{
-						Debug.LogWarning("Can't use custom IO port function " + method + ": The method have to respect this format: " + typeof(CustomPortIODelegate));
+						Debug.LogWarning("无法使用自定义IO端口函数 " + method + ": 该方法必须遵循此格式: " + typeof(CustomPortIODelegate));
 						continue ;
 					}
 

@@ -10,16 +10,16 @@ namespace GraphProcessor
 {
 
 	/// <summary>
-	/// Graph processor
+	/// 图形处理器
 	/// </summary>
 	public abstract class BaseGraphProcessor
 	{
 		protected BaseGraph			graph;
 		
 		/// <summary>
-		/// Manage graph scheduling and processing
+		/// 管理图形调度和处理
 		/// </summary>
-		/// <param name="graph">Graph to be processed</param>
+		/// <param name="graph">要处理的图形</param>
 		public BaseGraphProcessor(BaseGraph graph)
 		{
 			this.graph = graph;
@@ -30,7 +30,7 @@ namespace GraphProcessor
 		public abstract void UpdateComputeOrder();
 
 		/// <summary>
-		/// Schedule the graph into the job system
+		/// 将图形调度到作业系统中
 		/// </summary>
 		public abstract void Run();
 	}

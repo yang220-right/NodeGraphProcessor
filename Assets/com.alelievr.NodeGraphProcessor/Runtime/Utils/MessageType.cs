@@ -1,6 +1,6 @@
 namespace GraphProcessor
 {
-	// MessageType is only available in UnityEditor so we have our own for runtime
+	// MessageType仅在UnityEditor中可用，所以我们为运行时创建了自己的版本
 	public enum NodeMessageType
 	{
 		None,

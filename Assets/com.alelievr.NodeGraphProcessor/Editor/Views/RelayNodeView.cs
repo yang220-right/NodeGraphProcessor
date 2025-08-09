@@ -15,7 +15,7 @@ public class RelayNodeView : BaseNodeView
 
 	public override void Enable()
 	{
-		// Remove useless elements
+		// 移除无用元素
 		this.Q("title").RemoveFromHierarchy();
 		this.Q("divider").RemoveFromHierarchy();
 
@@ -24,7 +24,7 @@ public class RelayNodeView : BaseNodeView
 
 	public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
 	{
-		// TODO: check if there is a relay node in the inputs that have pack option and toggle visibility of these options:
+		// TODO: 检查输入中是否有具有打包选项的中继节点，并切换这些选项的可见性：
 		evt.menu.AppendAction("Pack Input", TogglePackInput, PackInputStatus);
 		evt.menu.AppendAction("Unpack Output", ToggleUnpackOutput, UnpackOutputStatus);
 		base.BuildContextualMenu(evt);
@@ -103,8 +103,8 @@ public class RelayNodeView : BaseNodeView
 
 	public override void OnRemoved()
 	{
-		// We delay the connection of the edges just in case something happens to the nodes we are trying to connect
-		// i.e. multiple relay node deletion
+		// 我们延迟边的连接，以防我们要连接的节点发生什么事情
+		// 即多个中继节点删除
 		schedule.Execute(() => {
 			if (!relay.unpackOutput)
 			{

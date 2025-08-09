@@ -47,7 +47,7 @@ public class RelayNode : BaseNode
 	{
 		inputEdgeCount = edges.Count;
 
-		// If the relay is only connected to another relay:
+		// 如果中继节点仅连接到另一个中继节点：
 		if (edges.Count == 1 && edges.First().outputNode.GetType() == typeof(RelayNode))
 		{
 			if (edges.First().passThroughBuffer != null)
@@ -74,9 +74,9 @@ public class RelayNode : BaseNode
 			if (output.values == null)
 				return;
 
-			// When we unpack the output, there is one port per type of data in output
-			// That means that this function will be called the same number of time than the output port count
-			// Thus we use a class field to keep the index.
+			// 当我们解包输出时，输出中每种数据类型都有一个端口
+			// 这意味着此函数将被调用的次数与输出端口数量相同
+			// 因此我们使用类字段来保持索引。
 			object data = output.values[outputIndex++];
 
 			foreach (var edge in edges)
@@ -95,11 +95,11 @@ public class RelayNode : BaseNode
 	[CustomPortBehavior(nameof(input))]
 	IEnumerable< PortData > InputPortBehavior(List< SerializableEdge > edges)
 	{
-		// When the node is initialized, the input ports is empty because it's this function that generate the ports
+		// 当节点初始化时，输入端口为空，因为生成端口的是这个函数
 		int sizeInPixel = 0;
 		if (inputPorts.Count != 0)
 		{
-			// Add the size of all input edges:
+			// 添加所有输入边的大小：
 			var inputEdges = inputPorts[0]?.GetEdges();
 			sizeInPixel = inputEdges.Sum(e => Mathf.Max(0, e.outputPort.portData.sizeInPixel - 8));
 		}
@@ -123,7 +123,7 @@ public class RelayNode : BaseNode
 	{
 		if (inputPorts.Count == 0)
 		{
-			// Default dummy port to avoid having a relay without any output:
+			// 默认虚拟端口以避免中继节点没有任何输出：
 			yield return new PortData {
 				displayName = "",
 				displayType = typeof(object),
@@ -146,7 +146,7 @@ public class RelayNode : BaseNode
 				sizeInPixel = Mathf.Min(k_MaxPortSize, Mathf.Max(underlyingPortData.Count, 1) + 7), // TODO: function
 			};
 
-			// We still keep the packed data as output when unpacking just in case we want to continue the relay after unpacking
+			// 解包时我们仍然保留打包数据作为输出，以防解包后想要继续中继
 			for (int i = 0; i < underlyingPortData.Count; i++)
 			{
 				yield return new PortData {
@@ -173,7 +173,7 @@ public class RelayNode : BaseNode
 	static List<(Type, string)> s_empty = new List<(Type, string)>();
 	public List<(Type type, string name)> GetUnderlyingPortDataList()
 	{
-		// get input edges:
+		// 获取输入边：
 		if (inputPorts.Count == 0)
 			return s_empty;
 
@@ -189,7 +189,7 @@ public class RelayNode : BaseNode
 	{
 		var inputEdges = inputPorts?[0]?.GetEdges();
 
-		// Iterate until we don't have a relay node in input
+		// 迭代直到输入中没有中继节点
 		while (inputEdges.Count == 1 && inputEdges.First().outputNode.GetType() == typeof(RelayNode))
 			inputEdges = inputEdges.First().outputNode.inputPorts[0]?.GetEdges();
 

@@ -15,7 +15,7 @@ namespace GraphProcessor
                 try {
 					types = assembly.GetTypes();
 				} catch {
-					//just ignore it ...
+					//忽略它...
 				}
 
 				foreach (var type in types)

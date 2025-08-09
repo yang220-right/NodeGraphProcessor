@@ -9,20 +9,20 @@ using System.Linq;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Stack node view implementation, can be used to stack multiple node inside a context like VFX graph does.
+    /// 堆栈节点视图实现，可用于在上下文中堆叠多个节点，就像VFX图形所做的那样。
     /// </summary>
     public class BaseStackNodeView : StackNode
     {
         public delegate void ReorderNodeAction(BaseNodeView nodeView, int oldIndex, int newIndex);
     
         /// <summary>
-        /// StackNode data from the graph
+        /// 来自图形的StackNode数据
         /// </summary>
         protected internal BaseStackNode    stackNode;
         protected BaseGraphView             owner;
         readonly string                     styleSheet = "GraphProcessorStyles/BaseStackNodeView";
 
-        /// <summary>Triggered when a node is re-ordered in the stack.</summary>
+        /// <summary>当节点在堆栈中重新排序时触发。</summary>
         public event ReorderNodeAction      onNodeReordered;
 
         public BaseStackNodeView(BaseStackNode stackNode)
@@ -34,11 +34,11 @@ namespace GraphProcessor
         /// <inheritdoc />
         protected override void OnSeparatorContextualMenuEvent(ContextualMenuPopulateEvent evt, int separatorIndex)
         {
-            // TODO: write the context menu for stack node
+            // TODO: 为堆栈节点编写上下文菜单
         }
 
         /// <summary>
-        /// Called after the StackNode have been added to the graph view
+        /// 在StackNode添加到图形视图后调用
         /// </summary>
         public virtual void Initialize(BaseGraphView graphView)
         {
@@ -53,7 +53,7 @@ namespace GraphProcessor
         void InitializeInnerNodes()
         {
             int i = 0;
-            // Sanitize the GUID list in case some nodes were removed
+            // 清理GUID列表，以防某些节点被移除
             stackNode.nodeGUIDs.RemoveAll(nodeGUID =>
             {
                 if (owner.graph.nodesPerGUID.ContainsKey(nodeGUID))
@@ -67,7 +67,7 @@ namespace GraphProcessor
                 }
                 else
                 {
-                    return true; // remove the entry as the GUID doesn't exist anymore
+                    return true; // 移除条目，因为GUID不再存在
                 }
             });
         }

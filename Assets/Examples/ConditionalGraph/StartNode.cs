@@ -15,7 +15,7 @@ namespace NodeGraphProcessor.Examples
 
 		public IEnumerable< ConditionalNode >	GetExecutedNodes()
 		{
-			// Return all the nodes connected to the executes port
+			// 返回连接到executes端口的所有节点
 			return GetOutputNodes().Where(n => n is ConditionalNode).Select(n => n as ConditionalNode);
 		}
 

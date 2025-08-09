@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// Group the selected node when created
+	/// 创建时对选定的节点进行分组
 	/// </summary>
 	[System.Serializable]
 	public class Group
@@ -16,17 +16,17 @@ namespace GraphProcessor
         public Vector2          size;
 
 		/// <summary>
-		/// Store the GUIDs of the node in the group
+		/// 存储组中节点的GUID
 		/// </summary>
-		/// <typeparam name="string">GUID of a node</typeparam>
+		/// <typeparam name="string">节点的GUID</typeparam>
 		/// <returns></returns>
 		public List< string >	innerNodeGUIDs = new List< string >();
 
-		// For serialization loading
+		// 用于序列化加载
         public Group() {}
 
 		/// <summary>
-		/// Create a new group with a title and a position
+		/// 使用标题和位置创建新组
 		/// </summary>
 		/// <param name="title"></param>
 		/// <param name="position"></param>
@@ -37,7 +37,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Called when the Group is created
+		/// 创建组时调用
 		/// </summary>
         public virtual void OnCreated()
         {

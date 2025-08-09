@@ -10,17 +10,17 @@ namespace NodeGraphProcessor.Examples
 {
 	[System.Serializable]
 	/// <summary>
-	/// This is the base class for every node that is executed by the conditional processor, it takes an executed bool as input to 
+	/// 这是由条件处理器执行的每个节点的基类，它接受一个executed布尔值作为输入
 	/// </summary>
 	public abstract class ConditionalNode : BaseNode, IConditionalNode
 	{
-		// These booleans will controls wether or not the execution of the folowing nodes will be done or discarded.
+		// 这些布尔值将控制后续节点的执行是否完成或被丢弃。
 		[Input(name = "Executed", allowMultiple = true)]
 		public ConditionalLink	executed;
 
 		public abstract IEnumerable< ConditionalNode >	GetExecutedNodes();
 
-		// Assure that the executed field is always at the top of the node port section
+		// 确保executed字段始终位于节点端口部分的顶部
 		public override FieldInfo[] GetNodeFields()
 		{
 			var fields = base.GetNodeFields();
@@ -31,7 +31,7 @@ namespace NodeGraphProcessor.Examples
 
 	[System.Serializable]
 	/// <summary>
-	/// This class represent a simple node which takes one event in parameter and pass it to the next node
+	/// 这个类表示一个简单的节点，它接受一个事件作为参数并将其传递给下一个节点
 	/// </summary>
 	public abstract class LinearConditionalNode : ConditionalNode, IConditionalNode
 	{
@@ -40,7 +40,7 @@ namespace NodeGraphProcessor.Examples
 
 		public override IEnumerable< ConditionalNode >	GetExecutedNodes()
 		{
-			// Return all the nodes connected to the executes port
+			// 返回连接到executes端口的所有节点
 			return outputPorts.FirstOrDefault(n => n.fieldName == nameof(executes))
 				.GetEdges().Select(e => e.inputNode as ConditionalNode);
 		}
@@ -48,7 +48,7 @@ namespace NodeGraphProcessor.Examples
 	
 	[System.Serializable]
 	/// <summary>
-	/// This class represent a waitable node which invokes another node after a time/frame
+	/// 这个类表示一个可等待节点，它在时间/帧后调用另一个节点
 	/// </summary>
 	public abstract class WaitableNode : LinearConditionalNode
 	{

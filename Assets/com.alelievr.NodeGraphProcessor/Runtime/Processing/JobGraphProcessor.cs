@@ -10,7 +10,7 @@ namespace GraphProcessor
 {
 
 	/// <summary>
-	/// Graph processor
+	/// 图形处理器
 	/// </summary>
 	public class JobGraphProcessor : BaseGraphProcessor
 	{
@@ -28,9 +28,9 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Manage graph scheduling and processing
+		/// 管理图形调度和处理
 		/// </summary>
-		/// <param name="graph">Graph to be processed</param>
+		/// <param name="graph">要处理的图形</param>
 		public JobGraphProcessor(BaseGraph graph) : base(graph) {}
 
 		public override void UpdateComputeOrder()
@@ -43,7 +43,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Schedule the graph into the job system
+		/// 将图形调度到作业系统中
 		/// </summary>
 		public override void Run()
 		{
@@ -59,7 +59,7 @@ namespace GraphProcessor
 				for (int j = 0; j < dependenciesCount; j++)
 					dep = JobHandle.CombineDependencies(dep, scheduledHandles[schedule.dependencies[j]]);
 
-				// TODO: call the onSchedule on the current node
+				// TODO: 在当前节点上调用onSchedule
 				// JobHandle currentJob = schedule.node.OnSchedule(dep);
 				// scheduledHandles[schedule.node] = currentJob;
 			}

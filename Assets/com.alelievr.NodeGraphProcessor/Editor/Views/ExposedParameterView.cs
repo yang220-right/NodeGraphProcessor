@@ -47,7 +47,7 @@ namespace GraphProcessor
         {
             string name = type.Name;
 
-            // Remove parameter in the name of the type if it exists
+            // 如果类型名称中存在参数，则移除它
             name = name.Replace("Parameter", "");
 
             return ObjectNames.NicifyVariableName(name);
@@ -55,7 +55,7 @@ namespace GraphProcessor
 
         protected string GetUniqueExposedPropertyName(string name)
         {
-            // Generate unique name
+            // 生成唯一名称
             string uniqueName = name;
             int i = 0;
             while (graphView.graph.exposedParameters.Any(e => e.name == name))
@@ -107,7 +107,7 @@ namespace GraphProcessor
 
             UpdateParameterList();
 
-            // Add exposed parameter button
+            // 添加暴露参数按钮
             header.Add(new Button(OnAddClicked){
                 text = "+"
             });
@@ -124,7 +124,7 @@ namespace GraphProcessor
         int GetInsertIndexFromMousePosition(Vector2 pos)
         {
             pos = content.WorldToLocal(pos);
-            // We only need to look for y axis;
+            // 我们只需要查找y轴；
             float mousePos = pos.y;
 
             if (mousePos < 0)
@@ -156,7 +156,7 @@ namespace GraphProcessor
                 {
                     var blackBoardRow = view.parent.parent.parent.parent.parent.parent;
                     int oldIndex = content.Children().ToList().FindIndex(c => c == blackBoardRow);
-                    // Try to find the blackboard row
+                    // 尝试查找黑板行
                     content.Remove(blackBoardRow);
 
                     if (newIndex > oldIndex)
@@ -183,7 +183,7 @@ namespace GraphProcessor
                     var parameter = graphView.graph.exposedParameters[oldIndex];
                     graphView.graph.exposedParameters.RemoveAt(oldIndex);
 
-                    // Patch new index after the remove operation:
+                    // 移除操作后修补新索引：
                     if (newIndex > oldIndex)
                         newIndex--;
 

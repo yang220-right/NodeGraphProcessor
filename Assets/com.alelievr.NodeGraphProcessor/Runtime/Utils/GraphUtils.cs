@@ -23,7 +23,7 @@ namespace GraphProcessor
             public TarversalNode(BaseNode node) { this.node = node; }
         }
 
-        // A structure made for easy graph traversal
+        // 为便于图形遍历而创建的结构
         class TraversalGraph
         {
             public List<TarversalNode> nodes = new List<TarversalNode>();
@@ -91,7 +91,7 @@ namespace GraphProcessor
 
                 n.state = State.Black;
 
-                // Only add the node when his children are completely visited
+                // 只有当其子节点完全访问后才添加节点
                 depthFirstNodes.Add(n.node);
             }
 

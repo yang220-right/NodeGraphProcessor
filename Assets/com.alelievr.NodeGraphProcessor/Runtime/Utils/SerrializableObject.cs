@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace GraphProcessor
 {
-    // Warning: this class only support the serialization of UnityObject and primitive
+    // 警告：此类仅支持UnityObject和基本类型的序列化
     [System.Serializable]
     public class SerializableObject
     {
@@ -77,7 +77,7 @@ namespace GraphProcessor
 
             if (value.GetType().IsPrimitive)
                 serializedValue = Convert.ToString(value, CultureInfo.InvariantCulture);
-            else if (value is UnityEngine.Object) //type is a unity object
+            else if (value is UnityEngine.Object) //类型是unity对象
             {
                 if ((value as UnityEngine.Object) == null)
                     return ;

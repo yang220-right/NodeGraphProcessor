@@ -30,7 +30,7 @@ namespace GraphProcessor
             public override int GetHashCode() => base.GetHashCode();
         }
 
-		public string				guid; // unique id to keep track of the parameter
+		public string				guid; // 用于跟踪参数的唯一id
 		public string				name;
 		[Obsolete("Use GetValueType()")]
 		public string				type;
@@ -43,7 +43,7 @@ namespace GraphProcessor
 
         public void Initialize(string name, object value)
         {
-			guid = Guid.NewGuid().ToString(); // Generated once and unique per parameter
+			guid = Guid.NewGuid().ToString(); // 每个参数生成一次且唯一
             settings = CreateSettings();
             settings.guid = guid;
 			this.name = name;
@@ -52,9 +52,9 @@ namespace GraphProcessor
 
 		void ISerializationCallbackReceiver.OnAfterDeserialize()
 		{
-			// SerializeReference migration step:
+			// SerializeReference迁移步骤：
 #pragma warning disable CS0618
-			if (serializedValue?.value != null) // old serialization system can't serialize null values
+			if (serializedValue?.value != null) // 旧序列化系统无法序列化null值
 			{
 				value = serializedValue.value;
 				Debug.Log("Migrated: " + serializedValue.value + " | " + serializedValue.serializedName);
@@ -144,8 +144,8 @@ namespace GraphProcessor
         }
 	}
 
-    // Due to polymorphic constraints with [SerializeReference] we need to explicitly create a class for
-    // every parameter type available in the graph (i.e. templating doesn't work)
+    // 由于[SerializeReference]的多态约束，我们需要为图形中可用的每种参数类型显式创建一个类
+    // （即模板化不起作用）
     [System.Serializable]
     public class ColorParameter : ExposedParameter
     {

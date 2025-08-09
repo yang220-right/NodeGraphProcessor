@@ -18,7 +18,7 @@ public class CircleRadiansView : BaseNodeView
 		node = nodeTarget as CircleRadians;
 
 		listContainer = new VisualElement();
-        // Create your fields using node's variables and add them to the controlsContainer
+        // 使用节点的变量创建字段并将它们添加到controlsContainer
 
 		controlsContainer.Add(listContainer);
 		onPortConnected += OnPortUpdate;
@@ -43,7 +43,7 @@ public class CircleRadiansView : BaseNodeView
 
 	public void OnPortUpdate(PortView port)
 	{
-		// There is only one port on this node so it can only be the output
+		// 这个节点只有一个端口，所以只能是输出
 		UpdateOutputRadians(port.connectionCount);
 	}
 }

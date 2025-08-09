@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Data container for the StackNode views
+    /// StackNode视图的数据容器
     /// </summary>
     [System.Serializable]
     public class BaseStackNode
@@ -13,17 +13,17 @@ namespace GraphProcessor
         public string title = "New Stack";
         
         /// <summary>
-        /// Is the stack accept drag and dropped nodes
+        /// 堆栈是否接受拖放节点
         /// </summary>
         public bool acceptDrop;
 
         /// <summary>
-        /// Is the stack accepting node created by pressing space over the stack node
+        /// 堆栈是否接受通过在堆栈节点上按空格创建的节点
         /// </summary>
         public bool acceptNewNode;
 
         /// <summary>
-        /// List of node GUID that are in the stack
+        /// 堆栈中节点的GUID列表
         /// </summary>
         /// <typeparam name="string"></typeparam>
         /// <returns></returns>

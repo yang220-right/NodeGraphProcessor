@@ -36,14 +36,14 @@ public class ConditionalProcessorView : PinnedElementView
 
         if (processor.currentGraphExecution != null)
         {
-            // Unhighlight the last executed node
+            // 取消高亮最后执行的节点
             view = graphView.nodeViews.Find(v => v.nodeTarget == processor.currentGraphExecution.Current);
             view.UnHighlight();
         }
 
         processor.Step();
 
-        // Display debug infos, currentGraphExecution is modified in the Step() function above
+        // 显示调试信息，currentGraphExecution在上面的Step()函数中被修改
         if (processor.currentGraphExecution != null)
         {
             view = graphView.nodeViews.Find(v => v.nodeTarget == processor.currentGraphExecution.Current);

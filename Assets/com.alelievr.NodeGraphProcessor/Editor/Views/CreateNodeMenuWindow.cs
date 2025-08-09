@@ -10,7 +10,7 @@ using UnityEditor;
 
 namespace GraphProcessor
 {
-    // TODO: replace this by the new UnityEditor.Searcher package
+    // TODO: 用新的UnityEditor.Searcher包替换这个
     class CreateNodeMenuWindow : ScriptableObject, ISearchWindowProvider
     {
         BaseGraphView   graphView;
@@ -28,7 +28,7 @@ namespace GraphProcessor
             this.inputPortView = edgeFilter?.input as PortView;
             this.outputPortView = edgeFilter?.output as PortView;
 
-            // Transparent icon to trick search window into indenting items
+            // 透明图标，用于欺骗搜索窗口缩进项目
             if (icon == null)
                 icon = new Texture2D(1, 1);
             icon.SetPixel(0, 0, new Color(0, 0, 0, 0));
@@ -61,7 +61,7 @@ namespace GraphProcessor
 
         void CreateStandardNodeMenu(List<SearchTreeEntry> tree)
         {
-            // Sort menu by alphabetical order and submenus
+            // 按字母顺序和子菜单排序菜单
             var nodeEntries = graphView.FilterCreateNodeMenuEntries().OrderBy(k => k.path);
             var titlePaths = new HashSet< string >();
             
@@ -84,7 +84,7 @@ namespace GraphProcessor
                         fullTitleAsPath += title;
                         level = i + 1;
                         
-                        // Add section title if the node is in subcategory
+                        // 如果节点在子类别中，添加节标题
                         if (!titlePaths.Contains(fullTitleAsPath))
                         {
                             tree.Add(new SearchTreeGroupEntry(new GUIContent(title)){
@@ -126,12 +126,12 @@ namespace GraphProcessor
 
             var sortedMenuItems = entries.Select(port => (port, nodePaths.FirstOrDefault(kp => kp.type == port.nodeType).path)).OrderBy(e => e.path);
 
-            // Sort menu by alphabetical order and submenus
+            // 按字母顺序和子菜单排序菜单
 			foreach (var nodeMenuItem in sortedMenuItems)
 			{
                 var nodePath = nodePaths.FirstOrDefault(kp => kp.type == nodeMenuItem.port.nodeType).path;
 
-                // Ignore the node if it's not in the create menu
+                // 如果节点不在创建菜单中，则忽略它
                 if (String.IsNullOrEmpty(nodePath))
                     continue;
 
@@ -151,7 +151,7 @@ namespace GraphProcessor
                         fullTitleAsPath += title;
                         level = i + 1;
 
-                        // Add section title if the node is in subcategory
+                        // 如果节点在子类别中，添加节标题
                         if (!titlePaths.Contains(fullTitleAsPath))
                         {
                             tree.Add(new SearchTreeGroupEntry(new GUIContent(title)){
@@ -170,10 +170,10 @@ namespace GraphProcessor
 			}
         }
 
-        // Node creation when validate a choice
+        // 验证选择时创建节点
         public bool OnSelectEntry(SearchTreeEntry searchTreeEntry, SearchWindowContext context)
         {
-            // window to graph position
+            // 窗口到图形位置
             var windowRoot = window.rootVisualElement;
             var windowMousePosition = windowRoot.ChangeCoordinatesTo(windowRoot.parent, context.screenMousePosition - window.position.position);
             var graphMousePosition = graphView.contentViewContainer.WorldToLocal(windowMousePosition);

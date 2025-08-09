@@ -5,7 +5,7 @@ using System;
 namespace GraphProcessor
 {
 	/// <summary>
-	/// Element that overlays the graph like the blackboard
+	/// 覆盖图形的元素，如黑板
 	/// </summary>
 	[System.Serializable]
 	public class PinnedElement

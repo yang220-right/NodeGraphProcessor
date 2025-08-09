@@ -7,7 +7,7 @@ using UnityEditor;
 
 public class AllGraphView : BaseGraphView
 {
-	// Nothing special to add for now
+	// 目前没有特殊内容需要添加
 	public AllGraphView(EditorWindow window) : base(window) {}
 
 	public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -17,7 +17,7 @@ public class AllGraphView : BaseGraphView
 	}
 
 	/// <summary>
-	/// Add the New Stack entry to the context menu
+	/// 将New Stack条目添加到上下文菜单
 	/// </summary>
 	/// <param name="evt"></param>
 	protected void BuildStackNodeContextualMenu(ContextualMenuPopulateEvent evt)

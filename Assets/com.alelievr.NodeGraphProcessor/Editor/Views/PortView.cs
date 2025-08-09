@@ -59,7 +59,7 @@ namespace GraphProcessor
 			pv.m_EdgeConnector = new BaseEdgeConnector(edgeConnectorListener);
 			pv.AddManipulator(pv.m_EdgeConnector);
 
-			// Force picking in the port label to enlarge the edge creation zone
+			// 强制在端口标签中选择以扩大边创建区域
 			var portLabel = pv.Q("type");
 			if (portLabel != null)
 			{
@@ -67,11 +67,11 @@ namespace GraphProcessor
 				portLabel.style.flexGrow = 1;
 			}
 
-			// hide label when the port is vertical
+			// 当端口垂直时隐藏标签
 			if (portData.vertical && portLabel != null)
 				portLabel.style.display = DisplayStyle.None;
 			
-			// Fixup picking mode for vertical top ports
+			// 修复垂直顶部端口的拾取模式
 			if (portData.vertical)
 				pv.Q("connector").pickingMode = PickingMode.Position;
 
@@ -79,7 +79,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Update the size of the port view (using the portData.sizeInPixel property)
+		/// 更新端口视图的大小（使用portData.sizeInPixel属性）
 		/// </summary>
 		public void UpdatePortSize()
 		{
@@ -91,7 +91,7 @@ namespace GraphProcessor
 			cap.style.width = size - 4;
 			cap.style.height = size - 4;
 
-			// Update connected edge sizes:
+			// 更新连接的边大小：
 			edges.ForEach(e => e.UpdateEdgeSize());
 		}
 
@@ -100,8 +100,8 @@ namespace GraphProcessor
 			this.owner = nodeView;
 			AddToClassList(fieldName);
 
-			// Correct port type if port accept multiple values (and so is a container)
-			if (direction == Direction.Input && portData.acceptMultipleEdges && portType == fieldType) // If the user haven't set a custom field type
+			// 如果端口接受多个值（因此是容器），则更正端口类型
+			if (direction == Direction.Input && portData.acceptMultipleEdges && portType == fieldType) // 如果用户没有设置自定义字段类型
 			{
 				if (fieldType.GetGenericArguments().Length > 0)
 					portType = fieldType.GetGenericArguments()[0];
@@ -159,14 +159,14 @@ namespace GraphProcessor
 
 			portData = data;
 
-			// Update the edge in case the port color have changed
+			// 如果端口颜色已更改，则更新边
 			schedule.Execute(() => {
 				foreach (var edge in edges)
 				{
 					edge.UpdateEdgeControl();
 					edge.MarkDirtyRepaint();
 				}
-			}).ExecuteLater(50); // Hummm
+			}).ExecuteLater(50); // 嗯
 
 			UpdatePortSize();
 		}

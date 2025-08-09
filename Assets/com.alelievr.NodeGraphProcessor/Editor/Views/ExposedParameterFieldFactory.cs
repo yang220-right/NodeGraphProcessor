@@ -7,13 +7,13 @@ using System.Collections.Generic;
 
 namespace GraphProcessor
 {
-    // So, this is a workaround class to add a wrapper around PropertyFields applied on [SerializeReference].
-    // Because Property Fields binding being extremely slow (https://forum.unity.com/threads/propertyfield-extremely-slow.966191/)
-    // and AppliedModifiedProperties() re-creating the ScriptableObject when called (which in NGP causes the graph to be re-built)
-    // we can't use PropertyFields directly. This class provides a set of function to create PropertyFields for Exposed Parameters
-    // but without being attached to the graph, so when we call AppliedModifiedProperties, the graph is not re-built.
-    // The drawback is that we have to check ourselves for value changes and then apply them on the graph parameters,
-    // but it's far better than having to re-create the graph every time a parameter or a setting is changed.
+    // 所以，这是一个变通类，用于在[SerializeReference]上应用的PropertyFields周围添加包装器。
+    // 因为Property Fields绑定极其缓慢（https://forum.unity.com/threads/propertyfield-extremely-slow.966191/）
+    // 并且AppliedModifiedProperties()在调用时重新创建ScriptableObject（在NGP中导致图形重新构建）
+    // 我们不能直接使用PropertyFields。此类提供了一组函数来为暴露参数创建PropertyFields
+    // 但不附加到图形，所以当我们调用AppliedModifiedProperties时，图形不会重新构建。
+    // 缺点是我们必须自己检查值变化，然后将它们应用到图形参数上，
+    // 但这比每次参数或设置更改时都必须重新创建图形要好得多。
     public class ExposedParameterFieldFactory : IDisposable
     {
         BaseGraph graph;
@@ -67,7 +67,7 @@ namespace GraphProcessor
                 oldParameterValues[parameter] = parameter.value;
             }));
 
-			// Disallow picking scene objects when the graph is not linked to a scene
+			// 当图形未链接到场景时，禁止选择场景对象
             if (!this.graph.IsLinkedToScene())
             {
 				var objectField = view.Q<ObjectField>();
@@ -91,7 +91,7 @@ namespace GraphProcessor
             VisualElement view = new VisualElement();
             view.Add(settingsField);
 
-            // TODO: see if we can replace this with an event
+            // TODO: 看看我们是否可以用事件替换这个
             oldParameterSettings[parameter] = parameter.settings;
             view.Add(new IMGUIContainer(() =>
             {

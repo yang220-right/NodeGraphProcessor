@@ -47,19 +47,19 @@ namespace GraphProcessor
 			image.image = icon;
 			image.style.backgroundColor = color;
 			style.color = color;
-			// This will set a class name containing the hash code of the string
-			// We use this little trick to retrieve the label once it is added to the graph
+			// 这将设置一个包含字符串哈希码的类名
+			// 我们使用这个小技巧在标签添加到图形后检索它
 			visualStyle = badgeText.GetHashCode().ToString();
 		}
 
 		protected override void ExecuteDefaultAction(EventBase evt)
 		{
-			// When the mouse enter the icon, this will add the label to the hierarchy
+			// 当鼠标进入图标时，这将把标签添加到层次结构中
 			base.ExecuteDefaultAction(evt);
 
             if (evt.eventTypeId == MouseEnterEvent.TypeId())
 			{
-				// And then we can fetch it here:
+				// 然后我们可以在这里获取它：
 				GraphView gv = GetFirstAncestorOfType<GraphView>();
 				var label = gv.Q<Label>(classes: new string[]{"icon-badge__text--" + badgeText.GetHashCode()});
 				if (label != null)

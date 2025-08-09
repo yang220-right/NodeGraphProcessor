@@ -17,10 +17,10 @@ namespace NodeGraphProcessor.Examples
 
 		protected override void Process()
 		{
-			//	We should check where this Process() called from. But i don't know if this is an elegant and performant way to do that.
-			//	If this function is called from other than the ConditionalNode, then there will be problems, errors, unforeseen consequences, tears.
-			// var isCalledFromConditionalProcessor = new StackTrace().GetFrame(5).GetMethod().ReflectedType == typeof(ConditionalProcessor);
-			// if(!isCalledFromConditionalProcessor) return;
+					//	我们应该检查这个Process()是从哪里调用的。但我不知道这是否是一个优雅且高效的方法。
+		//	如果这个函数不是从ConditionalNode调用的，那么就会出现问题、错误、不可预见的后果、眼泪。
+		// var isCalledFromConditionalProcessor = new StackTrace().GetFrame(5).GetMethod().ReflectedType == typeof(ConditionalProcessor);
+		// if(!isCalledFromConditionalProcessor) return;
 			
 			if(waitMonoBehaviour == null)
 			{

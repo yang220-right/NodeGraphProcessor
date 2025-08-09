@@ -16,20 +16,20 @@ namespace NodeGraphProcessor.Examples
 
         public IEnumerator<BaseNode> currentGraphExecution { get; private set; } = null;
 
-        // static readonly float   maxExecutionTimeMS = 100; // 100 ms max execution time to avoid infinite loops
+        // static readonly float   maxExecutionTimeMS = 100; // 100毫秒最大执行时间以避免无限循环
 
         /// <summary>
-        /// Manage graph scheduling and processing
+        /// 管理图形调度和处理
         /// </summary>
-        /// <param name="graph">Graph to be processed</param>
+        /// <param name="graph">要处理的图形</param>
         public ConditionalProcessor(BaseGraph graph) : base(graph) {}
 
         public override void UpdateComputeOrder()
         {
-            // Gather start nodes:
+            // 收集起始节点：
             startNodeList = graph.nodes.Where(n => n is StartNode).Select(n => n as StartNode).ToList();
 
-            // In case there is no start node, we process the graph like usual
+            // 如果没有起始节点，我们像往常一样处理图形
             if (startNodeList.Count == 0)
             {
                 processList = graph.nodes.OrderBy(n => n.computeOrder).ToList();
@@ -37,7 +37,7 @@ namespace NodeGraphProcessor.Examples
             else
             {
                 nonConditionalDependenciesCache.Clear();
-                // Prepare the cache of non-conditional node execution
+                // 准备非条件节点执行的缓存
             }
         }
 
@@ -52,9 +52,9 @@ namespace NodeGraphProcessor.Examples
             else
             {
                 Stack<BaseNode> nodeToExecute = new Stack<BaseNode>();
-                // Add all the start nodes to the execution stack
+                // 将所有起始节点添加到执行堆栈
                 startNodeList.ForEach(s => nodeToExecute.Push(s));
-                // Execute the whole graph:
+                // 执行整个图形：
                 enumerator = RunTheGraph(nodeToExecute);
             }
 
@@ -64,7 +64,7 @@ namespace NodeGraphProcessor.Examples
         
         private void WaitedRun(Stack<BaseNode> nodesToRun)
         {
-            // Execute the waitable node:
+            // 执行可等待节点：
             var enumerator = RunTheGraph(nodesToRun);
 
             while(enumerator.MoveNext())
@@ -110,22 +110,22 @@ namespace NodeGraphProcessor.Examples
 				var node = nodeToExecute.Pop();
 				// TODO: maxExecutionTimeMS
 	
-				// In case the node is conditional, then we need to execute it's non-conditional dependencies first
+				// 如果节点是条件性的，那么我们需要先执行它的非条件依赖项
 				if(node is IConditionalNode && !skipConditionalHandling.Contains(node))
 				{
-					// Gather non-conditional deps: TODO, move to the cache:
+					// 收集非条件依赖项：TODO，移动到缓存：
 					if(nodeDependenciesGathered.Contains(node))
 					{
-						// Execute the conditional node:
+						// 执行条件节点：
 						node.OnProcess();
 						yield return node;
 	
-						// And select the next nodes to execute:
+						// 并选择要执行的下一个节点：
 						switch(node)
 						{
-							// special code path for the loop node as it will execute multiple times the same nodes
+							// 循环节点的特殊代码路径，因为它将多次执行相同的节点
 							case ForLoopNode forLoopNode:
-								forLoopNode.index = forLoopNode.start - 1; // Initialize the start index
+								forLoopNode.index = forLoopNode.start - 1; // 初始化起始索引
 								foreach(var n in forLoopNode.GetExecutedNodesLoopCompleted())
 									nodeToExecute.Push(n);
 								for(int i = forLoopNode.start; i < forLoopNode.end; i++)
@@ -133,12 +133,12 @@ namespace NodeGraphProcessor.Examples
 									foreach(var n in forLoopNode.GetExecutedNodesLoopBody())
 										nodeToExecute.Push(n);
 	
-									nodeToExecute.Push(node); // Increment the counter
+									nodeToExecute.Push(node); // 递增计数器
 								}
 	
 								skipConditionalHandling.Add(node);
 								break;
-							// another special case for waitable nodes, like "wait for a coroutine", wait x seconds", etc.
+							// 可等待节点的另一个特殊情况，如"等待协程"、"等待x秒"等
 							case WaitableNode waitableNode:
 								foreach(var n in waitableNode.GetExecutedNodes())
 									nodeToExecute.Push(n);
@@ -181,7 +181,7 @@ namespace NodeGraphProcessor.Examples
 			}
 		}
 
-        // Advance the execution of the graph of one node, mostly for debug. Doesn't work for WaitableNode's executeAfter port.
+        // 将图形的执行推进一个节点，主要用于调试。不适用于WaitableNode的executeAfter端口。
         public void Step()
         {
             if (currentGraphExecution == null)
@@ -191,7 +191,7 @@ namespace NodeGraphProcessor.Examples
 		            startNodeList.ForEach(s => nodeToExecute.Push(s));
 
 	            currentGraphExecution = startNodeList.Count == 0 ? RunTheGraph() : RunTheGraph(nodeToExecute);
-	            currentGraphExecution.MoveNext(); // Advance to the first node
+	            currentGraphExecution.MoveNext(); // 推进到第一个节点
             }
             else
             if (!currentGraphExecution.MoveNext())

@@ -10,16 +10,16 @@ namespace GraphProcessor
 {
 
 	/// <summary>
-	/// Graph processor
+	/// 图形处理器
 	/// </summary>
 	public class ProcessGraphProcessor : BaseGraphProcessor
 	{
 		List< BaseNode >		processList;
 		
 		/// <summary>
-		/// Manage graph scheduling and processing
+		/// 管理图形调度和处理
 		/// </summary>
-		/// <param name="graph">Graph to be processed</param>
+		/// <param name="graph">要处理的图形</param>
 		public ProcessGraphProcessor(BaseGraph graph) : base(graph) {}
 
 		public override void UpdateComputeOrder()
@@ -28,7 +28,7 @@ namespace GraphProcessor
 		}
 
 		/// <summary>
-		/// Process all the nodes following the compute order.
+		/// 按照计算顺序处理所有节点。
 		/// </summary>
 		public override void Run()
 		{

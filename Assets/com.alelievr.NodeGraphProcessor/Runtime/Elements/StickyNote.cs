@@ -4,7 +4,7 @@ using UnityEngine;
 namespace GraphProcessor
 {
     /// <summary>
-    /// Serializable Sticky node class
+    /// 可序列化的便签节点类
     /// </summary>
     [Serializable]
     public class StickyNote

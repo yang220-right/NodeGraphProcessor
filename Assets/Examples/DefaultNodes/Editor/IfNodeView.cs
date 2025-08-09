@@ -12,10 +12,10 @@ public class IfNodeView : BaseNodeView
 {
 	public override void Enable()
 	{
-		hasSettings = true;	// or base.Enable();
+		hasSettings = true;	// 或 base.Enable();
 		var node = nodeTarget as IfNode;
 
-        // Create your fields using node's variables and add them to the controlsContainer
+        // 使用节点的变量创建字段并将它们添加到controlsContainer
 
 		controlsContainer.Add(new Label($"Last Evaluation: {node.condition}"));
 	}

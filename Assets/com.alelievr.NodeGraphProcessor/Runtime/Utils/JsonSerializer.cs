@@ -7,8 +7,7 @@ using System.Reflection;
 using UnityEditor;
 #endif
 
-// Warning, the current serialization code does not handle unity objects
-// in play mode outside of the editor (because of JsonUtility)
+// 警告，当前的序列化代码不处理编辑器外播放模式中的unity对象（因为JsonUtility）
 
 namespace GraphProcessor
 {

@@ -11,10 +11,10 @@ public class CustomToolbarView : ToolbarView
 
 	protected override void AddButtons()
 	{
-		// Add the hello world button on the left of the toolbar
+		// 在工具栏左侧添加hello world按钮
 		AddButton("Hello !", () => Debug.Log("Hello World"), left: false);
 
-		// add the default buttons (center, show processor and show in project)
+		// 添加默认按钮（居中、显示处理器和在项目中显示）
 		base.AddButtons();
 
 		bool conditionalProcessorVisible = graphView.GetPinnedElementStatus< ConditionalProcessorView >() != Status.Hidden;

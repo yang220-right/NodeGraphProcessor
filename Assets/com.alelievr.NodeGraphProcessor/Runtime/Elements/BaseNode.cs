@@ -15,32 +15,32 @@ namespace GraphProcessor
 	public abstract class BaseNode
 	{
 		[SerializeField]
-		internal string nodeCustomName = null; // The name of the node in case it was renamed by a user
+		internal string nodeCustomName = null; // 节点在用户重命名情况下的名称
 
 		/// <summary>
-		/// Name of the node, it will be displayed in the title section
+		/// 节点的名称，将显示在标题部分
 		/// </summary>
 		/// <returns></returns>
 		public virtual string       name => GetType().Name;
 		
 		/// <summary>
-		/// The accent color of the node
+		/// 节点的强调色
 		/// </summary>
 		public virtual Color color => Color.clear;
 		
 		/// <summary>
-		/// Set a custom uss file for the node. We use a Resources.Load to get the stylesheet so be sure to put the correct resources path
+		/// 为节点设置自定义uss文件。我们使用Resources.Load来获取样式表，所以请确保放置正确的资源路径
 		/// https://docs.unity3d.com/ScriptReference/Resources.Load.html
 		/// </summary>
         public virtual string       layoutStyle => string.Empty;
 
 		/// <summary>
-		/// If the node can be locked or not
+		/// 节点是否可以锁定
 		/// </summary>
         public virtual bool         unlockable => true; 
 
 		/// <summary>
-		/// Is the node is locked (if locked it can't be moved)
+		/// 节点是否被锁定（如果锁定则无法移动）
 		/// </summary>
         public virtual bool         isLocked => nodeLock; 
 
@@ -49,55 +49,55 @@ namespace GraphProcessor
 
 		public int					computeOrder = -1;
 
-		/// <summary>Tell wether or not the node can be processed. Do not check anything from inputs because this step happens before inputs are sent to the node</summary>
+		/// <summary>告诉节点是否可以处理。不要检查输入的任何内容，因为此步骤发生在输入发送到节点之前</summary>
 		public virtual bool			canProcess => true;
 
-		/// <summary>Show the node controlContainer only when the mouse is over the node</summary>
+		/// <summary>仅当鼠标悬停在节点上时显示节点控制容器</summary>
 		public virtual bool			showControlsOnHover => false;
 
-		/// <summary>True if the node can be deleted, false otherwise</summary>
+		/// <summary>如果节点可以删除则为true，否则为false</summary>
 		public virtual bool			deletable => true;
 
 		/// <summary>
-		/// Container of input ports
+		/// 输入端口容器
 		/// </summary>
 		[NonSerialized]
 		public readonly NodeInputPortContainer	inputPorts;
 		/// <summary>
-		/// Container of output ports
+		/// 输出端口容器
 		/// </summary>
 		[NonSerialized]
 		public readonly NodeOutputPortContainer	outputPorts;
 
-		//Node view datas
+		//节点视图数据
 		public Rect					position;
 		/// <summary>
-		/// Is the node expanded
+		/// 节点是否展开
 		/// </summary>
 		public bool					expanded;
 		/// <summary>
-		/// Is debug visible
+		/// 调试是否可见
 		/// </summary>
 		public bool					debug;
 		/// <summary>
-		/// Node locked state
+		/// 节点锁定状态
 		/// </summary>
         public bool                 nodeLock;
 
         public delegate void		ProcessDelegate();
 
 		/// <summary>
-		/// Triggered when the node is processes
+		/// 当节点被处理时触发
 		/// </summary>
 		public event ProcessDelegate	onProcessed;
 		public event Action< string, NodeMessageType >	onMessageAdded;
 		public event Action< string >					onMessageRemoved;
 		/// <summary>
-		/// Triggered after an edge was connected on the node
+		/// 在节点上连接边后触发
 		/// </summary>
 		public event Action< SerializableEdge >			onAfterEdgeConnected;
 		/// <summary>
-		/// Triggered after an edge was disconnected on the node
+		/// 在节点上断开边后触发
 		/// </summary>
 		public event Action< SerializableEdge >			onAfterEdgeDisconnected;
 
@@ -177,7 +177,7 @@ namespace GraphProcessor
 			}
 		}
 
-		// Used in port update algorithm
+		// 用于端口更新算法
 		Stack<PortUpdate> fieldsToUpdate = new Stack<PortUpdate>();
 		HashSet<PortUpdate> updatedFields = new HashSet<PortUpdate>();
 
@@ -214,7 +214,7 @@ namespace GraphProcessor
 
 		#region Initialization
 
-		// called by the BaseGraph when the node is added to the graph
+		// 当节点添加到图形时由BaseGraph调用
 		public void Initialize(BaseGraph graph)
 		{
 			this.graph = graph;
@@ -252,7 +252,7 @@ namespace GraphProcessor
 						customPortTypeBehaviorMap[typeBehavior.type] = deleg;
 				}
 
-				// Try to also find private methods in the base class
+				// 也尝试在基类中查找私有方法
 				baseType = baseType.BaseType;
 				if (baseType == null)
 					break;

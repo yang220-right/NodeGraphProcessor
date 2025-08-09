@@ -18,7 +18,7 @@ namespace GraphProcessor
 
 		public override string name => "Parameter";
 
-		// We serialize the GUID of the exposed parameter in the graph so we can retrieve the true ExposedParameter from the graph
+		// 我们在图形中序列化暴露参数的GUID，以便我们可以从图形中检索真正的ExposedParameter
 		[SerializeField, HideInInspector]
 		public string parameterGUID;
 
@@ -30,7 +30,7 @@ namespace GraphProcessor
 
 		protected override void Enable()
 		{
-			// load the parameter
+			// 加载参数
 			LoadExposedParameter();
 
 			graph.onExposedParameterModified += OnParamChanged;
@@ -46,7 +46,7 @@ namespace GraphProcessor
 			{
 				Debug.Log("Property \"" + parameterGUID + "\" Can't be found !");
 
-				// Delete this node as the property can't be found
+				// 删除此节点，因为找不到属性
 				graph.RemoveNode(this);
 				return;
 			}
@@ -93,7 +93,7 @@ namespace GraphProcessor
 
 		protected override void Process()
 		{
-#if UNITY_EDITOR // In the editor, an undo/redo can change the parameter instance in the graph, in this case the field in this class will point to the wrong parameter
+#if UNITY_EDITOR // 在编辑器中，撤销/重做可以更改图形中的参数实例，在这种情况下，此类中的字段将指向错误的参数
 			parameter = graph.GetExposedParameterFromGUID(parameterGUID);
 #endif
 

@@ -318,8 +318,8 @@ MonoBehaviour:
     title: New Sticky Note
     content: Write your text here
   nodeInspectorReference: {fileID: 0}
-  position: {x: 230, y: 136, z: 0}
-  scale: {x: 0.7561437, y: 0.7561437, z: 1}
+  position: {x: 673, y: 154, z: 0}
+  scale: {x: 1.15, y: 1.15, z: 1}
   references:
     version: 2
     RefIds:
@@ -349,10 +349,10 @@ MonoBehaviour:
         computeOrder: 1
         position:
           serializedVersion: 2
-          x: 242
-          y: 101
-          width: 73
-          height: 101
+          x: 236.00009
+          y: 95
+          width: 102
+          height: 99
         expanded: 0
         debug: 0
         nodeLock: 0
@@ -464,10 +464,10 @@ MonoBehaviour:
         computeOrder: 9
         position:
           serializedVersion: 2
-          x: -184.46312
-          y: 143.24011
-          width: 240
-          height: 96
+          x: -193.20003
+          y: 157.99998
+          width: 204
+          height: 94
         expanded: 0
         debug: 0
         nodeLock: 0

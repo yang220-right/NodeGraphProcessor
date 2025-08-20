@@ -51,14 +51,14 @@ namespace NodeGraphProcessor.Examples{
         enumerator = RunTheGraph(nodeToExecute);
       }
 
-      while (enumerator.MoveNext());
+      while (enumerator.MoveNext()) ;
     }
 
     private void WaitedRun(Stack<BaseNode> nodesToRun){
       // 执行可等待节点：
       var enumerator = RunTheGraph(nodesToRun);
 
-      while (enumerator.MoveNext());
+      while (enumerator.MoveNext()) ;
     }
 
     IEnumerable<BaseNode> GatherNonConditionalDependencies(BaseNode node){

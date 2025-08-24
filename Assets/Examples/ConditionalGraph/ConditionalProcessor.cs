@@ -60,7 +60,11 @@ namespace NodeGraphProcessor.Examples{
 
       while (enumerator.MoveNext()) ;
     }
-
+    /// <summary>
+    /// 得到所有的入度
+    /// </summary>
+    /// <param name="node"></param>
+    /// <returns></returns>
     IEnumerable<BaseNode> GatherNonConditionalDependencies(BaseNode node){
       Stack<BaseNode> dependencies = new Stack<BaseNode>();
 
@@ -107,15 +111,17 @@ namespace NodeGraphProcessor.Examples{
               // 循环节点的特殊代码路径，因为它将多次执行相同的节点
               case ForLoopNode forLoopNode:
                 forLoopNode.index = forLoopNode.start - 1; // 初始化起始索引
+                //所有的完成节点压入
                 foreach (var n in forLoopNode.GetExecutedNodesLoopCompleted())
                   nodeToExecute.Push(n);
+                // 所有的body压入
                 for (int i = forLoopNode.start; i < forLoopNode.end; i++){
                   foreach (var n in forLoopNode.GetExecutedNodesLoopBody())
                     nodeToExecute.Push(n);
-
+                  //再次压入node
                   nodeToExecute.Push(node); // 递增计数器
                 }
-
+                //跳过节点压入
                 skipConditionalHandling.Add(node);
                 break;
               // 可等待节点的另一个特殊情况，如"等待协程"、"等待x秒"等
@@ -132,6 +138,7 @@ namespace NodeGraphProcessor.Examples{
                 };
                 break;
               case IConditionalNode cNode:
+                //获取所有的出度
                 foreach (var n in cNode.GetExecutedNodes())
                   nodeToExecute.Push(n);
                 break;
@@ -145,6 +152,7 @@ namespace NodeGraphProcessor.Examples{
           else{
             nodeToExecute.Push(node);
             nodeDependenciesGathered.Add(node);
+            //所有的入度添加进去
             foreach (var nonConditionalNode in GatherNonConditionalDependencies(node)){
               nodeToExecute.Push(nonConditionalNode);
             }

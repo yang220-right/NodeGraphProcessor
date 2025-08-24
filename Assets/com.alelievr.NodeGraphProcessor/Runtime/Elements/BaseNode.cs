@@ -170,22 +170,22 @@ namespace GraphProcessor{
     [NonSerialized] bool _needsInspector = false;
 
     /// <summary>
-    /// Does the node needs to be visible in the inspector (when selected).
+    /// 节点是否需要在检查器中可见（当被选中时）。
     /// </summary>
     public virtual bool needsInspector => _needsInspector;
 
     /// <summary>
-    /// Can the node be renamed in the UI. By default a node can be renamed by double clicking it's name.
+    /// 节点是否可以在UI中重命名。默认情况下，节点可以通过双击其名称来重命名。
     /// </summary>
     public virtual bool isRenamable => false;
 
     /// <summary>
-    /// Is the node created from a duplicate operation (either ctrl-D or copy/paste).
+    /// 节点是否是从重复操作创建的（ctrl-D 或复制/粘贴）。
     /// </summary>
     public bool createdFromDuplication{ get; internal set; } = false;
 
     /// <summary>
-    /// True only when the node was created from a duplicate operation and is inside a group that was also duplicated at the same time. 
+    /// 仅当节点是从重复操作创建的，并且位于同时被复制的组内时为true。
     /// </summary>
     public bool createdWithinGroup{ get; internal set; } = false;
 
@@ -237,21 +237,21 @@ namespace GraphProcessor{
     HashSet<PortUpdate> updatedFields = new HashSet<PortUpdate>();
 
     /// <summary>
-    /// Creates a node of type T at a certain position
+    /// 在指定位置创建类型为T的节点
     /// </summary>
-    /// <param name="position">position in the graph in pixels</param>
-    /// <typeparam name="T">type of the node</typeparam>
-    /// <returns>the node instance</returns>
+    /// <param name="position">图形中的位置（像素）</param>
+    /// <typeparam name="T">节点类型</typeparam>
+    /// <returns>节点实例</returns>
     public static T CreateFromType<T>(Vector2 position) where T : BaseNode{
       return CreateFromType(typeof(T), position) as T;
     }
 
     /// <summary>
-    /// Creates a node of type nodeType at a certain position
+    /// 在指定位置创建指定类型的节点
     /// </summary>
-    /// <param name="position">position in the graph in pixels</param>
-    /// <typeparam name="nodeType">type of the node</typeparam>
-    /// <returns>the node instance</returns>
+    /// <param name="position">图形中的位置（像素）</param>
+    /// <typeparam name="nodeType">节点类型</typeparam>
+    /// <returns>节点实例</returns>
     public static BaseNode CreateFromType(Type nodeType, Vector2 position){
       if (!nodeType.IsSubclassOf(typeof(BaseNode)))
         return null;
@@ -311,8 +311,8 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Use this function to initialize anything related to ports generation in your node
-    /// This will allow the node creation menu to correctly recognize ports that can be connected between nodes
+    /// 使用此函数初始化与节点端口生成相关的任何内容
+    /// 这将允许节点创建菜单正确识别可以在节点之间连接的端口
     /// </summary>
     public virtual void InitializePorts(){
       InitializeCustomPortTypeMethods();
@@ -324,7 +324,7 @@ namespace GraphProcessor{
           UpdatePortsForField(nodeField.fieldName, sendPortUpdatedEvent: false);
         }
         else{
-          // If we don't have a custom behavior on the node, we just have to create a simple port
+          // 如果节点上没有自定义行为，我们只需要创建一个简单的端口
           AddPort(nodeField.input, nodeField.fieldName,
             new PortData{
               acceptMultipleEdges = nodeField.isMultiple, displayName = nodeField.name, tooltip = nodeField.tooltip,
@@ -335,10 +335,10 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Override the field order inside the node. It allows to re-order all the ports and field in the UI.
+    /// 重写节点内字段的顺序。它允许重新排序UI中的所有端口和字段。
     /// </summary>
-    /// <param name="fields">List of fields to sort</param>
-    /// <returns>Sorted list of fields</returns>
+    /// <param name="fields">要排序的字段列表</param>
+    /// <returns>排序后的字段列表</returns>
     public virtual IEnumerable<FieldInfo> OverrideFieldOrder(IEnumerable<FieldInfo> fields){
       long GetFieldInheritanceLevel(FieldInfo f){
         int level = 0;
@@ -351,7 +351,7 @@ namespace GraphProcessor{
         return level;
       }
 
-      // Order by MetadataToken and inheritance level to sync the order with the port order (make sure FieldDrawers are next to the correct port)
+      // 按MetadataToken和继承级别排序，以与端口顺序同步（确保FieldDrawers在正确端口旁边）
       return fields.OrderByDescending(f => (long)(((GetFieldInheritanceLevel(f) << 32)) | (long)f.MetadataToken));
     }
 
@@ -363,7 +363,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Update all ports of the node
+    /// 更新节点的所有端口
     /// </summary>
     public bool UpdateAllPorts(){
       bool changed = false;
@@ -377,7 +377,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Update all ports of the node without updating the connected ports. Only use this method when you need to update all the nodes ports in your graph.
+    /// 更新节点的所有端口，但不更新连接的端口。仅当您需要在图形中更新所有节点端口时使用此方法。
     /// </summary>
     public bool UpdateAllPortsLocal(){
       bool changed = false;
@@ -392,7 +392,7 @@ namespace GraphProcessor{
 
 
     /// <summary>
-    /// Update the ports related to one C# property field (only for this node)
+    /// 更新与一个C#属性字段相关的端口（仅限此节点）
     /// </summary>
     /// <param name="fieldName"></param>
     public bool UpdatePortsForFieldLocal(string fieldName, bool sendPortUpdatedEvent = true){
@@ -410,9 +410,9 @@ namespace GraphProcessor{
 
       var portCollection = fieldInfo.input ? (NodePortContainer)inputPorts : outputPorts;
 
-      // Gather all fields for this port (before to modify them)
+      // 收集此端口的所有字段（在修改之前）
       var nodePorts = portCollection.Where(p => p.fieldName == fieldName);
-      // Gather all edges connected to these fields:
+      // 收集连接到这些字段的所有边：
       var edges = nodePorts.SelectMany(n => n.GetEdges()).ToList();
 
       if (fieldInfo.behavior != null){
@@ -428,19 +428,19 @@ namespace GraphProcessor{
 
       void AddPortData(PortData portData){
         var port = nodePorts.FirstOrDefault(n => n.portData.identifier == portData.identifier);
-        // Guard using the port identifier so we don't duplicate identifiers
+        // 使用端口标识符进行保护，这样我们就不会重复标识符
         if (port == null){
           AddPort(fieldInfo.input, fieldName, portData);
           changed = true;
         }
         else{
-          // in case the port type have changed for an incompatible type, we disconnect all the edges attached to this port
+          // 如果端口类型已更改为不兼容类型，我们断开连接到此端口的所有边
           if (!BaseGraph.TypesAreConnectable(port.portData.displayType, portData.displayType)){
             foreach (var edge in port.GetEdges().ToList())
               graph.Disconnect(edge.GUID);
           }
 
-          // patch the port data
+          // 修补端口数据
           if (port.portData != portData){
             port.portData.CopyFrom(portData);
             changed = true;
@@ -450,12 +450,12 @@ namespace GraphProcessor{
         finalPorts.Add(portData.identifier);
       }
 
-      // TODO
-      // Remove only the ports that are no more in the list
+      // 待办事项
+      // 仅移除不再在列表中的端口
       if (nodePorts != null){
         var currentPortsCopy = nodePorts.ToList();
         foreach (var currentPort in currentPortsCopy){
-          // If the current port does not appear in the list of final ports, we remove it
+          // 如果当前端口没有出现在最终端口列表中，我们将其移除
           if (!finalPorts.Any(id => id == currentPort.portData.identifier)){
             RemovePort(fieldInfo.input, currentPort);
             changed = true;
@@ -463,7 +463,7 @@ namespace GraphProcessor{
         }
       }
 
-      // Make sure the port order is correct:
+      // 确保端口顺序正确：
       portCollection.Sort((p1, p2) => {
         int p1Index = finalPorts.FindIndex(id => p1.portData.identifier == id);
         int p2Index = finalPorts.FindIndex(id => p2.portData.identifier == id);
@@ -491,7 +491,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Update the ports related to one C# property field and all connected nodes in the graph
+    /// 更新与一个C#属性字段和所有连接节点相关的端口（在图形中）
     /// </summary>
     /// <param name="fieldName"></param>
     public bool UpdatePortsForField(string fieldName, bool sendPortUpdatedEvent = true){
@@ -502,13 +502,12 @@ namespace GraphProcessor{
 
       fieldsToUpdate.Push(new PortUpdate{ fieldNames = new List<string>(){ fieldName }, node = this });
 
-      // Iterate through all the ports that needs to be updated, following graph connection when the 
-      // port is updated. This is required ton have type propagation multiple nodes that changes port types
-      // are connected to each other (i.e. the relay node)
+      // 遍历需要更新的所有端口，当端口更新时跟随图形连接。
+      // 这对于具有类型传播的多个节点是必需的，这些节点更改端口类型并相互连接（即中继节点）
       while (fieldsToUpdate.Count != 0){
         var (fields, node) = fieldsToUpdate.Pop();
 
-        // Avoid updating twice a port
+        // 避免更新两次端口
         if (updatedFields.Any((t) => t.node == node && fields.SequenceEqual(t.fieldNames)))
           continue;
         updatedFields.Add(new PortUpdate{ fieldNames = fields, node = node });
@@ -538,7 +537,7 @@ namespace GraphProcessor{
     HashSet<BaseNode> portUpdateHashSet = new HashSet<BaseNode>();
 
     internal void DisableInternal(){
-      // port containers are initialized in the OnEnable
+      // 端口容器在OnEnable中初始化
       inputPorts.Clear();
       outputPorts.Clear();
 
@@ -548,7 +547,7 @@ namespace GraphProcessor{
     internal void DestroyInternal() => ExceptionToLog.Call(() => Destroy());
 
     /// <summary>
-    /// Called only when the node is created, not when instantiated
+    /// 仅当节点被创建时调用，而不是实例化时
     /// </summary>
     public virtual void OnNodeCreated() => GUID = Guid.NewGuid().ToString();
 
@@ -576,7 +575,7 @@ namespace GraphProcessor{
         if (inputAttribute == null && outputAttribute == null)
           continue;
 
-        //check if field is a collection type
+        // 检查字段是否为集合类型
         isMultiple = (inputAttribute != null) ? inputAttribute.allowMultiple : (outputAttribute.allowMultiple);
         input = inputAttribute != null;
         tooltip = tooltipAttribute?.tooltip;
@@ -586,7 +585,7 @@ namespace GraphProcessor{
         if (!String.IsNullOrEmpty(outputAttribute?.name))
           name = outputAttribute.name;
 
-        // By default we set the behavior to null, if the field have a custom behavior, it will be set in the loop just below
+        // 默认情况下我们将行为设置为null，如果字段有自定义行为，它将在下面的循环中设置
         nodeFields[field.Name] =
           new NodeFieldInformation(field, name, input, isMultiple, tooltip, vertical != null, null);
       }
@@ -598,7 +597,7 @@ namespace GraphProcessor{
         if (customPortBehaviorAttribute == null)
           continue;
 
-        // Check if custom port behavior function is valid
+        // 检查自定义端口行为函数是否有效
         try{
           var referenceType = typeof(CustomPortBehaviorDelegate);
           behavior = (CustomPortBehaviorDelegate)Delegate.CreateDelegate(referenceType, this, method, true);
@@ -642,7 +641,7 @@ namespace GraphProcessor{
 
       portCollection.Remove(edge);
 
-      // Reset default values of input port:
+      // 重置输入端口的默认值：
       bool haveConnectedEdges = edge.inputNode.inputPorts.Where(p => p.fieldName == edge.inputFieldName)
         .Any(p => p.GetEdges().Count != 0);
       if (edge.inputNode == this && !haveConnectedEdges && CanResetPort(edge.inputPort))
@@ -666,25 +665,25 @@ namespace GraphProcessor{
     public void InvokeOnProcessed() => onProcessed?.Invoke();
 
     /// <summary>
-    /// Called when the node is enabled
+    /// 当节点启用时调用
     /// </summary>
     protected virtual void Enable(){
     }
 
     /// <summary>
-    /// Called when the node is disabled
+    /// 当节点禁用时调用
     /// </summary>
     protected virtual void Disable(){
     }
 
     /// <summary>
-    /// Called when the node is removed
+    /// 当节点移除时调用
     /// </summary>
     protected virtual void Destroy(){
     }
 
     /// <summary>
-    /// Override this method to implement custom processing
+    /// 重写此方法以实现自定义处理
     /// </summary>
     protected virtual void Process(){
     }
@@ -694,13 +693,13 @@ namespace GraphProcessor{
     #region API and utils
 
     /// <summary>
-    /// Add a port
+    /// 添加端口
     /// </summary>
-    /// <param name="input">is input port</param>
-    /// <param name="fieldName">C# field name</param>
-    /// <param name="portData">Data of the port</param>
+    /// <param name="input">是否为输入端口</param>
+    /// <param name="fieldName">C#字段名</param>
+    /// <param name="portData">端口数据</param>
     public void AddPort(bool input, string fieldName, PortData portData){
-      // Fixup port data info if needed:
+      // 如果需要，修复端口数据信息：
       if (portData.displayType == null)
         portData.displayType = nodeFields[fieldName].info.FieldType;
 
@@ -711,10 +710,10 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Remove a port
+    /// 移除端口
     /// </summary>
-    /// <param name="input">is input port</param>
-    /// <param name="port">the port to delete</param>
+    /// <param name="input">是否为输入端口</param>
+    /// <param name="port">要删除的端口</param>
     public void RemovePort(bool input, NodePort port){
       if (input)
         inputPorts.Remove(port);
@@ -723,10 +722,10 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Remove port(s) from field name
+    /// 从字段名移除端口
     /// </summary>
-    /// <param name="input">is input</param>
-    /// <param name="fieldName">C# field name</param>
+    /// <param name="input">是否为输入</param>
+    /// <param name="fieldName">C#字段名</param>
     public void RemovePort(bool input, string fieldName){
       if (input)
         inputPorts.RemoveAll(p => p.fieldName == fieldName);
@@ -735,9 +734,9 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Get all the nodes connected to the input ports of this node
+    /// 获取此节点所有输入端口连接到的节点
     /// </summary>
-    /// <returns>an enumerable of node</returns>
+    /// <returns>一个节点枚举</returns>
     public IEnumerable<BaseNode> GetInputNodes(){
       foreach (var port in inputPorts)
         foreach (var edge in port.GetEdges())
@@ -745,9 +744,9 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Get all the nodes connected to the output ports of this node
+    /// 获取此节点所有输出端口连接到的节点
     /// </summary>
-    /// <returns>an enumerable of node</returns>
+    /// <returns>一个节点枚举</returns>
     public IEnumerable<BaseNode> GetOutputNodes(){
       foreach (var port in outputPorts)
         foreach (var edge in port.GetEdges())
@@ -755,10 +754,10 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Return a node matching the condition in the dependencies of the node
+    /// 根据节点的依赖关系查找符合条件的节点
     /// </summary>
-    /// <param name="condition">Condition to choose the node</param>
-    /// <returns>Matched node or null</returns>
+    /// <param name="condition">选择节点的条件</param>
+    /// <returns>匹配的节点或null</returns>
     public BaseNode FindInDependencies(Func<BaseNode, bool> condition){
       Stack<BaseNode> dependencies = new Stack<BaseNode>();
 
@@ -768,7 +767,7 @@ namespace GraphProcessor{
       while (dependencies.Count > 0){
         var node = dependencies.Pop();
 
-        // Guard for infinite loop (faster than a HashSet based solution)
+        // 防止无限循环的保护（比基于HashSet的解决方案更快）
         depth++;
         if (depth > 2000)
           break;
@@ -784,10 +783,10 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Get the port from field name and identifier
+    /// 根据字段名和标识符获取端口
     /// </summary>
-    /// <param name="fieldName">C# field name</param>
-    /// <param name="identifier">Unique port identifier</param>
+    /// <param name="fieldName">C#字段名</param>
+    /// <param name="identifier">唯一端口标识符</param>
     /// <returns></returns>
     public NodePort GetPort(string fieldName, string identifier){
       return inputPorts.Concat(outputPorts).FirstOrDefault(p => {
@@ -797,7 +796,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Return all the ports of the node
+    /// 返回节点的所有端口
     /// </summary>
     /// <returns></returns>
     public IEnumerable<NodePort> GetAllPorts(){
@@ -808,7 +807,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Return all the connected edges of the node
+    /// 返回节点的所有连接边
     /// </summary>
     /// <returns></returns>
     public IEnumerable<SerializableEdge> GetAllEdges(){
@@ -818,14 +817,14 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Is the port an input
+    /// 是否为输入端口
     /// </summary>
     /// <param name="fieldName"></param>
     /// <returns></returns>
     public bool IsFieldInput(string fieldName) => nodeFields[fieldName].input;
 
     /// <summary>
-    /// Add a message on the node
+    /// 在节点上添加消息
     /// </summary>
     /// <param name="message"></param>
     /// <param name="messageType"></param>
@@ -838,7 +837,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Remove a message on the node
+    /// 从节点移除消息
     /// </summary>
     /// <param name="message"></param>
     public void RemoveMessage(string message){
@@ -847,7 +846,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Remove a message that contains
+    /// 移除包含的消息
     /// </summary>
     /// <param name="subMessage"></param>
     public void RemoveMessageContains(string subMessage){
@@ -857,7 +856,7 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Remove all messages on the node
+    /// 清除节点的所有消息
     /// </summary>
     public void ClearMessages(){
       foreach (var message in messages)
@@ -866,16 +865,15 @@ namespace GraphProcessor{
     }
 
     /// <summary>
-    /// Set the custom name of the node. This is intended to be used by renamable nodes.
-    /// This custom name will be serialized inside the node.
+    /// 设置节点的自定义名称。此自定义名称将序列化到节点中。
     /// </summary>
-    /// <param name="customNodeName">New name of the node.</param>
+    /// <param name="customNodeName">节点的自定义名称。</param>
     public void SetCustomName(string customName) => nodeCustomName = customName;
 
     /// <summary>
-    /// Get the name of the node. If the node have a custom name (set using the UI by double clicking on the node title) then it will return this name first, otherwise it returns the value of the name field.
+    /// 获取节点的名称。如果节点具有自定义名称（通过双击节点标题在UI中设置），则它将首先返回此名称，否则返回名称字段值。
     /// </summary>
-    /// <returns>The name of the node as written in the title</returns>
+    /// <returns>节点标题中写入的名称</returns>
     public string GetCustomName() => String.IsNullOrEmpty(nodeCustomName) ? name : nodeCustomName;
 
     #endregion

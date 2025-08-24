@@ -234,7 +234,7 @@ namespace GraphProcessor{
 
         var newNodeView = AddNode(node);
 
-        // If the nodes were copied from another graph, then the source is null
+        // 如果节点是从另一个图形复制的，那么源为空
         if (sourceNode != null)
           nodeDuplicated?.Invoke(sourceNode, node);
         copiedNodesMap[sourceGUID] = node;
@@ -247,7 +247,7 @@ namespace GraphProcessor{
         //Same than for node
         group.OnCreated();
 
-        // try to centre the created node in the screen
+        // 尝试将创建的节点居中在屏幕中
         group.position.position += new Vector2(20, 20);
 
         var oldGUIDList = group.innerNodeGUIDs.ToList();
@@ -255,7 +255,7 @@ namespace GraphProcessor{
         foreach (var guid in oldGUIDList){
           graph.nodesPerGUID.TryGetValue(guid, out var node);
 
-          // In case group was copied from another graph
+          // 如果组是从另一个图形复制的
           if (node == null){
             copiedNodesMap.TryGetValue(guid, out node);
             group.innerNodeGUIDs.Add(node.GUID);
@@ -273,11 +273,11 @@ namespace GraphProcessor{
 
         edge.Deserialize();
 
-        // Find port of new nodes:
+        // 查找新节点的端口：
         copiedNodesMap.TryGetValue(edge.inputNode.GUID, out var oldInputNode);
         copiedNodesMap.TryGetValue(edge.outputNode.GUID, out var oldOutputNode);
 
-        // We avoid to break the graph by replacing unique connections:
+        // 我们通过替换唯一连接来避免破坏图形：
         if (oldInputNode == null && !edge.inputPort.portData.acceptMultipleEdges ||
             !edge.outputPort.portData.acceptMultipleEdges)
           continue;
@@ -311,8 +311,8 @@ namespace GraphProcessor{
       if (changes.elementsToRemove != null){
         RegisterCompleteObjectUndo("Remove Graph Elements");
 
-        // Destroy priority of objects
-        // We need nodes to be destroyed first because we can have a destroy operation that uses node connections
+        // 销毁对象的优先级
+        // 我们需要先销毁节点，因为我们可能有一个使用节点连接的销毁操作
         changes.elementsToRemove.Sort((e1, e2) => {
           int GetPriority(GraphElement e){
             if (e is BaseNodeView)

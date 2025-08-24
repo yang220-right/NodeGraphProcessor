@@ -21,6 +21,8 @@ MonoBehaviour:
   - rid: 6536306825042853893
   - rid: 6536306825042853894
   - rid: 6536306825042853895
+  - rid: 6536306906094895104
+  - rid: 6536306906094895105
   edges:
   - GUID: 45455958-ff69-4fd0-bdbf-13bfe6f8ad61
     owner: {fileID: 11400000}
@@ -62,20 +64,36 @@ MonoBehaviour:
     outputFieldName: loopBody
     inputPortIdentifier: 
     outputPortIdentifier: 
-  - GUID: 418f6d43-5fcf-4c0d-994a-09702fcaa4a9
-    owner: {fileID: 11400000}
-    inputNodeGUID: f1ca4fdd-80a5-4392-a755-d7c58262fd22
-    outputNodeGUID: ecbd7fbc-08f0-46f0-aca5-7c5d39a9d4bd
-    inputFieldName: executed
-    outputFieldName: executes
-    inputPortIdentifier: 
-    outputPortIdentifier: 
   - GUID: ddd389db-b431-4910-8dcd-6cb0035dd5b5
     owner: {fileID: 11400000}
     inputNodeGUID: 92e75ee0-03f3-4c86-8341-c91dcc9d6d9f
     outputNodeGUID: 2c10e8c4-938e-4f7a-94fc-70ad51b88b93
     inputFieldName: obj
     outputFieldName: index
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 8d731664-4305-4935-8f85-93d37d2830f0
+    owner: {fileID: 11400000}
+    inputNodeGUID: c778b3a3-c3fc-4fa0-9594-f51f5d602474
+    outputNodeGUID: ecbd7fbc-08f0-46f0-aca5-7c5d39a9d4bd
+    inputFieldName: executed
+    outputFieldName: executes
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: 1411e017-6396-42e2-a9a1-05639a4b927e
+    owner: {fileID: 11400000}
+    inputNodeGUID: f1ca4fdd-80a5-4392-a755-d7c58262fd22
+    outputNodeGUID: c778b3a3-c3fc-4fa0-9594-f51f5d602474
+    inputFieldName: executed
+    outputFieldName: true
+    inputPortIdentifier: 
+    outputPortIdentifier: 
+  - GUID: af428c3b-fa31-4044-83b6-547ee5c67942
+    owner: {fileID: 11400000}
+    inputNodeGUID: c778b3a3-c3fc-4fa0-9594-f51f5d602474
+    outputNodeGUID: df2c5aa5-28ea-4ced-93fa-d31c47e925cf
+    inputFieldName: condition
+    outputFieldName: compared
     inputPortIdentifier: 
     outputPortIdentifier: 
   groups: []
@@ -85,8 +103,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -170, y: -122, z: 0}
-  scale: {x: 0.8695652, y: 0.8695652, z: 1}
+  position: {x: -175, y: -87, z: 0}
+  scale: {x: 1.15, y: 1.15, z: 1}
   references:
     version: 2
     RefIds:
@@ -95,11 +113,11 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: f1ca4fdd-80a5-4392-a755-d7c58262fd22
-        computeOrder: 2
+        computeOrder: 4
         position:
           serializedVersion: 2
-          x: 536
-          y: 197.99998
+          x: 983.7501
+          y: 198
           width: 170
           height: 123
         expanded: 0
@@ -115,8 +133,8 @@ MonoBehaviour:
         computeOrder: 0
         position:
           serializedVersion: 2
-          x: 290.4001
-          y: 347.35004
+          x: 795
+          y: 341
           width: 102
           height: 99
         expanded: 0
@@ -129,11 +147,11 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: 2c10e8c4-938e-4f7a-94fc-70ad51b88b93
-        computeOrder: 3
+        computeOrder: 5
         position:
           serializedVersion: 2
-          x: 786.6087
-          y: 197.50002
+          x: 1183.7501
+          y: 198
           width: 209
           height: 161
         expanded: 0
@@ -147,11 +165,11 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: 393ce592-f353-4b60-b1d2-2822568bd482
-        computeOrder: 4
+        computeOrder: 6
         position:
           serializedVersion: 2
-          x: 603.6957
-          y: 456.88696
+          x: 1000.7502
+          y: 457.00003
           width: 102
           height: 99
         expanded: 0
@@ -164,11 +182,11 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: d56a11c9-c4fe-482c-9b23-69976a7e25ad
-        computeOrder: 5
+        computeOrder: 7
         position:
           serializedVersion: 2
-          x: 787
-          y: 372.7125
+          x: 1183.7501
+          y: 373
           width: 170
           height: 123
         expanded: 0
@@ -181,11 +199,11 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: 92e75ee0-03f3-4c86-8341-c91dcc9d6d9f
-        computeOrder: 6
+        computeOrder: 8
         position:
           serializedVersion: 2
-          x: 1085.87
-          y: 198.00002
+          x: 1482.7501
+          y: 198
           width: 170
           height: 123
         expanded: 0
@@ -198,13 +216,49 @@ MonoBehaviour:
       data:
         nodeCustomName: 
         GUID: ecbd7fbc-08f0-46f0-aca5-7c5d39a9d4bd
-        computeOrder: 1
+        computeOrder: 2
         position:
           serializedVersion: 2
-          x: 330.0001
+          x: 170.75998
           y: 198
           width: 88
           height: 75
         expanded: 0
         debug: 0
         nodeLock: 0
+    - rid: 6536306906094895104
+      type: {class: IfNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeCustomName: 
+        GUID: c778b3a3-c3fc-4fa0-9594-f51f5d602474
+        computeOrder: 3
+        position:
+          serializedVersion: 2
+          x: 582
+          y: 198
+          width: 152
+          height: 113
+        expanded: 1
+        debug: 0
+        nodeLock: 0
+        condition: 1
+        compareOperator: 0
+    - rid: 6536306906094895105
+      type: {class: Comparison, ns: NodeGraphProcessor.Examples, asm: Assembly-CSharp}
+      data:
+        nodeCustomName: 
+        GUID: df2c5aa5-28ea-4ced-93fa-d31c47e925cf
+        computeOrder: 1
+        position:
+          serializedVersion: 2
+          x: 296.86957
+          y: 300
+          width: 191
+          height: 157
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        inA: 0
+        inB: 0
+        compared: 1
+        compareFunction: 3

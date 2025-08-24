@@ -45,14 +45,14 @@ namespace GraphProcessor
         {
             if (compatiblePorts != null && graphView != null)
             {
-                // Reset the highlights.
+                // 重置高亮显示。
                 graphView.ports.ForEach((p) => {
                     p.OnStopEdgeDragging();
                 });
                 compatiblePorts.Clear();
             }
 
-            // Clean up ghost edge.
+            // 清理幽灵边。
             if ((ghostEdge != null) && (graphView != null))
             {
                 var pv = ghostEdge.input as PortView;

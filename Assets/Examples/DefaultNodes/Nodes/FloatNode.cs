@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using GraphProcessor;
+﻿using GraphProcessor;
 
 [System.Serializable, NodeMenuItem("Primitives/Float")]
 public class FloatNode : BaseNode{
@@ -10,6 +7,5 @@ public class FloatNode : BaseNode{
   [Input("In")] public float input;
 
   public override string name => "Float";
-
   protected override void Process() => output = input;
 }

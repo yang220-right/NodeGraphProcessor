@@ -17,7 +17,7 @@ MonoBehaviour:
   - rid: 6536307005047701522
   - rid: 6536307005047701524
   - rid: 6536307005047701528
-  - rid: 6536307038616551437
+  - rid: 6536307051513774081
   edges:
   - GUID: 907f8127-4214-466f-aab8-f77398897f4e
     owner: {fileID: 11400000}
@@ -42,8 +42,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -345, y: 406, z: 0}
-  scale: {x: 0.8695652, y: 0.8695652, z: 1}
+  position: {x: -584, y: -71, z: 0}
+  scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
     RefIds:
@@ -55,8 +55,8 @@ MonoBehaviour:
         computeOrder: 0
         position:
           serializedVersion: 2
-          x: 244.40831
-          y: 303.17014
+          x: 428
+          y: 72
           width: 150
           height: 105
         expanded: 1
@@ -72,8 +72,8 @@ MonoBehaviour:
         computeOrder: 2
         position:
           serializedVersion: 2
-          x: 555.1001
-          y: 368.5001
+          x: 644
+          y: 144
           width: 184
           height: 99
         expanded: 0
@@ -89,40 +89,29 @@ MonoBehaviour:
         computeOrder: 1
         position:
           serializedVersion: 2
-          x: 291.00006
-          y: 449.05005
-          width: 207
+          x: 309
+          y: 230
+          width: 281
           height: 95
         expanded: 0
         debug: 0
         nodeLock: 0
         input: {fileID: 0}
         output: {fileID: 0}
-    - rid: 6536307038616551437
-      type: {class: SONode, ns: , asm: Assembly-CSharp}
+    - rid: 6536307051513774081
+      type: {class: SampleSONode, ns: , asm: Assembly-CSharp-Editor}
       data:
         nodeCustomName: 
-        GUID: 815afe5b-c822-44e3-ae96-2177d29f22aa
+        GUID: 17032519-dd4a-4aea-bf14-bc1b1b3c2300
         computeOrder: 3
         position:
           serializedVersion: 2
-          x: 1375
-          y: -404.43997
+          x: 906
+          y: 12
           width: 450
-          height: 1147
+          height: 575
         expanded: 0
         debug: 0
         nodeLock: 0
         input: 0
-        output: 0
         soData: {fileID: 0}
-        nodeName: SO Inspector Node
-        isEnabled: 1
-        multiplier: 2
-        offset: 10
-        processCount: 0
-        lastProcessTime: 0
-        configMode: 0
-        useAdvancedSettings: 0
-        advancedMultiplier: 1.5
-        advancedOffset: 5

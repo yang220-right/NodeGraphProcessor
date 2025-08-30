@@ -24,17 +24,17 @@ MonoBehaviour:
   AlwaysExpandedTable:
   - Icon: {fileID: 0}
     Description: Lorem Ipsum
-    A: 1
-    B: 2
-    C: 3
+    A: 
+    B: 
+    C: 
   - Icon: {fileID: 0}
-    Description: Sirenixas
-    A: 655
-    B: 5555
-    C: 412
+    Description: Ramblings of a mad man
+    A: 
+    B: 
+    C: 
   ScriptableObjectsFromMultipleFolders: {fileID: 0}
   nodeName: SO Inspector Node
   isEnabled: 1
-  multiplier: 2
+  multiplier: 6.31
   offset: 10
   configMode: 0

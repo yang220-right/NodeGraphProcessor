@@ -17,6 +17,7 @@ MonoBehaviour:
   - rid: 6536307005047701522
   - rid: 6536307005047701524
   - rid: 6536307005047701528
+  - rid: 6536307038616551431
   edges:
   - GUID: 907f8127-4214-466f-aab8-f77398897f4e
     owner: {fileID: 11400000}
@@ -41,8 +42,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -130, y: -140, z: 0}
-  scale: {x: 0.8695652, y: 0.8695652, z: 1}
+  position: {x: -699, y: 12, z: 0}
+  scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
     RefIds:
@@ -54,15 +55,15 @@ MonoBehaviour:
         computeOrder: 0
         position:
           serializedVersion: 2
-          x: 206.75
-          y: 310.60004
-          width: 308
-          height: 97
+          x: 244.40831
+          y: 303.17014
+          width: 150
+          height: 105
         expanded: 1
         debug: 0
         nodeLock: 0
-        output: 13
-        input: 13
+        output: 10
+        input: 10
     - rid: 6536307005047701524
       type: {class: AnimationControllerByInt, ns: , asm: Assembly-CSharp}
       data:
@@ -71,14 +72,14 @@ MonoBehaviour:
         computeOrder: 2
         position:
           serializedVersion: 2
-          x: 543.4001
-          y: 341.99997
+          x: 555.1001
+          y: 368.5001
           width: 184
           height: 99
         expanded: 0
         debug: 0
         nodeLock: 0
-        input: 13
+        input: 10
         obj: {fileID: 0}
     - rid: 6536307005047701528
       type: {class: SceneGameObjectNode, ns: , asm: Assembly-CSharp}
@@ -88,8 +89,8 @@ MonoBehaviour:
         computeOrder: 1
         position:
           serializedVersion: 2
-          x: 235
-          y: 440.85
+          x: 291.00006
+          y: 449.05005
           width: 207
           height: 95
         expanded: 0
@@ -97,3 +98,31 @@ MonoBehaviour:
         nodeLock: 0
         input: {fileID: 0}
         output: {fileID: 0}
+    - rid: 6536307038616551431
+      type: {class: SONode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeCustomName: 
+        GUID: ea0a1b55-a45a-457e-ab44-9516e02dabff
+        computeOrder: 3
+        position:
+          serializedVersion: 2
+          x: 869
+          y: -109.75614
+          width: 450
+          height: 761
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        input: 0
+        output: 0
+        soData: {fileID: 0}
+        nodeName: SO Inspector Node
+        isEnabled: 1
+        multiplier: 2
+        offset: 10
+        processCount: 0
+        lastProcessTime: 0
+        configMode: 0
+        useAdvancedSettings: 0
+        advancedMultiplier: 1.5
+        advancedOffset: 5

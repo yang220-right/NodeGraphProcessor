@@ -23,18 +23,18 @@ MonoBehaviour:
     SerializationNodes: []
   AlwaysExpandedTable:
   - Icon: {fileID: 0}
-    Description: Lorem Ipsum
+    Description: 
     A: 
     B: 
     C: 
   - Icon: {fileID: 0}
-    Description: Ramblings of a mad man
+    Description: 
     A: 
     B: 
     C: 
   ScriptableObjectsFromMultipleFolders: {fileID: 0}
   nodeName: SO Inspector Node
   isEnabled: 1
-  multiplier: 6.31
+  multiplier: 2
   offset: 10
   configMode: 0

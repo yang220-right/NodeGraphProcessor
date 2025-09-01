@@ -12,37 +12,21 @@ using Sirenix.OdinInspector.Editor;
 /// </summary>
 public abstract class BaseSONodeView : BaseNodeView{
   protected ScriptableObject targetSO;
-  private SerializedObject serializedObject;
-
+  private PropertyTree odinPropertyTree; // Odin 的属性树
+  
   #region 生命周期
 
   public override void Enable(){
-    // 设置节点视图的宽度
+    base.Enable();
+    
+    // 监听Node的端口更新事件
+    if (nodeTarget != null){
+      nodeTarget.onPortsUpdated += OnNodePortsUpdated;
+    }
+    
     SetWidth();
-    // 自动创建并显示SO对象
     AutoCreateAndDisplaySO();
-    // 设置界面
     SetupInspector();
-  }
-
-  /// <summary>
-  /// 初始化Inspector
-  /// </summary>
-  private void InitializeInspector(){
-    try{
-      if (targetSO != null){
-        // 创建SerializedObject
-        serializedObject = new SerializedObject(targetSO);
-        Debug.Log($"SO Inspector 初始化成功，目标: {targetSO.GetType().Name}");
-      }
-    }
-    catch (ExitGUIException){
-      // ExitGUIException是Unity的正常行为，不需要记录错误
-      return;
-    }
-    catch (System.Exception e){
-      Debug.LogError($"SO Inspector 初始化失败: {e.Message}");
-    }
   }
 
   /// <summary>
@@ -53,16 +37,12 @@ public abstract class BaseSONodeView : BaseNodeView{
       odinPropertyTree.Dispose();
       odinPropertyTree = null;
     }
-
-    if (serializedObject != null){
-      serializedObject.Dispose();
-      serializedObject = null;
+    
+    // 清理事件监听
+    if (nodeTarget != null){
+      nodeTarget.onPortsUpdated -= OnNodePortsUpdated;
     }
-
-    if (targetSO != null){
-      targetSO = null;
-    }
-
+    
     base.Disable();
   }
 
@@ -120,8 +100,6 @@ public abstract class BaseSONodeView : BaseNodeView{
       if (targetSO != null){
         // 自动设置SO的名称
         targetSO.name = $"{GetType().Name}";
-        // 初始化Inspector
-        InitializeInspector();
         Debug.Log($"自动创建SO对象成功: {targetSO.GetType().Name}");
       }
     }
@@ -179,17 +157,9 @@ public abstract class BaseSONodeView : BaseNodeView{
   private void RecreateSO(){
     try{
       // 清理旧的资源
-      if (odinPropertyTree != null){
-        odinPropertyTree.Dispose();
-        odinPropertyTree = null;
-      }
+      CleanupOdinTree();
 
       // 清理现有资源
-      if (serializedObject != null){
-        serializedObject.Dispose();
-        serializedObject = null;
-      }
-
       if (targetSO != null){
         targetSO = null;
       }
@@ -232,7 +202,7 @@ public abstract class BaseSONodeView : BaseNodeView{
         AssetDatabase.CreateAsset(targetSO, fullPath);
       }
 
-      // 标记为已修改并保存
+      // 标记为已修改并保存 - 使用EditorUtility而不是SerializedObject
       EditorUtility.SetDirty(targetSO);
       AssetDatabase.SaveAssets();
       AssetDatabase.Refresh();
@@ -255,8 +225,6 @@ public abstract class BaseSONodeView : BaseNodeView{
       // 清理旧的属性树
       CleanupOdinTree();
       targetSO = loadedSO;
-      // 重新初始化Inspector以反映加载的SO
-      InitializeInspector();
       Debug.Log($"SO对象已从 {fullPath} 加载");
       return true;
     }
@@ -271,7 +239,6 @@ public abstract class BaseSONodeView : BaseNodeView{
   #region UI绘制
   private IMGUIContainer imguiContainer;
   private Vector2 scrollPosition;
-  private PropertyTree odinPropertyTree; // Odin 的属性树
   
   /// <summary>
   /// 设置Inspector界面
@@ -305,16 +272,13 @@ public abstract class BaseSONodeView : BaseNodeView{
     // 使用 Insert 方法将 IMGUI 容器插入到最前面
     controlsContainer.Add(imguiContainer);
     controlsContainer.Add(buttonContainer);
-
-    // 初始化Inspector
-    InitializeInspector();
   }
 
   /// <summary>
-  /// Inspector的GUI绘制方法
+  /// Inspector的GUI绘制方法 - 纯Odin方式
   /// </summary>
   private void OnInspectorGUI(){
-    if (serializedObject == null || targetSO == null){
+    if (targetSO == null){
       EditorGUILayout.HelpBox("Inspector 未初始化", MessageType.Warning);
       return;
     }
@@ -349,16 +313,16 @@ public abstract class BaseSONodeView : BaseNodeView{
       EditorGUILayout.LabelField("All Properties:", EditorStyles.boldLabel);
       EditorGUILayout.Space(5);
       
-      if (serializedObject != null){
+      if (targetSO != null){
         DrawOdin();
       }
 
       EditorGUILayout.EndScrollView();
       
-      // 应用修改（拖动期间不应用，避免值被重置）
-      if (serializedObject != null && serializedObject.hasModifiedProperties){
-        serializedObject.ApplyModifiedProperties();
-        Debug.Log("SO属性已修改并应用");
+      // 使用EditorUtility标记为已修改，而不是SerializedObject
+      if (targetSO != null && GUI.changed){
+        EditorUtility.SetDirty(targetSO);
+        Debug.Log("SO属性已修改并标记为已修改");
       }
     }
     catch (ExitGUIException){
@@ -372,34 +336,41 @@ public abstract class BaseSONodeView : BaseNodeView{
     }
   }
 
-
-
   /// <summary>
-  /// 使用 Odin Inspector 绘制属性
+  /// 使用 Odin Inspector 绘制属性 - 纯Odin方式
   /// </summary>
   private void DrawOdin(){
     try{
+      // 检查SO对象是否仍然有效
+      if (targetSO == null){
+        Debug.LogWarning("SO对象已丢失，尝试重新创建");
+        AutoCreateAndDisplaySO();
+        return;
+      }
       
-      // 检查是否需要重建属性树
+      // 检查SO对象是否已被销毁
+      if (targetSO.Equals(null)){
+        Debug.LogWarning("SO对象已被销毁，重新创建");
+        targetSO = null;
+        AutoCreateAndDisplaySO();
+        return;
+      }
+      
+      // 确保PropertyTree存在且有效
       if (odinPropertyTree == null){
-        if (odinPropertyTree != null){
-          odinPropertyTree.Dispose();
-        }
-        odinPropertyTree = PropertyTree.Create(serializedObject.targetObject);
+        CleanupOdinTree();
+        odinPropertyTree = PropertyTree.Create(targetSO);
         Debug.Log("Odin 属性树已重建");
       }
 
       if (odinPropertyTree == null) return;
 
-      // 使用 Odin 的 PropertyTree 来绘制属性
-      // 这将自动处理所有 Odin 自定义属性（如 [ShowInInspector], [BoxGroup] 等）
-      odinPropertyTree.BeginDraw(true); // true 表示包含 ScrollView
-      odinPropertyTree.Draw(false); // false 表示不立即绘制 ScrollView，因为上面用了 true
+      // 使用正确的Odin绘制方法
+      odinPropertyTree.BeginDraw(true);
+      odinPropertyTree.Draw(false);
       odinPropertyTree.EndDraw();
     }
     catch (ExitGUIException){
-      // ExitGUIException是Unity的正常行为，不需要记录错误
-      // 直接return即可
       return;
     }
     catch (System.Exception e){
@@ -412,22 +383,10 @@ public abstract class BaseSONodeView : BaseNodeView{
   /// 刷新Inspector
   /// </summary>
   private void RefreshInspector(){
-    try{
-      if (serializedObject != null){
-        serializedObject.Update();
-      }
-      if (imguiContainer != null){
-        imguiContainer.MarkDirtyRepaint();
-      }
-      Debug.Log("Inspector 已刷新");
+    if (imguiContainer != null){
+      imguiContainer.MarkDirtyRepaint();
     }
-    catch (ExitGUIException){
-      // ExitGUIException是Unity的正常行为，不需要记录错误
-      return;
-    }
-    catch (System.Exception e){
-      Debug.LogError($"刷新Inspector时出错: {e.Message}");
-    }
+    Debug.Log("Inspector 已刷新");
   }
 
   /// <summary>
@@ -529,4 +488,23 @@ public abstract class BaseSONodeView : BaseNodeView{
   }
 
   #endregion
+
+  // 添加保护机制
+  public override void OnCreated(){
+    base.OnCreated();
+    // 确保在Node创建后SO对象被正确初始化
+    if (targetSO == null){
+      AutoCreateAndDisplaySO();
+    }
+  }
+  
+  private void OnNodePortsUpdated(string ports){
+    // 当端口更新时，确保SO对象和属性树保持有效
+    if (targetSO == null){
+      AutoCreateAndDisplaySO();
+    }
+    if (odinPropertyTree == null && targetSO != null){
+      odinPropertyTree = PropertyTree.Create(targetSO);
+    }
+  }
 }

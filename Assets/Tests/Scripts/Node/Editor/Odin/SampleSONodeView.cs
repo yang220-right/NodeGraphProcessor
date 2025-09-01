@@ -77,15 +77,17 @@ public class SampleSO : SerializedScriptableObject{
     }
   }
 
-  [AssetSelector] public Material ScriptableObjectsFromMultipleFolders;
-
+  [AssetSelector(DisableListAddButtonBehaviour  = true)] 
+  public Material ScriptableObjectsFromMultipleFolders;
+  [ChildGameObjectsOnly]
+  public GameObject ChildGameObject;
   #endregion
 
   [Header("节点设置")] [Tooltip("节点名称")] public string nodeName = "SO Inspector Node";
   [Tooltip("是否启用节点")] public bool isEnabled = true;
   [Header("数据处理")] [Tooltip("处理倍数")] [Range(1f, 10f)] public float multiplier = 2f;
   [Tooltip("偏移值")] public int offset = 10;
-  [Header("配置选项")] [Tooltip("配置模式")] public ConfigMode configMode = ConfigMode.Normal;
+  [EnumPaging]public ConfigMode configMode = ConfigMode.Normal;
 
   /// <summary>
   /// 配置模式枚举

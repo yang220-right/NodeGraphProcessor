@@ -17,7 +17,7 @@ MonoBehaviour:
   - rid: 6536307005047701522
   - rid: 6536307005047701524
   - rid: 6536307005047701528
-  - rid: 6536307051513774081
+  - rid: 9155479417330335744
   edges:
   - GUID: 907f8127-4214-466f-aab8-f77398897f4e
     owner: {fileID: 11400000}
@@ -42,8 +42,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -61, y: 254, z: 0}
-  scale: {x: 0.7561437, y: 0.7561437, z: 1}
+  position: {x: -318, y: 49, z: 0}
+  scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
     RefIds:
@@ -98,18 +98,18 @@ MonoBehaviour:
         nodeLock: 0
         input: {fileID: 0}
         output: {fileID: 0}
-    - rid: 6536307051513774081
+    - rid: 9155479417330335744
       type: {class: SampleSONode, ns: , asm: Assembly-CSharp-Editor}
       data:
         nodeCustomName: 
-        GUID: 17032519-dd4a-4aea-bf14-bc1b1b3c2300
+        GUID: 132063a7-b78c-4ec4-9db4-54abaf1d3dfc
         computeOrder: 3
         position:
           serializedVersion: 2
-          x: 877.25
-          y: -292.00012
+          x: 1018
+          y: -189.5
           width: 450
-          height: 617
+          height: 733
         expanded: 0
         debug: 0
         nodeLock: 0

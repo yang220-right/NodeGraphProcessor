@@ -23,18 +23,24 @@ MonoBehaviour:
     SerializationNodes: []
   AlwaysExpandedTable:
   - Icon: {fileID: 0}
-    Description: 
+    Description: Ramblings of a mad man
     A: 
     B: 
     C: 
   - Icon: {fileID: 0}
-    Description: 
+    Description: Unity
+    A: 
+    B: 
+    C: 
+  - Icon: {fileID: 0}
+    Description: Hello World
     A: 
     B: 
     C: 
   ScriptableObjectsFromMultipleFolders: {fileID: 0}
+  ChildGameObject: {fileID: 0}
   nodeName: SO Inspector Node
   isEnabled: 1
-  multiplier: 2
-  offset: 10
-  configMode: 0
+  multiplier: 5.3
+  offset: 40
+  configMode: 3

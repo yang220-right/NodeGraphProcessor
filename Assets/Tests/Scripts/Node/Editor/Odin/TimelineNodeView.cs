@@ -3,824 +3,888 @@ using System.Collections.Generic;
 using GraphProcessor;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using UnityEngine.UIElements;
+using UnityEditor;
+using System.Linq;
 
 /// <summary>
-/// TimelineNode的NodeView实现
-/// 继承自SOInspectorWrapper，专门用于显示TimelineNode的所有属性
+/// 时间轴节点的自定义视图
+/// 提供时间轴的可视化编辑界面
 /// </summary>
 [NodeCustomEditor(typeof(TimelineNode))]
 public class TimelineNodeView : BaseSONodeView
 {
-    /// <summary>
-    /// 创建目标ScriptableObject
-    /// 这里我们创建一个包装了TimelineNode数据的SO对象
-    /// </summary>
-    /// <returns>包装了TimelineNode数据的SO对象</returns>
+    private TimelineNode timelineNode;
+    private TimelineSO timelineSO;
+    
+    // UI元素
+    private IMGUIContainer timelineContainer;
+    private IMGUIContainer controlContainer;
+    private VisualElement playbackControls;
+    
+    // 时间轴绘制相关
+    private Rect timelineRect;
+    private float timelineWidth = 400f;
+    private float timelineHeight = 200f;
+    private float keyframeSize = 8f;
+    private Color timelineColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+    private Color keyframeColor = new Color(1f, 0.8f, 0.2f, 1f);
+    private Color selectedKeyframeColor = new Color(1f, 0.4f, 0.2f, 1f);
+    
+    // 轨道相关
+    private int selectedTrackIndex = 0;
+    private float trackHeight = 30f;
+    private float trackSpacing = 5f;
+    
+    // 交互状态
+    private int selectedKeyframeIndex = -1;
+    private bool isDragging = false;
+    private Vector2 dragStartPos;
+    private float dragStartTime;
+    private float dragStartValue;
+    
+    protected override void SetWidth()
+    {
+        style.width = 500f;
+    }
+    
     protected override ScriptableObject CreateSO()
     {
-        var so = ScriptableObject.CreateInstance<TimelineNodeWrapper>();
+        timelineSO = CreateInstance<TimelineSO>() as TimelineSO;
+        timelineSO.Initialize();
+        return timelineSO;
+    }
+    
+    public override void Enable()
+    {
+        base.Enable();
         
-        // 设置初始值
-        so.timelineName = "My Timeline";
-        so.duration = 60f;
-        so.loop = false;
-        so.autoPlay = false;
-        so.currentPlayTime = 0f;
-        so.playbackSpeed = 1f;
-        so.playbackState = TimelineNodeWrapper.PlaybackState.Stopped;
-        so.maxTracks = 10;
-        so.interpolationMode = TimelineNodeWrapper.InterpolationMode.Linear;
-        so.playCount = 0;
-        so.lastPlayTime = 0f;
-        so.isInitialized = false;
-        
-        // 创建默认轨道
-        so.tracks = new List<TimelineNodeWrapper.TimelineTrackWrapper>
+        timelineNode = nodeTarget as TimelineNode;
+        if (timelineSO == null)
         {
-            new TimelineNodeWrapper.TimelineTrackWrapper
+            timelineSO = targetSO as TimelineSO;
+        }
+        
+        SetupTimelineUI();
+    }
+    
+    public override void Disable()
+    {
+        base.Disable();
+    }
+    
+    /// <summary>
+    /// 设置时间轴UI
+    /// </summary>
+    private void SetupTimelineUI()
+    {
+        // 创建时间轴容器
+        timelineContainer = new IMGUIContainer();
+        timelineContainer.style.height = timelineHeight + 50f;
+        timelineContainer.style.marginBottom = 10f;
+        timelineContainer.onGUIHandler = OnTimelineGUI;
+        
+        // 创建控制容器
+        controlContainer = new IMGUIContainer();
+        controlContainer.style.height = 100f;
+        controlContainer.onGUIHandler = OnControlGUI;
+        
+        // 创建播放控制按钮
+        CreatePlaybackControls();
+        
+        // 添加到控件容器
+        controlsContainer.Add(timelineContainer);
+        controlsContainer.Add(controlContainer);
+        controlsContainer.Add(playbackControls);
+    }
+    
+    /// <summary>
+    /// 创建播放控制按钮
+    /// </summary>
+    private void CreatePlaybackControls()
+    {
+        playbackControls = new VisualElement();
+        playbackControls.style.flexDirection = FlexDirection.Row;
+        playbackControls.style.justifyContent = Justify.SpaceAround;
+        playbackControls.style.marginTop = 10f;
+        
+        // 播放按钮
+        var playButton = CreateControlButton("播放", () => {
+            if (timelineNode != null)
             {
-                trackName = "Animation Track",
-                trackType = TimelineNodeWrapper.TimelineTrackWrapper.TrackType.Animation,
-                isEnabled = true,
-                color = Color.blue,
-                volume = 1f,
-                offset = 0f,
-                length = 60f
-            },
-            new TimelineNodeWrapper.TimelineTrackWrapper
-            {
-                trackName = "Audio Track",
-                trackType = TimelineNodeWrapper.TimelineTrackWrapper.TrackType.Audio,
-                isEnabled = true,
-                color = Color.green,
-                volume = 1f,
-                offset = 0f,
-                length = 60f
-            },
-            new TimelineNodeWrapper.TimelineTrackWrapper
-            {
-                trackName = "Event Track",
-                trackType = TimelineNodeWrapper.TimelineTrackWrapper.TrackType.Event,
-                isEnabled = true,
-                color = Color.yellow,
-                volume = 1f,
-                offset = 0f,
-                length = 60f
+                timelineNode.StartTimeline();
             }
-        };
+        });
         
-        // 创建默认关键帧
-        so.keyframes = new List<TimelineNodeWrapper.KeyframeWrapper>
-        {
-            new TimelineNodeWrapper.KeyframeWrapper
+        // 暂停按钮
+        var pauseButton = CreateControlButton("暂停", () => {
+            if (timelineNode != null)
             {
-                time = 0f,
-                value = 0f,
-                trackIndex = 0,
-                keyframeType = TimelineNodeWrapper.KeyframeWrapper.KeyframeType.Animation,
-                easeInTime = 0f,
-                easeOutTime = 0f,
-                isLocked = false
-            },
-            new TimelineNodeWrapper.KeyframeWrapper
-            {
-                time = 30f,
-                value = 0.5f,
-                trackIndex = 0,
-                keyframeType = TimelineNodeWrapper.KeyframeWrapper.KeyframeType.Animation,
-                easeInTime = 0f,
-                easeOutTime = 0f,
-                isLocked = false
-            },
-            new TimelineNodeWrapper.KeyframeWrapper
-            {
-                time = 60f,
-                value = 1f,
-                trackIndex = 0,
-                keyframeType = TimelineNodeWrapper.KeyframeWrapper.KeyframeType.Animation,
-                easeInTime = 0f,
-                easeOutTime = 0f,
-                isLocked = false
+                timelineNode.PauseTimeline();
             }
+        });
+        
+        // 停止按钮
+        var stopButton = CreateControlButton("停止", () => {
+            if (timelineNode != null)
+            {
+                timelineNode.StopTimeline();
+            }
+        });
+        
+        // 重置按钮
+        var resetButton = CreateControlButton("重置", () => {
+            if (timelineNode != null)
+            {
+                timelineNode.SeekToTime(0f);
+            }
+        });
+        
+        playbackControls.Add(playButton);
+        playbackControls.Add(pauseButton);
+        playbackControls.Add(stopButton);
+        playbackControls.Add(resetButton);
+    }
+    
+    /// <summary>
+    /// 创建控制按钮
+    /// </summary>
+    private Button CreateControlButton(string text, Action onClick)
+    {
+        var button = new Button(onClick)
+        {
+            text = text
         };
         
-        Debug.Log("TimelineNodeWrapper 已创建并初始化");
-        return so;
-    }
-
-    protected override void SetWidth(){
-        style.width = 450f;
-    }
-
-    /// <summary>
-    /// 重写自动创建方法，添加更多日志信息
-    /// </summary>
-    protected override void AutoCreateAndDisplaySO()
-    {
-        Debug.Log("TimelineNodeView 开始自动创建SO对象...");
-        base.AutoCreateAndDisplaySO();
+        button.style.backgroundColor = new Color(0.3f, 0.6f, 0.9f, 0.8f);
+        button.style.color = Color.white;
+        button.style.height = 25f;
+        button.style.flexGrow = 1;
+        button.style.marginLeft = 2f;
+        button.style.marginRight = 2f;
         
-        if (targetSO != null)
-        {
-            Debug.Log($"TimelineNodeView SO对象创建成功: {targetSO.name}");
-        }
-        else
-        {
-            Debug.LogError("TimelineNodeView SO对象创建失败");
-        }
-    }
-}
-
-/// <summary>
-/// TimelineNode数据包装器
-/// 将TimelineNode的数据包装成ScriptableObject，以便在Inspector中显示
-/// </summary>
-[CreateAssetMenu(fileName = "TimelineNodeWrapper", menuName = "Examples/TimelineNodeWrapper")]
-public class TimelineNodeWrapper : SerializedScriptableObject
-{
-    [Header("时间轴设置")]
-    [Tooltip("时间轴名称")]
-    public string timelineName = "My Timeline";
-    
-    [Tooltip("时间轴总长度（秒）")]
-    [Range(1f, 300f)]
-    public float duration = 60f;
-    
-    [Tooltip("是否循环播放")]
-    public bool loop = false;
-    
-    [Tooltip("是否自动播放")]
-    public bool autoPlay = false;
-    
-    [Header("播放控制")]
-    [Tooltip("当前播放时间")]
-    [Range(0f, 300f)]
-    public float currentPlayTime = 0f;
-    
-    [Tooltip("播放速度")]
-    [Range(0.1f, 5f)]
-    public float playbackSpeed = 1f;
-    
-    [Tooltip("播放状态")]
-    public PlaybackState playbackState = PlaybackState.Stopped;
-    
-    [Header("轨道设置")]
-    [Tooltip("轨道列表")]
-    [TableList(AlwaysExpanded = true, DrawScrollView = false)]
-    public List<TimelineTrackWrapper> tracks = new List<TimelineTrackWrapper>();
-    
-    [Tooltip("最大轨道数量")]
-    [Range(1, 20)]
-    public int maxTracks = 10;
-    
-    [Header("关键帧设置")]
-    [Tooltip("关键帧列表")]
-    [TableList(AlwaysExpanded = true, DrawScrollView = false)]
-    public List<KeyframeWrapper> keyframes = new List<KeyframeWrapper>();
-    
-    [Tooltip("关键帧插值模式")]
-    public InterpolationMode interpolationMode = InterpolationMode.Linear;
-    
-    [Header("状态信息")]
-    [Tooltip("播放次数")]
-    public int playCount = 0;
-    
-    [Tooltip("最后播放时间")]
-    public float lastPlayTime = 0f;
-    
-    [Tooltip("是否已初始化")]
-    public bool isInitialized = false;
-    
-    [Header("时间轴显示设置")]
-    [Tooltip("时间轴缩放")]
-    [Range(0.1f, 5f)]
-    public float timelineZoom = 1f;
-    
-    [Tooltip("时间轴偏移")]
-    public float timelineOffset = 0f;
-    
-    [Tooltip("显示时间刻度")]
-    public bool showTimeMarkers = true;
-    
-    [Tooltip("时间刻度间隔（秒）")]
-    [Range(1f, 30f)]
-    public float timeMarkerInterval = 5f;
-    
-    [Tooltip("显示播放头")]
-    public bool showPlayhead = true;
-    
-    [Tooltip("播放头颜色")]
-    public Color playheadColor = Color.red;
-    
-    [Tooltip("轨道高度")]
-    [Range(20f, 100f)]
-    public float trackHeight = 40f;
-    
-    [Tooltip("轨道间距")]
-    [Range(5f, 20f)]
-    public float trackSpacing = 10f;
-    
-    /// <summary>
-    /// 播放状态枚举
-    /// </summary>
-    public enum PlaybackState
-    {
-        Stopped,
-        Playing,
-        Paused,
-        Recording
+        return button;
     }
     
     /// <summary>
-    /// 插值模式枚举
+    /// 时间轴GUI绘制
     /// </summary>
-    public enum InterpolationMode
+    private void OnTimelineGUI()
     {
-        None,
-        Linear,
-        Smooth,
-        EaseIn,
-        EaseOut,
-        EaseInOut
+        if (timelineNode == null || timelineSO == null) return;
+        
+        // 绘制轨道管理界面
+        DrawTrackManagement();
+        
+        // 获取绘制区域
+        var rect = GUILayoutUtility.GetRect(timelineWidth, timelineHeight);
+        timelineRect = rect;
+        
+        // 绘制背景
+        EditorGUI.DrawRect(rect, timelineColor);
+        
+        // 绘制网格
+        DrawTimelineGrid(rect);
+        
+        // 绘制轨道
+        DrawTracks(rect);
+        
+        // 绘制当前时间指示器
+        DrawCurrentTimeIndicator(rect);
+        
+        // 处理鼠标交互
+        HandleMouseInteraction(rect);
+        
+        // 绘制信息
+        DrawTimelineInfo(rect);
     }
     
     /// <summary>
-    /// 时间轴轨道包装器
+    /// 绘制时间轴网格
     /// </summary>
-    [Serializable]
-    public class TimelineTrackWrapper
+    private void DrawTimelineGrid(Rect rect)
     {
-        [TableColumnWidth(120)]
-        [Tooltip("轨道名称")]
-        public string trackName = "New Track";
-        
-        [TableColumnWidth(100)]
-        [Tooltip("轨道类型")]
-        public TrackType trackType = TrackType.Animation;
-        
-        [TableColumnWidth(60)]
-        [Tooltip("是否启用")]
-        public bool isEnabled = true;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("轨道颜色")]
-        [ColorPalette]
-        public Color color = Color.white;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("轨道音量")]
-        [Range(0f, 1f)]
-        public float volume = 1f;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("轨道偏移")]
-        public float offset = 0f;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("轨道长度")]
-        public float length = 0f;
-        
-        [TableColumnWidth(120)]
-        [VerticalGroup("Actions")]
-        [Button("编辑轨道")]
-        public void EditTrack()
+        // 绘制水平网格线
+        for (int i = 0; i <= 10; i++)
         {
-            Debug.Log($"编辑轨道: {trackName}");
+            float y = rect.y + (rect.height / 10f) * i;
+            Color gridColor = new Color(0.4f, 0.4f, 0.4f, 0.5f);
+            EditorGUI.DrawRect(new Rect(rect.x, y, rect.width, 1f), gridColor);
         }
         
-        [TableColumnWidth(120)]
-        [VerticalGroup("Actions")]
-        [Button("删除轨道")]
-        public void DeleteTrack()
+        // 绘制垂直网格线
+        for (int i = 0; i <= 10; i++)
         {
-            Debug.Log($"删除轨道: {trackName}");
-        }
-        
-        /// <summary>
-        /// 轨道类型枚举
-        /// </summary>
-        public enum TrackType
-        {
-            Animation,
-            Audio,
-            Event,
-            Control
+            float x = rect.x + (rect.width / 10f) * i;
+            Color gridColor = new Color(0.4f, 0.4f, 0.4f, 0.5f);
+            EditorGUI.DrawRect(new Rect(x, rect.y, 1f, rect.height), gridColor);
         }
     }
     
     /// <summary>
-    /// 关键帧包装器
+    /// 绘制轨道管理界面
     /// </summary>
-    [Serializable]
-    public class KeyframeWrapper
+    private void DrawTrackManagement()
     {
-        [TableColumnWidth(80)]
-        [Tooltip("关键帧时间")]
-        public float time = 0f;
+        EditorGUILayout.BeginVertical();
         
-        [TableColumnWidth(80)]
-        [Tooltip("关键帧值")]
-        [Range(0f, 1f)]
-        public float value = 0f;
+        EditorGUILayout.LabelField("轨道管理", EditorStyles.boldLabel);
         
-        [TableColumnWidth(80)]
-        [Tooltip("所属轨道索引")]
-        public int trackIndex = 0;
+        EditorGUILayout.BeginHorizontal();
         
-        [TableColumnWidth(100)]
-        [Tooltip("关键帧类型")]
-        public KeyframeType keyframeType = KeyframeType.Animation;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("缓入时间")]
-        public float easeInTime = 0f;
-        
-        [TableColumnWidth(80)]
-        [Tooltip("缓出时间")]
-        public float easeOutTime = 0f;
-        
-        [TableColumnWidth(60)]
-        [Tooltip("是否锁定")]
-        public bool isLocked = false;
-        
-        [TableColumnWidth(120)]
-        [VerticalGroup("Actions")]
-        [Button("编辑关键帧")]
-        public void EditKeyframe()
+        // 添加轨道按钮
+        if (GUILayout.Button("添加轨道", GUILayout.Width(80)))
         {
-            Debug.Log($"编辑关键帧: 时间 {time:F2}s, 值 {value:F2}");
+            ShowAddTrackMenu();
         }
         
-        [TableColumnWidth(120)]
-        [VerticalGroup("Actions")]
-        [Button("删除关键帧")]
-        public void DeleteKeyframe()
+        // 删除轨道按钮
+        if (GUILayout.Button("删除轨道", GUILayout.Width(80)))
         {
-            Debug.Log($"删除关键帧: 时间 {time:F2}s");
-        }
-        
-        /// <summary>
-        /// 关键帧类型枚举
-        /// </summary>
-        public enum KeyframeType
-        {
-            Animation,
-            Audio,
-            Event,
-            Control
-        }
-    }
-    
-    /// <summary>
-    /// 重置所有值为默认值
-    /// </summary>
-    [ContextMenu("重置为默认值")]
-    public void ResetToDefaults()
-    {
-        timelineName = "My Timeline";
-        duration = 60f;
-        loop = false;
-        autoPlay = false;
-        currentPlayTime = 0f;
-        playbackSpeed = 1f;
-        playbackState = PlaybackState.Stopped;
-        maxTracks = 10;
-        interpolationMode = InterpolationMode.Linear;
-        playCount = 0;
-        lastPlayTime = 0f;
-        isInitialized = false;
-        
-        // 重置轨道
-        tracks.Clear();
-        CreateDefaultTracks();
-        
-        // 重置关键帧
-        keyframes.Clear();
-        CreateDefaultKeyframes();
-        
-        Debug.Log("TimelineNodeWrapper 已重置为默认值");
-    }
-    
-    /// <summary>
-    /// 创建默认轨道
-    /// </summary>
-    private void CreateDefaultTracks()
-    {
-        tracks.Add(new TimelineTrackWrapper
-        {
-            trackName = "Animation Track",
-            trackType = TimelineTrackWrapper.TrackType.Animation,
-            isEnabled = true,
-            color = Color.blue,
-            volume = 1f,
-            offset = 0f,
-            length = 60f
-        });
-        
-        tracks.Add(new TimelineTrackWrapper
-        {
-            trackName = "Audio Track",
-            trackType = TimelineTrackWrapper.TrackType.Audio,
-            isEnabled = true,
-            color = Color.green,
-            volume = 1f,
-            offset = 0f,
-            length = 60f
-        });
-        
-        tracks.Add(new TimelineTrackWrapper
-        {
-            trackName = "Event Track",
-            trackType = TimelineTrackWrapper.TrackType.Event,
-            isEnabled = true,
-            color = Color.yellow,
-            volume = 1f,
-            offset = 0f,
-            length = 60f
-        });
-    }
-    
-    /// <summary>
-    /// 创建默认关键帧
-    /// </summary>
-    private void CreateDefaultKeyframes()
-    {
-        keyframes.Add(new KeyframeWrapper
-        {
-            time = 0f,
-            value = 0f,
-            trackIndex = 0,
-            keyframeType = KeyframeWrapper.KeyframeType.Animation,
-            easeInTime = 0f,
-            easeOutTime = 0f,
-            isLocked = false
-        });
-        
-        keyframes.Add(new KeyframeWrapper
-        {
-            time = 30f,
-            value = 0.5f,
-            trackIndex = 0,
-            keyframeType = KeyframeWrapper.KeyframeType.Animation,
-            easeInTime = 0f,
-            easeOutTime = 0f,
-            isLocked = false
-        });
-        
-        keyframes.Add(new KeyframeWrapper
-        {
-            time = 60f,
-            value = 1f,
-            trackIndex = 0,
-            keyframeType = KeyframeWrapper.KeyframeType.Animation,
-            easeInTime = 0f,
-            easeOutTime = 0f,
-            isLocked = false
-        });
-    }
-    
-    /// <summary>
-    /// 随机化所有数值
-    /// </summary>
-    [ContextMenu("随机化数值")]
-    public void RandomizeValues()
-    {
-        duration = Random.Range(30f, 120f);
-        playbackSpeed = Random.Range(0.5f, 2f);
-        currentPlayTime = Random.Range(0f, duration);
-        playbackState = (PlaybackState)Random.Range(0, 4);
-        interpolationMode = (InterpolationMode)Random.Range(0, 6);
-        
-        // 随机化轨道
-        foreach (var track in tracks)
-        {
-            track.volume = Random.Range(0.5f, 1f);
-            track.offset = Random.Range(-10f, 10f);
-            track.length = Random.Range(duration * 0.8f, duration * 1.2f);
-        }
-        
-        // 随机化关键帧
-        foreach (var keyframe in keyframes)
-        {
-            keyframe.time = Random.Range(0f, duration);
-            keyframe.value = Random.Range(0f, 1f);
-            keyframe.trackIndex = Random.Range(0, tracks.Count);
-            keyframe.easeInTime = Random.Range(0f, 2f);
-            keyframe.easeOutTime = Random.Range(0f, 2f);
-        }
-        
-        Debug.Log("TimelineNodeWrapper 数值已随机化");
-    }
-    
-    /// <summary>
-    /// 打印当前状态
-    /// </summary>
-    [ContextMenu("打印状态")]
-    public void PrintStatus()
-    {
-        Debug.Log($"TimelineNodeWrapper 状态:\n" +
-                  $"时间轴名称: {timelineName}\n" +
-                  $"总长度: {duration:F2}s\n" +
-                  $"循环播放: {loop}\n" +
-                  $"自动播放: {autoPlay}\n" +
-                  $"当前时间: {currentPlayTime:F2}s\n" +
-                  $"播放速度: {playbackSpeed:F2}\n" +
-                  $"播放状态: {playbackState}\n" +
-                  $"轨道数量: {tracks.Count}\n" +
-                  $"关键帧数量: {keyframes.Count}\n" +
-                  $"插值模式: {interpolationMode}\n" +
-                  $"播放次数: {playCount}\n" +
-                  $"最后播放时间: {lastPlayTime:F3}s\n" +
-                  $"已初始化: {isInitialized}");
-    }
-    
-    /// <summary>
-    /// 应用设置到实际的TimelineNode
-    /// </summary>
-    /// <param name="targetNode">目标TimelineNode</param>
-    public void ApplyToNode(TimelineNode targetNode)
-    {
-        if (targetNode == null) return;
-        
-        targetNode.timelineName = timelineName;
-        targetNode.duration = duration;
-        targetNode.loop = loop;
-        targetNode.autoPlay = autoPlay;
-        targetNode.currentPlayTime = currentPlayTime;
-        targetNode.playbackSpeed = playbackSpeed;
-        targetNode.playbackState = (TimelineNode.PlaybackState)playbackState;
-        targetNode.maxTracks = maxTracks;
-        targetNode.interpolationMode = (TimelineNode.InterpolationMode)interpolationMode;
-        targetNode.playCount = playCount;
-        targetNode.lastPlayTime = lastPlayTime;
-        targetNode.isInitialized = isInitialized;
-        
-        // 应用轨道设置
-        targetNode.tracks.Clear();
-        foreach (var trackWrapper in tracks)
-        {
-            var track = new TimelineTrack
+            if (timelineSO.tracks != null && selectedTrackIndex >= 0 && selectedTrackIndex < timelineSO.tracks.Count)
             {
-                trackName = trackWrapper.trackName,
-                trackType = (TimelineTrack.TrackType)trackWrapper.trackType,
-                isEnabled = trackWrapper.isEnabled,
-                color = trackWrapper.color,
-                volume = trackWrapper.volume,
-                offset = trackWrapper.offset,
-                length = trackWrapper.length
-            };
-            targetNode.tracks.Add(track);
+                timelineSO.RemoveTrack(selectedTrackIndex);
+                if (selectedTrackIndex >= timelineSO.tracks.Count)
+                {
+                    selectedTrackIndex = Mathf.Max(0, timelineSO.tracks.Count - 1);
+                }
+            }
         }
         
-        // 应用关键帧设置
-        targetNode.keyframes.Clear();
-        foreach (var keyframeWrapper in keyframes)
+        // 复制轨道按钮
+        if (GUILayout.Button("复制轨道", GUILayout.Width(80)))
         {
-            var keyframe = new KeyframeData
+            if (timelineSO.tracks != null && selectedTrackIndex >= 0 && selectedTrackIndex < timelineSO.tracks.Count)
             {
-                time = keyframeWrapper.time,
-                value = keyframeWrapper.value,
-                trackIndex = keyframeWrapper.trackIndex,
-                keyframeType = (KeyframeData.KeyframeType)keyframeWrapper.keyframeType,
-                easeInTime = keyframeWrapper.easeInTime,
-                easeOutTime = keyframeWrapper.easeOutTime,
-                isLocked = keyframeWrapper.isLocked
-            };
-            targetNode.keyframes.Add(keyframe);
+                timelineSO.DuplicateTrack(selectedTrackIndex);
+            }
         }
         
-        Debug.Log("设置已应用到目标TimelineNode");
+        EditorGUILayout.EndHorizontal();
+        
+        // 轨道选择
+        if (timelineSO.tracks != null && timelineSO.tracks.Count > 0)
+        {
+            EditorGUILayout.Space(5f);
+            EditorGUILayout.LabelField("选择轨道:", EditorStyles.label);
+            
+            string[] trackNames = timelineSO.tracks.Select(t => t.trackName).ToArray();
+            int newSelectedTrack = EditorGUILayout.Popup(selectedTrackIndex, trackNames);
+            
+            if (newSelectedTrack != selectedTrackIndex)
+            {
+                selectedTrackIndex = newSelectedTrack;
+            }
+            
+            // 显示当前轨道信息
+            if (selectedTrackIndex >= 0 && selectedTrackIndex < timelineSO.tracks.Count)
+            {
+                var currentTrack = timelineSO.tracks[selectedTrackIndex];
+                EditorGUILayout.LabelField($"类型: {currentTrack.trackType}");
+                EditorGUILayout.LabelField($"关键帧: {currentTrack.GetKeyframeCount()}");
+                EditorGUILayout.LabelField($"状态: {(currentTrack.isEnabled ? "启用" : "禁用")}");
+            }
+        }
+        
+        EditorGUILayout.EndVertical();
     }
     
     /// <summary>
-    /// 从实际的TimelineNode同步设置
+    /// 显示添加轨道菜单
     /// </summary>
-    /// <param name="targetNode">目标TimelineNode</param>
-    public void SyncFromNode(TimelineNode targetNode)
+    private void ShowAddTrackMenu()
     {
-        if (targetNode == null) return;
+        var menu = new GenericMenu();
         
-        timelineName = targetNode.timelineName;
-        duration = targetNode.duration;
-        loop = targetNode.loop;
-        autoPlay = targetNode.autoPlay;
-        currentPlayTime = targetNode.currentPlayTime;
-        playbackSpeed = targetNode.playbackSpeed;
-        playbackState = (PlaybackState)targetNode.playbackState;
-        maxTracks = targetNode.maxTracks;
-        interpolationMode = (InterpolationMode)targetNode.interpolationMode;
-        playCount = targetNode.playCount;
-        lastPlayTime = targetNode.lastPlayTime;
-        isInitialized = targetNode.isInitialized;
-        
-        // 同步轨道设置
-        tracks.Clear();
-        foreach (var track in targetNode.tracks)
+        foreach (TrackType trackType in System.Enum.GetValues(typeof(TrackType)))
         {
-            var trackWrapper = new TimelineTrackWrapper
-            {
-                trackName = track.trackName,
-                trackType = (TimelineTrackWrapper.TrackType)track.trackType,
-                isEnabled = track.isEnabled,
-                color = track.color,
-                volume = track.volume,
-                offset = track.offset,
-                length = track.length
-            };
-            tracks.Add(trackWrapper);
+            string typeName = GetTrackTypeDisplayName(trackType);
+            menu.AddItem(new GUIContent(typeName), false, () => {
+                timelineSO.AddTrack($"新{typeName}", trackType);
+            });
         }
         
-        // 同步关键帧设置
-        keyframes.Clear();
-        foreach (var keyframe in targetNode.keyframes)
-        {
-            var keyframeWrapper = new KeyframeWrapper
-            {
-                time = keyframe.time,
-                value = keyframe.value,
-                trackIndex = keyframe.trackIndex,
-                keyframeType = (KeyframeWrapper.KeyframeType)keyframe.keyframeType,
-                easeInTime = keyframe.easeInTime,
-                easeOutTime = keyframe.easeOutTime,
-                isLocked = keyframe.isLocked
-            };
-            keyframes.Add(keyframeWrapper);
-        }
-        
-        Debug.Log("设置已从目标TimelineNode同步");
+        menu.ShowAsContext();
     }
     
     /// <summary>
-    /// 添加新轨道
+    /// 获取轨道类型显示名称
     /// </summary>
-    [Button("添加轨道")]
-    public void AddTrack()
+    private string GetTrackTypeDisplayName(TrackType trackType)
     {
-        if (tracks.Count >= maxTracks)
+        switch (trackType)
         {
-            Debug.LogWarning($"无法添加更多轨道，已达到最大数量: {maxTracks}");
-            return;
+            case TrackType.Float: return "数值轨道";
+            case TrackType.Vector3: return "向量轨道";
+            case TrackType.Color: return "颜色轨道";
+            case TrackType.Boolean: return "布尔轨道";
+            case TrackType.Event: return "事件轨道";
+            case TrackType.Audio: return "音频轨道";
+            case TrackType.Animation: return "动画轨道";
+            default: return trackType.ToString();
+        }
+    }
+    
+    /// <summary>
+    /// 绘制轨道
+    /// </summary>
+    private void DrawTracks(Rect rect)
+    {
+        if (timelineSO.tracks == null || timelineSO.tracks.Count == 0) return;
+        
+        float trackY = rect.y;
+        
+        for (int trackIndex = 0; trackIndex < timelineSO.tracks.Count; trackIndex++)
+        {
+            var track = timelineSO.tracks[trackIndex];
+            if (track == null) continue;
+            
+            Rect trackRect = new Rect(rect.x, trackY, rect.width, trackHeight);
+            
+            // 绘制轨道背景
+            Color trackBgColor = track.isEnabled ? track.trackColor * 0.3f : Color.gray * 0.2f;
+            EditorGUI.DrawRect(trackRect, trackBgColor);
+            
+            // 绘制轨道边框
+            Color borderColor = (trackIndex == selectedTrackIndex) ? Color.yellow : Color.gray;
+            EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.y, trackRect.width, 1f), borderColor);
+            EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.yMax - 1f, trackRect.width, 1f), borderColor);
+            
+            // 绘制轨道名称
+            GUIStyle trackNameStyle = new GUIStyle(EditorStyles.label);
+            trackNameStyle.fontSize = 10;
+            trackNameStyle.normal.textColor = track.isEnabled ? Color.white : Color.gray;
+            EditorGUI.LabelField(new Rect(trackRect.x + 5f, trackRect.y + 2f, 100f, trackHeight), track.trackName, trackNameStyle);
+            
+            // 绘制轨道关键帧
+            DrawTrackKeyframes(track, trackRect);
+            
+            trackY += trackHeight + trackSpacing;
+        }
+    }
+    
+    /// <summary>
+    /// 绘制轨道关键帧
+    /// </summary>
+    private void DrawTrackKeyframes(TimelineTrack track, Rect trackRect)
+    {
+        if (track.keyframes == null || track.keyframes.Count == 0) return;
+        
+        // 绘制连接线
+        for (int i = 0; i < track.keyframes.Count - 1; i++)
+        {
+            var from = track.keyframes[i];
+            var to = track.keyframes[i + 1];
+            
+            Vector2 fromPos = TimeValueToPosition(trackRect, from.time, from.value);
+            Vector2 toPos = TimeValueToPosition(trackRect, to.time, to.value);
+            
+            // 根据插值类型绘制不同的曲线
+            Color lineColor = track.isEnabled ? track.trackColor : Color.gray;
+            switch (from.interpolationType)
+            {
+                case InterpolationType.Linear:
+                    DrawLine(fromPos, toPos, lineColor);
+                    break;
+                case InterpolationType.EaseInOut:
+                    DrawEasedCurve(trackRect, from, to, lineColor);
+                    break;
+                case InterpolationType.Step:
+                    DrawStepLine(fromPos, toPos, lineColor);
+                    break;
+                case InterpolationType.Bezier:
+                    DrawBezierCurve(trackRect, from, to, lineColor);
+                    break;
+            }
         }
         
-        var newTrack = new TimelineTrackWrapper
+        // 绘制关键帧
+        for (int i = 0; i < track.keyframes.Count; i++)
         {
-            trackName = $"Track {tracks.Count + 1}",
-            trackType = TimelineTrackWrapper.TrackType.Animation,
-            isEnabled = true,
-            color = new Color(Random.value, Random.value, Random.value),
-            volume = 1f,
-            offset = 0f,
-            length = duration
+            var keyframe = track.keyframes[i];
+            Vector2 pos = TimeValueToPosition(trackRect, keyframe.time, keyframe.value);
+            
+            Color color = track.isEnabled ? track.trackColor : Color.gray;
+            if (i == selectedKeyframeIndex && track == timelineSO.tracks[selectedTrackIndex])
+            {
+                color = selectedKeyframeColor;
+            }
+            
+            // 绘制关键帧
+            Rect keyframeRect = new Rect(pos.x - keyframeSize / 2f, pos.y - keyframeSize / 2f, keyframeSize, keyframeSize);
+            EditorGUI.DrawRect(keyframeRect, color);
+            
+            // 绘制关键帧边框
+            EditorGUI.DrawRect(keyframeRect, Color.black);
+        }
+    }
+    
+    /// <summary>
+    /// 绘制关键帧
+    /// </summary>
+    private void DrawKeyframes(Rect rect)
+    {
+        if (timelineSO.keyframes == null) return;
+        
+        for (int i = 0; i < timelineSO.keyframes.Count; i++)
+        {
+            var keyframe = timelineSO.keyframes[i];
+            Vector2 pos = TimeValueToPosition(rect, keyframe.time, keyframe.value);
+            
+            Color color = (i == selectedKeyframeIndex) ? selectedKeyframeColor : keyframeColor;
+            
+            // 绘制关键帧
+            Rect keyframeRect = new Rect(pos.x - keyframeSize / 2f, pos.y - keyframeSize / 2f, keyframeSize, keyframeSize);
+            EditorGUI.DrawRect(keyframeRect, color);
+            
+            // 绘制关键帧边框
+            EditorGUI.DrawRect(keyframeRect, Color.black);
+        }
+    }
+    
+    /// <summary>
+    /// 绘制当前时间指示器
+    /// </summary>
+    private void DrawCurrentTimeIndicator(Rect rect)
+    {
+        if (timelineNode == null) return;
+        
+        float normalizedTime = timelineNode.timelineTime / timelineNode.duration;
+        float x = rect.x + rect.width * normalizedTime;
+        
+        Color indicatorColor = new Color(1f, 0.2f, 0.2f, 0.8f);
+        EditorGUI.DrawRect(new Rect(x, rect.y, 2f, rect.height), indicatorColor);
+    }
+    
+    /// <summary>
+    /// 绘制时间轴信息
+    /// </summary>
+    private void DrawTimelineInfo(Rect rect)
+    {
+        if (timelineNode == null) return;
+        
+        GUIStyle infoStyle = new GUIStyle(EditorStyles.label);
+        infoStyle.fontSize = 10;
+        infoStyle.normal.textColor = Color.white;
+        
+        string info = $"时间: {timelineNode.timelineTime:F2}s / {timelineNode.duration:F2}s\n" +
+                     $"值: {timelineNode.currentValue:F2}\n" +
+                     $"状态: {timelineNode.playState}";
+        
+        EditorGUI.LabelField(new Rect(rect.x + 5f, rect.y + 5f, rect.width - 10f, 60f), info, infoStyle);
+    }
+    
+    /// <summary>
+    /// 处理鼠标交互
+    /// </summary>
+    private void HandleMouseInteraction(Rect rect)
+    {
+        Event e = Event.current;
+        
+        if (e.type == EventType.MouseDown && rect.Contains(e.mousePosition))
+        {
+            // 检查是否点击了轨道
+            int clickedTrack = GetTrackAtPosition(rect, e.mousePosition);
+            if (clickedTrack >= 0)
+            {
+                selectedTrackIndex = clickedTrack;
+                selectedKeyframeIndex = -1;
+                e.Use();
+                return;
+            }
+            
+            // 检查是否点击了关键帧
+            var keyframeInfo = GetKeyframeAtPosition(rect, e.mousePosition);
+            if (keyframeInfo.trackIndex >= 0 && keyframeInfo.keyframeIndex >= 0)
+            {
+                selectedTrackIndex = keyframeInfo.trackIndex;
+                selectedKeyframeIndex = keyframeInfo.keyframeIndex;
+                isDragging = true;
+                dragStartPos = e.mousePosition;
+                
+                var track = timelineSO.tracks[selectedTrackIndex];
+                if (track != null && track.keyframes != null && selectedKeyframeIndex < track.keyframes.Count)
+                {
+                    var keyframe = track.keyframes[selectedKeyframeIndex];
+                    dragStartTime = keyframe.time;
+                    dragStartValue = keyframe.value;
+                }
+                
+                e.Use();
+            }
+            else
+            {
+                // 点击空白区域，添加新关键帧到当前选中的轨道
+                if (selectedTrackIndex >= 0 && selectedTrackIndex < timelineSO.tracks.Count)
+                {
+                    Vector2 timeValue = PositionToTimeValue(rect, e.mousePosition);
+                    AddKeyframeToTrack(selectedTrackIndex, timeValue.x, timeValue.y);
+                }
+                e.Use();
+            }
+        }
+        else if (e.type == EventType.MouseDrag && isDragging && selectedKeyframeIndex >= 0 && selectedTrackIndex >= 0)
+        {
+            // 拖拽关键帧
+            Vector2 timeValue = PositionToTimeValue(rect, e.mousePosition);
+            UpdateTrackKeyframe(selectedTrackIndex, selectedKeyframeIndex, timeValue.x, timeValue.y);
+            e.Use();
+        }
+        else if (e.type == EventType.MouseUp)
+        {
+            isDragging = false;
+        }
+        else if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Delete && selectedKeyframeIndex >= 0 && selectedTrackIndex >= 0)
+        {
+            // 删除选中的关键帧
+            RemoveTrackKeyframe(selectedTrackIndex, selectedKeyframeIndex);
+            selectedKeyframeIndex = -1;
+            e.Use();
+        }
+    }
+    
+    /// <summary>
+    /// 控制GUI绘制
+    /// </summary>
+    private void OnControlGUI()
+    {
+        if (timelineNode == null || timelineSO == null) return;
+        
+        EditorGUILayout.BeginVertical();
+        
+        // 播放控制
+        EditorGUILayout.LabelField("播放控制", EditorStyles.boldLabel);
+        EditorGUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("播放"))
+        {
+            timelineNode.StartTimeline();
+        }
+        
+        if (GUILayout.Button("暂停"))
+        {
+            timelineNode.PauseTimeline();
+        }
+        
+        if (GUILayout.Button("停止"))
+        {
+            timelineNode.StopTimeline();
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // 时间控制
+        EditorGUILayout.Space(5f);
+        EditorGUILayout.LabelField("时间控制", EditorStyles.boldLabel);
+        
+        float newTime = EditorGUILayout.Slider("当前时间", timelineNode.timelineTime, 0f, timelineNode.duration);
+        if (Mathf.Abs(newTime - timelineNode.timelineTime) > 0.01f)
+        {
+            timelineNode.SeekToTime(newTime);
+        }
+        
+        // 关键帧控制
+        EditorGUILayout.Space(5f);
+        EditorGUILayout.LabelField("关键帧控制", EditorStyles.boldLabel);
+        
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("添加关键帧"))
+        {
+            AddKeyframeAtCurrentTime();
+        }
+        
+        if (GUILayout.Button("清空关键帧"))
+        {
+            ClearAllKeyframes();
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 将时间和值转换为屏幕位置
+    /// </summary>
+    private Vector2 TimeValueToPosition(Rect rect, float time, float value)
+    {
+        float normalizedTime = time / timelineNode.duration;
+        float normalizedValue = Mathf.InverseLerp(-1f, 1f, value); // 假设值范围是-1到1
+        
+        float x = rect.x + rect.width * normalizedTime;
+        float y = rect.y + rect.height * (1f - normalizedValue); // 翻转Y轴
+        
+        return new Vector2(x, y);
+    }
+    
+    /// <summary>
+    /// 将屏幕位置转换为时间和值
+    /// </summary>
+    private Vector2 PositionToTimeValue(Rect rect, Vector2 position)
+    {
+        float normalizedTime = (position.x - rect.x) / rect.width;
+        float normalizedValue = 1f - (position.y - rect.y) / rect.height; // 翻转Y轴
+        
+        float time = normalizedTime * timelineNode.duration;
+        float value = Mathf.Lerp(-1f, 1f, normalizedValue);
+        
+        return new Vector2(time, value);
+    }
+    
+    /// <summary>
+    /// 获取指定位置的轨道索引
+    /// </summary>
+    private int GetTrackAtPosition(Rect rect, Vector2 position)
+    {
+        if (timelineSO.tracks == null) return -1;
+        
+        float trackY = rect.y;
+        
+        for (int trackIndex = 0; trackIndex < timelineSO.tracks.Count; trackIndex++)
+        {
+            Rect trackRect = new Rect(rect.x, trackY, rect.width, trackHeight);
+            
+            if (trackRect.Contains(position))
+            {
+                return trackIndex;
+            }
+            
+            trackY += trackHeight + trackSpacing;
+        }
+        
+        return -1;
+    }
+    
+    /// <summary>
+    /// 关键帧信息结构
+    /// </summary>
+    private struct KeyframeInfo
+    {
+        public int trackIndex;
+        public int keyframeIndex;
+        
+        public KeyframeInfo(int trackIndex, int keyframeIndex)
+        {
+            this.trackIndex = trackIndex;
+            this.keyframeIndex = keyframeIndex;
+        }
+    }
+    
+    /// <summary>
+    /// 获取指定位置的关键帧信息
+    /// </summary>
+    private KeyframeInfo GetKeyframeAtPosition(Rect rect, Vector2 position)
+    {
+        if (timelineSO.tracks == null) return new KeyframeInfo(-1, -1);
+        
+        float trackY = rect.y;
+        
+        for (int trackIndex = 0; trackIndex < timelineSO.tracks.Count; trackIndex++)
+        {
+            var track = timelineSO.tracks[trackIndex];
+            if (track == null || track.keyframes == null) continue;
+            
+            Rect trackRect = new Rect(rect.x, trackY, rect.width, trackHeight);
+            
+            // 检查是否在轨道范围内
+            if (trackRect.Contains(position))
+            {
+                // 检查是否点击了关键帧
+                for (int keyframeIndex = 0; keyframeIndex < track.keyframes.Count; keyframeIndex++)
+                {
+                    var keyframe = track.keyframes[keyframeIndex];
+                    Vector2 keyframePos = TimeValueToPosition(trackRect, keyframe.time, keyframe.value);
+                    
+                    if (Vector2.Distance(position, keyframePos) <= keyframeSize)
+                    {
+                        return new KeyframeInfo(trackIndex, keyframeIndex);
+                    }
+                }
+            }
+            
+            trackY += trackHeight + trackSpacing;
+        }
+        
+        return new KeyframeInfo(-1, -1);
+    }
+    
+    /// <summary>
+    /// 在指定位置添加关键帧
+    /// </summary>
+    private void AddKeyframeAtPosition(float time, float value)
+    {
+        if (timelineSO == null) return;
+        
+        var keyframe = new TimelineKeyframe
+        {
+            time = Mathf.Clamp(time, 0f, timelineNode.duration),
+            value = Mathf.Clamp(value, -1f, 1f)
         };
         
-        tracks.Add(newTrack);
-        Debug.Log($"已添加新轨道: {newTrack.trackName}");
-    }
-    
-    /// <summary>
-    /// 添加新关键帧
-    /// </summary>
-    [Button("添加关键帧")]
-    public void AddKeyframe()
-    {
-        var newKeyframe = new KeyframeWrapper
-        {
-            time = currentPlayTime,
-            value = Random.Range(0f, 1f),
-            trackIndex = 0,
-            keyframeType = KeyframeWrapper.KeyframeType.Animation,
-            easeInTime = 0f,
-            easeOutTime = 0f,
-            isLocked = false
-        };
+        timelineSO.keyframes.Add(keyframe);
+        timelineSO.keyframes = timelineSO.keyframes.OrderBy(k => k.time).ToList();
         
-        keyframes.Add(newKeyframe);
-        Debug.Log($"已在时间 {currentPlayTime:F2}s 添加关键帧，值: {newKeyframe.value:F2}");
+        // 同步到节点
+        timelineNode.keyframes = new List<TimelineKeyframe>(timelineSO.keyframes);
+        
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 播放时间轴
+    /// 向指定轨道添加关键帧
     /// </summary>
-    [Button("播放")]
-    public void Play()
+    private void AddKeyframeToTrack(int trackIndex, float time, float value)
     {
-        playbackState = PlaybackState.Playing;
-        Debug.Log($"Timeline '{timelineName}' 开始播放");
+        if (timelineSO == null || trackIndex < 0 || trackIndex >= timelineSO.tracks.Count) return;
+        
+        var track = timelineSO.tracks[trackIndex];
+        if (track == null) return;
+        
+        track.AddKeyframe(time, value);
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 暂停播放
+    /// 更新轨道关键帧
     /// </summary>
-    [Button("暂停")]
-    public void Pause()
+    private void UpdateTrackKeyframe(int trackIndex, int keyframeIndex, float time, float value)
     {
-        playbackState = PlaybackState.Paused;
-        Debug.Log($"Timeline '{timelineName}' 已暂停");
+        if (timelineSO == null || trackIndex < 0 || trackIndex >= timelineSO.tracks.Count) return;
+        
+        var track = timelineSO.tracks[trackIndex];
+        if (track == null || keyframeIndex < 0 || keyframeIndex >= track.keyframes.Count) return;
+        
+        track.UpdateKeyframe(keyframeIndex, time, value);
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 停止播放
+    /// 移除轨道关键帧
     /// </summary>
-    [Button("停止")]
-    public void Stop()
+    private void RemoveTrackKeyframe(int trackIndex, int keyframeIndex)
     {
-        playbackState = PlaybackState.Stopped;
-        currentPlayTime = 0f;
-        Debug.Log($"Timeline '{timelineName}' 已停止");
+        if (timelineSO == null || trackIndex < 0 || trackIndex >= timelineSO.tracks.Count) return;
+        
+        var track = timelineSO.tracks[trackIndex];
+        if (track == null || keyframeIndex < 0 || keyframeIndex >= track.keyframes.Count) return;
+        
+        track.RemoveKeyframe(keyframeIndex);
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 跳转到开始
+    /// 更新关键帧
     /// </summary>
-    [Button("跳转到开始")]
-    public void JumpToStart()
+    private void UpdateKeyframe(int index, float time, float value)
     {
-        currentPlayTime = 0f;
-        Debug.Log($"Timeline '{timelineName}' 跳转到开始位置");
+        if (timelineSO == null || index < 0 || index >= timelineSO.keyframes.Count) return;
+        
+        timelineSO.keyframes[index].time = Mathf.Clamp(time, 0f, timelineNode.duration);
+        timelineSO.keyframes[index].value = Mathf.Clamp(value, -1f, 1f);
+        
+        // 重新排序
+        timelineSO.keyframes = timelineSO.keyframes.OrderBy(k => k.time).ToList();
+        
+        // 同步到节点
+        timelineNode.keyframes = new List<TimelineKeyframe>(timelineSO.keyframes);
+        
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 跳转到结束
+    /// 移除关键帧
     /// </summary>
-    [Button("跳转到结束")]
-    public void JumpToEnd()
+    private void RemoveKeyframe(int index)
     {
-        currentPlayTime = duration;
-        Debug.Log($"Timeline '{timelineName}' 跳转到结束位置");
+        if (timelineSO == null || index < 0 || index >= timelineSO.keyframes.Count) return;
+        
+        timelineSO.keyframes.RemoveAt(index);
+        
+        // 同步到节点
+        timelineNode.keyframes = new List<TimelineKeyframe>(timelineSO.keyframes);
+        
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 时间轴控制
+    /// 在当前时间添加关键帧
     /// </summary>
-    [HorizontalGroup("时间轴控制")]
-    [Button("放大")]
-    public void ZoomIn()
+    private void AddKeyframeAtCurrentTime()
     {
-        timelineZoom = Mathf.Min(timelineZoom * 1.2f, 5f);
-        Debug.Log($"时间轴已放大，当前缩放: {timelineZoom:F2}");
-    }
-    
-    [HorizontalGroup("时间轴控制")]
-    [Button("缩小")]
-    public void ZoomOut()
-    {
-        timelineZoom = Mathf.Max(timelineZoom / 1.2f, 0.1f);
-        Debug.Log($"时间轴已缩小，当前缩放: {timelineZoom:F2}");
-    }
-    
-    [HorizontalGroup("时间轴控制")]
-    [Button("重置视图")]
-    public void ResetView()
-    {
-        timelineZoom = 1f;
-        timelineOffset = 0f;
-        Debug.Log("时间轴视图已重置");
+        if (timelineNode == null) return;
+        
+        AddKeyframeAtPosition(timelineNode.timelineTime, timelineNode.currentValue);
     }
     
     /// <summary>
-    /// 时间轴显示设置
+    /// 清空所有关键帧
     /// </summary>
-    [HorizontalGroup("显示设置")]
-    [Button("切换时间刻度")]
-    public void ToggleTimeMarkers()
+    private void ClearAllKeyframes()
     {
-        showTimeMarkers = !showTimeMarkers;
-        Debug.Log($"时间刻度显示: {showTimeMarkers}");
-    }
-    
-    [HorizontalGroup("显示设置")]
-    [Button("切换播放头")]
-    public void TogglePlayhead()
-    {
-        showPlayhead = !showPlayhead;
-        Debug.Log($"播放头显示: {showPlayhead}");
+        if (timelineSO == null) return;
+        
+        timelineSO.keyframes.Clear();
+        timelineNode.keyframes.Clear();
+        
+        EditorUtility.SetDirty(timelineSO);
     }
     
     /// <summary>
-    /// 时间跳转
+    /// 绘制直线
     /// </summary>
-    [HorizontalGroup("时间跳转")]
-    [Button("跳转25%")]
-    public void JumpTo25Percent()
+    private void DrawLine(Vector2 from, Vector2 to, Color color)
     {
-        currentPlayTime = duration * 0.25f;
-        Debug.Log($"Timeline '{timelineName}' 跳转到25%位置: {currentPlayTime:F2}s");
+        Handles.color = color;
+        Handles.DrawLine(from, to);
     }
     
-    [HorizontalGroup("时间跳转")]
-    [Button("跳转50%")]
-    public void JumpTo50Percent()
+    /// <summary>
+    /// 绘制步进线
+    /// </summary>
+    private void DrawStepLine(Vector2 from, Vector2 to, Color color)
     {
-        currentPlayTime = duration * 0.5f;
-        Debug.Log($"Timeline '{timelineName}' 跳转到50%位置: {currentPlayTime:F2}s");
+        Handles.color = color;
+        Vector2 midPoint = new Vector2(to.x, from.y);
+        Handles.DrawLine(from, midPoint);
+        Handles.DrawLine(midPoint, to);
     }
     
-    [HorizontalGroup("时间跳转")]
-    [Button("跳转75%")]
-    public void JumpTo75Percent()
+    /// <summary>
+    /// 绘制缓动曲线
+    /// </summary>
+    private void DrawEasedCurve(Rect rect, TimelineKeyframe from, TimelineKeyframe to, Color color)
     {
-        currentPlayTime = duration * 0.75f;
-        Debug.Log($"Timeline '{timelineName}' 跳转到75%位置: {currentPlayTime:F2}s");
+        Handles.color = color;
+        
+        int segments = 20;
+        Vector2 prevPoint = TimeValueToPosition(rect, from.time, from.value);
+        
+        for (int i = 1; i <= segments; i++)
+        {
+            float t = (float)i / segments;
+            float easedT = from.easingCurve.Evaluate(t);
+            float time = Mathf.Lerp(from.time, to.time, t);
+            float value = Mathf.Lerp(from.value, to.value, easedT);
+            
+            Vector2 currentPoint = TimeValueToPosition(rect, time, value);
+            Handles.DrawLine(prevPoint, currentPoint);
+            prevPoint = currentPoint;
+        }
+    }
+    
+    /// <summary>
+    /// 绘制贝塞尔曲线
+    /// </summary>
+    private void DrawBezierCurve(Rect rect, TimelineKeyframe from, TimelineKeyframe to, Color color)
+    {
+        Handles.color = color;
+        
+        Vector2 fromPos = TimeValueToPosition(rect, from.time, from.value);
+        Vector2 toPos = TimeValueToPosition(rect, to.time, to.value);
+        
+        // 简单的贝塞尔曲线控制点
+        Vector2 controlPoint1 = fromPos + Vector2.right * (rect.width * 0.1f);
+        Vector2 controlPoint2 = toPos + Vector2.left * (rect.width * 0.1f);
+        
+        Handles.DrawBezier(fromPos, toPos, controlPoint1, controlPoint2, color, null, 2f);
     }
 }

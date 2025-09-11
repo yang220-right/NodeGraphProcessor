@@ -22,10 +22,10 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   timelineName: "\u65B0\u65F6\u95F4\u8F74"
-  totalFrames: 60
-  currentFrame: 12
+  totalFrames: 31
+  currentFrame: 29
   playbackSpeed: 0.1
-  isPlaying: 0
+  isPlaying: 1
   loopPlayback: 1
   frameData:
   - frameNumber: 0
@@ -48,5 +48,5 @@ MonoBehaviour:
     frameContent: Frame 4 Content
     isKeyFrame: 0
     frameColor: {r: 1, g: 1, b: 1, a: 1}
-  playTime: 0.4
+  playTime: 0.98833245
   frameRate: 30

@@ -19,10 +19,11 @@ public class TimelineSO : SerializedScriptableObject
     [MinValue(1)]
     public int totalFrames = 100;
     
-    [LabelText("当前帧")]
-    [Tooltip("当前播放的帧")]
-    [ReadOnly]
-    [ProgressBar(0, 100, ColorMember = "GetFrameColor", MaxGetter = "GetMaxFrames")]
+    // [LabelText("当前帧")]
+    // [Tooltip("当前播放的帧")]
+    // [ReadOnly]
+    // [ProgressBar(0, 100, ColorMember = "GetFrameColor", MaxGetter = "GetMaxFrames")]
+    [HideInInspector]
     public int currentFrame = 0;
     
     [LabelText("播放速度")]
@@ -33,6 +34,7 @@ public class TimelineSO : SerializedScriptableObject
     [Header("播放控制")]
     [LabelText("是否播放")]
     [Tooltip("Timeline是否正在播放")]
+    [HideInInspector]
     public bool isPlaying = false;
     
     [LabelText("循环播放")]
@@ -112,33 +114,18 @@ public class TimelineSO : SerializedScriptableObject
         return totalFrames - 1;
     }
     
-    /// <summary>
-    /// 播放Timeline
-    /// </summary>
-    [Button("播放", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
     public void Play()
     {
         isPlaying = true;
         Debug.Log($"Timeline '{timelineName}' 开始播放 - 总帧数: {totalFrames}, 帧率: {frameRate}");
     }
     
-    /// <summary>
-    /// 暂停Timeline
-    /// </summary>
-    [Button("暂停", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
     public void Pause()
     {
         isPlaying = false;
         Debug.Log($"Timeline '{timelineName}' 已暂停");
     }
     
-    /// <summary>
-    /// 停止Timeline
-    /// </summary>
-    [Button("停止", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
     public void Stop()
     {
         isPlaying = false;
@@ -147,11 +134,6 @@ public class TimelineSO : SerializedScriptableObject
         Debug.Log($"Timeline '{timelineName}' 已停止");
     }
     
-    /// <summary>
-    /// 重置Timeline
-    /// </summary>
-    [Button("重置", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
     public void Reset()
     {
         isPlaying = false;
@@ -160,11 +142,6 @@ public class TimelineSO : SerializedScriptableObject
         Debug.Log($"Timeline '{timelineName}' 已重置");
     }
     
-    /// <summary>
-    /// 跳转到指定帧
-    /// </summary>
-    [Button("跳转到帧", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
     public void GoToFrame()
     {
         currentFrame = Mathf.Clamp(currentFrame, 0, totalFrames - 1);
@@ -172,12 +149,6 @@ public class TimelineSO : SerializedScriptableObject
         Debug.Log($"Timeline '{timelineName}' 跳转到第 {currentFrame} 帧");
     }
     
-    /// <summary>
-    /// 初始化帧数据
-    /// </summary>
-    [Button("初始化帧数据", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
-    [HideInInspector] // 隐藏初始化按钮
     public void InitializeFrameData()
     {
         frameData = new FrameData[totalFrames];
@@ -264,21 +235,5 @@ public class TimelineSO : SerializedScriptableObject
         if (frameData == null || frame < 0 || frame >= frameData.Length) return;
         
         frameData[frame].frameContent = content;
-    }
-    
-    /// <summary>
-    /// 获取Timeline状态信息
-    /// </summary>
-    [Button("打印状态", ButtonSizes.Medium)]
-    [PropertyOrder(-1)]
-    [HideInInspector] // 隐藏打印状态按钮
-    public void PrintStatus()
-    {
-        Debug.Log($"Timeline '{timelineName}' 状态:\n" +
-                  $"当前帧: {currentFrame}/{totalFrames}\n" +
-                  $"播放状态: {(isPlaying ? "播放中" : "已暂停")}\n" +
-                  $"播放时间: {playTime:F2}s\n" +
-                  $"播放速度: {playbackSpeed}x\n" +
-                  $"循环播放: {(loopPlayback ? "是" : "否")}");
     }
 }

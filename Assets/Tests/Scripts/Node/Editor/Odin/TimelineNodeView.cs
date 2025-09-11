@@ -160,13 +160,8 @@ public class TimelineNodeView : BaseSONodeView
     /// </summary>
     protected override void SetupInspector()
     {
-        // 调用基类的SetupInspector
-        base.SetupInspector();
-        
-        // 创建Timeline特定的IMGUI容器
         var timelineContainer = CreateDefaultGUIContainer();
         timelineContainer.onGUIHandler = OnTimelineGUI;
-        
         // 将Timeline容器添加到控件容器中
         controlsContainer.Add(timelineContainer);
     }
@@ -268,29 +263,6 @@ public class TimelineNodeView : BaseSONodeView
         {
             EditorGUILayout.HelpBox("编辑器模式下播放中 - 无需运行Unity即可预览Timeline", MessageType.Info);
         }
-        
-        // 隐藏调试按钮，保持界面简洁
-        // EditorGUILayout.Space(5);
-        // EditorGUILayout.BeginHorizontal();
-        // if (GUILayout.Button("测试播放", GUILayout.Height(25)))
-        // {
-        //     TestPlayback();
-        // }
-        // if (GUILayout.Button("强制更新", GUILayout.Height(25)))
-        // {
-        //     ForceUpdate();
-        // }
-        // EditorGUILayout.EndHorizontal();
-        
-        // 隐藏当前帧数据，保持界面简洁
-        // var currentFrameData = timelineSO.GetCurrentFrameData();
-        // if (currentFrameData != null)
-        // {
-        //     EditorGUILayout.Space(5);
-        //     EditorGUILayout.LabelField("当前帧数据:", EditorStyles.boldLabel);
-        //     EditorGUILayout.LabelField($"内容: {currentFrameData.frameContent}");
-        //     EditorGUILayout.LabelField($"关键帧: {(currentFrameData.isKeyFrame ? "是" : "否")}");
-        // }
     }
     
     /// <summary>
@@ -597,102 +569,5 @@ public class TimelineNodeView : BaseSONodeView
         // 绘制内边框（高光效果）
         EditorGUI.DrawRect(new Rect(rect.x + 1, rect.y + 1, rect.width - 2, 1), new Color(0.8f, 0.8f, 0.8f, 0.3f));
         EditorGUI.DrawRect(new Rect(rect.x + 1, rect.y + 1, 1, rect.height - 2), new Color(0.8f, 0.8f, 0.8f, 0.3f));
-    }
-    
-    /// <summary>
-    /// 测试播放功能
-    /// </summary>
-    private void TestPlayback()
-    {
-        if (timelineSO == null)
-        {
-            Debug.LogError("TimelineSO为空！");
-            return;
-        }
-        
-        Debug.Log("开始测试播放...");
-        Debug.Log($"Timeline状态 - 总帧数: {timelineSO.totalFrames}, 帧率: {timelineSO.frameRate}, 播放速度: {timelineSO.playbackSpeed}");
-        
-        timelineSO.Play();
-        StartEditorPlayback();
-        
-        // 手动更新一次
-        timelineSO.UpdateTimeline();
-        Debug.Log($"手动更新后 - 当前帧: {timelineSO.currentFrame}, 播放时间: {timelineSO.playTime:F2}s");
-    }
-    
-    /// <summary>
-    /// 强制更新
-    /// </summary>
-    private void ForceUpdate()
-    {
-        if (timelineSO == null)
-        {
-            Debug.LogError("TimelineSO为空！");
-            return;
-        }
-        
-        Debug.Log("强制更新Timeline...");
-        timelineSO.UpdateTimeline();
-        Debug.Log($"强制更新后 - 当前帧: {timelineSO.currentFrame}, 播放时间: {timelineSO.playTime:F2}s, 播放状态: {timelineSO.isPlaying}");
-        
-        // 标记需要重绘
-        if (imguiContainer != null)
-        {
-            imguiContainer.MarkDirtyRepaint();
-        }
-    }
-    
-    /// <summary>
-    /// 重写CreateContent以添加Timeline特定的按钮
-    /// </summary>
-    public override VisualElement CreateContent()
-    {
-        var content = base.CreateContent();
-        
-        // 隐藏额外的按钮，保持界面简洁
-        // var timelineButton = CreateButton(() => {
-        //     if (timelineSO != null)
-        //     {
-        //         timelineSO.PrintStatus();
-        //     }
-        // }, "打印状态");
-        
-        // var initButton = CreateButton(() => {
-        //     if (timelineSO != null)
-        //     {
-        //         timelineSO.InitializeFrameData();
-        //     }
-        // }, "初始化帧数据");
-        
-        // content.Add(timelineButton);
-        // content.Add(initButton);
-        
-        return content;
-    }
-    
-    /// <summary>
-    /// 更新方法，用于更新Timeline状态（仅在运行时调用）
-    /// </summary>
-    public void Update()
-    {
-        // 只在运行时调用，编辑器模式使用OnEditorUpdate
-        if (Application.isPlaying && timelineSO != null && timelineSO.isPlaying)
-        {
-            timelineSO.UpdateTimeline();
-            
-            // 更新节点输出
-            if (nodeTarget is TimelineNode timelineNode)
-            {
-                timelineNode.currentFrame = timelineSO.currentFrame;
-                timelineNode.isPlaying = timelineSO.isPlaying;
-            }
-            
-            // 标记需要重绘
-            if (imguiContainer != null)
-            {
-                imguiContainer.MarkDirtyRepaint();
-            }
-        }
     }
 }

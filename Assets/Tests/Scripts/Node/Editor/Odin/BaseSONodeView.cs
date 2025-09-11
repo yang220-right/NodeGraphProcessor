@@ -79,7 +79,7 @@ public abstract class BaseSONodeView : BaseNodeView{
   /// </summary>
   protected string FullSavePath => Path.Combine(Application.dataPath, SOSavePath.Replace("Assets/", ""));
 
-  protected ScriptableObject CreateInstance<T>() where T : ScriptableObject => ScriptableObject.CreateInstance<T>();
+  protected T CreateInstance<T>() where T : ScriptableObject => ScriptableObject.CreateInstance<T>();
 
   /// <summary>
   /// 自动创建并显示SO对象
@@ -237,13 +237,13 @@ public abstract class BaseSONodeView : BaseNodeView{
   #endregion
 
   #region UI绘制
-  private IMGUIContainer imguiContainer;
+  protected IMGUIContainer imguiContainer;
   private Vector2 scrollPosition;
   
   /// <summary>
   /// 设置Inspector界面
   /// </summary>
-  private void SetupInspector(){
+  protected virtual void SetupInspector(){
     // 如果SO对象还没有创建，尝试自动创建
     if (targetSO == null){
       AutoCreateAndDisplaySO();
@@ -277,7 +277,7 @@ public abstract class BaseSONodeView : BaseNodeView{
   /// <summary>
   /// Inspector的GUI绘制方法 - 纯Odin方式
   /// </summary>
-  private void OnInspectorGUI(){
+  protected virtual void OnInspectorGUI(){
     if (targetSO == null){
       EditorGUILayout.HelpBox("Inspector 未初始化", MessageType.Warning);
       return;
@@ -439,7 +439,7 @@ public abstract class BaseSONodeView : BaseNodeView{
     }
   }
 
-  public VisualElement CreateContent(){
+  public virtual VisualElement CreateContent(){
     var content = new VisualElement();
     content.style.flexDirection = FlexDirection.Row;
     content.style.justifyContent = Justify.SpaceAround;

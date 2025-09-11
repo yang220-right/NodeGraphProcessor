@@ -17,6 +17,7 @@ MonoBehaviour:
   - rid: 6536307005047701522
   - rid: 6536307005047701524
   - rid: 6536307005047701528
+  - rid: 9155479653836652547
   edges:
   - GUID: 907f8127-4214-466f-aab8-f77398897f4e
     owner: {fileID: 11400000}
@@ -41,7 +42,7 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: 109, y: 37, z: 0}
+  position: {x: 176, y: -399, z: 0}
   scale: {x: 0.8695652, y: 0.8695652, z: 1}
   references:
     version: 2
@@ -54,8 +55,8 @@ MonoBehaviour:
         computeOrder: 0
         position:
           serializedVersion: 2
-          x: 428
-          y: 72
+          x: 33.55005
+          y: 39.80001
           width: 150
           height: 105
         expanded: 1
@@ -71,8 +72,8 @@ MonoBehaviour:
         computeOrder: 2
         position:
           serializedVersion: 2
-          x: 644
-          y: 144
+          x: 249.55011
+          y: 111.79999
           width: 184
           height: 99
         expanded: 0
@@ -88,8 +89,8 @@ MonoBehaviour:
         computeOrder: 1
         position:
           serializedVersion: 2
-          x: 309
-          y: 230
+          x: -85.44992
+          y: 197.80002
           width: 281
           height: 95
         expanded: 0
@@ -97,3 +98,21 @@ MonoBehaviour:
         nodeLock: 0
         input: {fileID: 0}
         output: {fileID: 0}
+    - rid: 9155479653836652547
+      type: {class: TimelineNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeCustomName: 
+        GUID: c0fbc04c-efe8-433e-9257-ac0dbc30da5c
+        computeOrder: 3
+        position:
+          serializedVersion: 2
+          x: 480.59653
+          y: 124.71175
+          width: 100
+          height: 100
+        expanded: 0
+        debug: 0
+        nodeLock: 0
+        frameInput: 0
+        currentFrame: 28
+        isPlaying: 1

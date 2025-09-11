@@ -15,6 +15,7 @@ public class TimelineNodeView : BaseSONodeView
     private TimelineSO timelineSO;
     private bool isInitialized = false;
     private bool isEditorPlaying = false;
+    private bool isDragging = false;
     
     protected override void SetWidth()
     {
@@ -254,7 +255,7 @@ public class TimelineNodeView : BaseSONodeView
         
         // 显示当前帧信息
         EditorGUILayout.Space(5);
-        EditorGUILayout.LabelField($"当前帧: {timelineSO.currentFrame} / {timelineSO.totalFrames - 1}");
+        EditorGUILayout.LabelField($"当前帧: {timelineSO.currentFrame} / {timelineSO.totalFrames}");
         
         // 显示播放状态和模式
         string playStatus = timelineSO.isPlaying ? "播放中" : "已暂停";
@@ -357,8 +358,14 @@ public class TimelineNodeView : BaseSONodeView
         // 绘制时间标签
         DrawTimeLabels(timelineRect, totalFrames);
         
-        // 处理鼠标点击
+        // 处理鼠标点击和拖动
         HandleTimelineClick(timelineRect, frameWidth);
+        
+        // 设置鼠标光标
+        if (timelineRect.Contains(Event.current.mousePosition))
+        {
+            EditorGUIUtility.AddCursorRect(timelineRect, MouseCursor.MoveArrow);
+        }
     }
     
     /// <summary>
@@ -427,11 +434,15 @@ public class TimelineNodeView : BaseSONodeView
     {
         float x = timelineRect.x + currentFrame * frameWidth;
         
-        // 绘制当前帧指示线（红色，带阴影效果）
-        EditorGUI.DrawRect(new Rect(x - 1, timelineRect.y, 3, timelineRect.height), new Color(1f, 0.2f, 0.2f, 0.8f));
-        EditorGUI.DrawRect(new Rect(x, timelineRect.y, 1, timelineRect.height), Color.red);
+        // 根据拖动状态选择颜色
+        Color indicatorColor = isDragging ? Color.yellow : Color.red;
+        Color shadowColor = isDragging ? new Color(0.8f, 0.8f, 0.1f, 0.8f) : new Color(0.5f, 0.1f, 0.1f, 0.8f);
         
-        // 绘制当前帧指示器（红色三角形，带阴影）
+        // 绘制当前帧指示线（带阴影效果）
+        EditorGUI.DrawRect(new Rect(x - 1, timelineRect.y, 3, timelineRect.height), shadowColor);
+        EditorGUI.DrawRect(new Rect(x, timelineRect.y, 1, timelineRect.height), indicatorColor);
+        
+        // 绘制当前帧指示器（三角形，带阴影）
         Vector3[] triangle = new Vector3[3]
         {
             new Vector3(x, timelineRect.y + 2, 0),
@@ -447,10 +458,10 @@ public class TimelineNodeView : BaseSONodeView
             new Vector3(x + 6, timelineRect.y + 11, 0)
         };
         
-        Handles.color = new Color(0.5f, 0.1f, 0.1f, 0.8f);
+        Handles.color = shadowColor;
         Handles.DrawAAConvexPolygon(shadowTriangle);
         
-        Handles.color = Color.red;
+        Handles.color = indicatorColor;
         Handles.DrawAAConvexPolygon(triangle);
         Handles.color = Color.white;
         
@@ -459,8 +470,9 @@ public class TimelineNodeView : BaseSONodeView
         Vector2 textSize = GUI.skin.label.CalcSize(new GUIContent(frameText));
         Rect textRect = new Rect(x - textSize.x / 2, timelineRect.y + 15, textSize.x, 15);
         
-        // 绘制文字背景
-        EditorGUI.DrawRect(textRect, new Color(0, 0, 0, 0.7f));
+        // 绘制文字背景（拖动时高亮）
+        Color textBgColor = isDragging ? new Color(1f, 1f, 0f, 0.8f) : new Color(0, 0, 0, 0.7f);
+        EditorGUI.DrawRect(textRect, textBgColor);
         
         // 绘制文字
         GUI.Label(textRect, frameText, EditorStyles.centeredGreyMiniLabel);
@@ -486,29 +498,71 @@ public class TimelineNodeView : BaseSONodeView
     }
     
     /// <summary>
-    /// 处理时间轴点击
+    /// 处理时间轴点击和拖动
     /// </summary>
     private void HandleTimelineClick(Rect timelineRect, float frameWidth)
     {
         Event e = Event.current;
         
-        if (e.type == EventType.MouseDown && timelineRect.Contains(e.mousePosition))
+        if (timelineRect.Contains(e.mousePosition))
         {
-            // 计算点击的帧
+            // 计算鼠标位置对应的帧
             float clickX = e.mousePosition.x - timelineRect.x;
-            int clickedFrame = Mathf.RoundToInt(clickX / frameWidth);
+            int targetFrame = Mathf.RoundToInt(clickX / frameWidth);
+            targetFrame = Mathf.Clamp(targetFrame, 0, timelineSO.totalFrames - 1);
             
-            // 设置当前帧
-            timelineSO.currentFrame = Mathf.Clamp(clickedFrame, 0, timelineSO.totalFrames - 1);
-            timelineSO.GoToFrame();
-            
-            // 标记需要重绘
-            if (imguiContainer != null)
+            if (e.type == EventType.MouseDown)
             {
-                imguiContainer.MarkDirtyRepaint();
+                // 开始拖动
+                isDragging = true;
+                SetCurrentFrame(targetFrame);
+                e.Use();
             }
-            
-            e.Use();
+            else if (e.type == EventType.MouseDrag && isDragging)
+            {
+                // 拖动中
+                SetCurrentFrame(targetFrame);
+                e.Use();
+            }
+            else if (e.type == EventType.MouseUp)
+            {
+                // 结束拖动
+                isDragging = false;
+                SetCurrentFrame(targetFrame);
+                e.Use();
+            }
+        }
+        else if (e.type == EventType.MouseUp)
+        {
+            // 在时间轴外释放鼠标，结束拖动
+            isDragging = false;
+        }
+    }
+    
+    /// <summary>
+    /// 设置当前帧
+    /// </summary>
+    private void SetCurrentFrame(int frame)
+    {
+        timelineSO.currentFrame = frame;
+        timelineSO.GoToFrame();
+        
+        // 更新节点输出
+        if (nodeTarget is TimelineNode timelineNode)
+        {
+            timelineNode.currentFrame = timelineSO.currentFrame;
+        }
+        
+        // 标记需要重绘
+        if (imguiContainer != null)
+        {
+            imguiContainer.MarkDirtyRepaint();
+        }
+        
+        // 拖动时打印调试信息（可选）
+        if (isDragging)
+        {
+            Debug.Log($"拖动到帧: {frame}/{timelineSO.totalFrames}");
         }
     }
     

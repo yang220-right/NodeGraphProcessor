@@ -22,7 +22,7 @@ public class TimelineSO : SerializedScriptableObject
     [LabelText("当前帧")]
     [Tooltip("当前播放的帧")]
     [ReadOnly]
-    [ProgressBar(0, 100, ColorMember = "GetFrameColor")]
+    [ProgressBar(0, 100, ColorMember = "GetFrameColor", MaxGetter = "GetMaxFrames")]
     public int currentFrame = 0;
     
     [LabelText("播放速度")]
@@ -102,6 +102,14 @@ public class TimelineSO : SerializedScriptableObject
             return Color.green;
         else
             return Color.red;
+    }
+    
+    /// <summary>
+    /// 获取ProgressBar的最大值
+    /// </summary>
+    private int GetMaxFrames()
+    {
+        return totalFrames - 1;
     }
     
     /// <summary>

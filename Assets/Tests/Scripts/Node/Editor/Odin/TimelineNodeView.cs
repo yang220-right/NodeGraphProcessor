@@ -678,7 +678,7 @@ public class TimelineNodeView : BaseSONodeView
         track.trackType = (TimelineSO.TrackType)EditorGUILayout.EnumPopup(track.trackType, GUILayout.Width(80));
         
         // 删除按钮
-        if (GUILayout.Button("❌", GUILayout.Width(30), GUILayout.Height(20)))
+        if (GUILayout.Button("X", GUILayout.Width(30), GUILayout.Height(20)))
         {
             if (EditorUtility.DisplayDialog("确认删除", $"确定要删除轨道 '{track.trackName}' 吗？", "确定", "取消"))
             {
@@ -694,8 +694,8 @@ public class TimelineNodeView : BaseSONodeView
         EditorGUILayout.BeginHorizontal();
         
         // 轨道高度
-        EditorGUILayout.LabelField("高度:", GUILayout.Width(40));
-        track.trackHeight = EditorGUILayout.Slider(track.trackHeight, 20f, 100f);
+        // EditorGUILayout.LabelField("高度:", GUILayout.Width(40));
+        // track.trackHeight = EditorGUILayout.Slider(track.trackHeight, 20f, 100f);
         
         // 关键帧数量
         int keyFrameCount = track.keyFrames != null ? track.keyFrames.Length : 0;

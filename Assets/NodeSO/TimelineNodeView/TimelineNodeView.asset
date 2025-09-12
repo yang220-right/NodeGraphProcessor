@@ -23,19 +23,75 @@ MonoBehaviour:
     SerializationNodes: []
   timelineName: "\u65B0\u65F6\u95F4\u8F74"
   totalFrames: 50
-  currentFrame: 26
+  currentFrame: 39
   playbackSpeed: 0.1
   isPlaying: 0
   loopPlayback: 1
   tracks:
-  - trackName: "\u52A8\u753B\u8F68\u9053"
+  - trackName: "\u4F4D\u7F6EX"
     trackType: 0
     trackColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
     isEnabled: 1
     isLocked: 0
     trackHeight: 20
     keyFrames:
-    - frame: 11
+    - frame: 30
+      value: 0
+      interpolationType: 0
+      easingCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 1
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      isSelected: 0
+    - frame: 41
+      value: 0
+      interpolationType: 0
+      easingCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 1
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      isSelected: 0
+    - frame: 16
       value: 0
       interpolationType: 0
       easingCurve:
@@ -64,14 +120,42 @@ MonoBehaviour:
         m_RotationOrder: 4
       isSelected: 0
     properties: []
-  - trackName: "\u52A8\u753B\u8F68\u9053"
+  - trackName: "\u4F4D\u7F6EY"
     trackType: 0
     trackColor: {r: 0.2, g: 0.8, b: 0.2, a: 1}
     isEnabled: 1
     isLocked: 0
     trackHeight: 20
     keyFrames:
-    - frame: 17
+    - frame: 40
+      value: 0
+      interpolationType: 1
+      easingCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 0
+          outSlope: 1
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      isSelected: 0
+    - frame: 30
       value: 0
       interpolationType: 0
       easingCurve:
@@ -100,51 +184,15 @@ MonoBehaviour:
         m_RotationOrder: 4
       isSelected: 0
     properties: []
-  - trackName: "\u97F3\u9891\u8F68\u9053"
-    trackType: 1
-    trackColor: {r: 0.2, g: 0.2, b: 0.8, a: 1}
-    isEnabled: 1
-    isLocked: 0
-    trackHeight: 20
-    keyFrames:
-    - frame: 34
-      value: 0
-      interpolationType: 0
-      easingCurve:
-        serializedVersion: 2
-        m_Curve:
-        - serializedVersion: 3
-          time: 0
-          value: 0
-          inSlope: 0
-          outSlope: 1
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        - serializedVersion: 3
-          time: 1
-          value: 1
-          inSlope: 1
-          outSlope: 0
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0
-          outWeight: 0
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      isSelected: 0
-    properties: []
-  - trackName: "\u4E8B\u4EF6\u8F68\u9053"
+  - trackName: "\u4E8B\u4EF6\u89E6\u53D1\u5668"
     trackType: 2
     trackColor: {r: 0.8, g: 0.8, b: 0.2, a: 1}
     isEnabled: 1
     isLocked: 0
     trackHeight: 20
     keyFrames:
-    - frame: 26
-      value: 0
+    - frame: 35
+      value: 1
       interpolationType: 0
       easingCurve:
         serializedVersion: 2
@@ -171,14 +219,6 @@ MonoBehaviour:
         m_PostInfinity: 2
         m_RotationOrder: 4
       isSelected: 0
-    properties: []
-  - trackName: "\u811A\u672C\u8F68\u9053"
-    trackType: 3
-    trackColor: {r: 0.8, g: 0.2, b: 0.8, a: 1}
-    isEnabled: 1
-    isLocked: 0
-    trackHeight: 20
-    keyFrames: []
     properties: []
   frameData:
   - frameNumber: 0
@@ -201,5 +241,5 @@ MonoBehaviour:
     frameContent: Frame 4 Content
     isKeyFrame: 0
     frameColor: {r: 1, g: 1, b: 1, a: 1}
-  playTime: 0.8666667
+  playTime: 1.3033322
   frameRate: 30

@@ -42,8 +42,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: 103, y: 58, z: 0}
-  scale: {x: 0.8695652, y: 0.8695652, z: 1}
+  position: {x: -401, y: 4, z: 0}
+  scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
     RefIds:
@@ -114,5 +114,5 @@ MonoBehaviour:
         debug: 0
         nodeLock: 0
         frameInput: 0
-        currentFrame: 29
+        currentFrame: 28
         isPlaying: 1

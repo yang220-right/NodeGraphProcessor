@@ -270,8 +270,8 @@ public abstract class BaseSONodeView : BaseNodeView{
     buttonContainer.Add(recreateButton);
 
     // 使用 Insert 方法将 IMGUI 容器插入到最前面
-    controlsContainer.Add(imguiContainer);
     controlsContainer.Add(buttonContainer);
+    controlsContainer.Add(imguiContainer);
   }
 
   /// <summary>
@@ -293,21 +293,16 @@ public abstract class BaseSONodeView : BaseNodeView{
       // 开始滚动视图
       scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
       
-      // 显示SO信息
-      EditorGUILayout.LabelField("SO info", EditorStyles.boldLabel);
-      EditorGUILayout.LabelField("name:", targetSO.name);
-
-      // 显示保存路径信息
-      EditorGUILayout.Space(5);
-      EditorGUILayout.LabelField("Save Path Info:", EditorStyles.boldLabel);
-      EditorGUILayout.LabelField("Save Path:", SOSavePath);
-      EditorGUILayout.LabelField("File Name:", GetDefaultFileName() + ".asset");
-
+      if (nodeTarget.debug)
+      {
+        // 显示SO信息
+        EditorGUILayout.LabelField("SO info", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("name:", targetSO.name);
+      }
       // 添加保存路径设置
       EditorGUILayout.Space(5);
       soSavePath = EditorGUILayout.TextField("Save Path:", soSavePath);
       soFileName = EditorGUILayout.TextField("File Name:", soFileName);
-      
       // 使用 Odin Inspector 绘制所有属性
       EditorGUILayout.Space(10);
       EditorGUILayout.LabelField("All Properties:", EditorStyles.boldLabel);
@@ -449,13 +444,8 @@ public abstract class BaseSONodeView : BaseNodeView{
   /// <summary>
   /// 创建一个默认的IMGUIContainer
   /// </summary>
-  public IMGUIContainer CreateDefaultGUIContainer(){
-    var temp = new IMGUIContainer();
-    // 设置基本样式以确保正常显示
-    temp.style.flexGrow = 1;
-    temp.style.minHeight = 200;
-    
-    return temp;
+  protected IMGUIContainer CreateDefaultGUIContainer(){
+    return new IMGUIContainer();
   }
 
   public Label CreateLabel(string text){
@@ -489,17 +479,14 @@ public abstract class BaseSONodeView : BaseNodeView{
 
   #endregion
 
-  // 添加保护机制
   public override void OnCreated(){
     base.OnCreated();
-    // 确保在Node创建后SO对象被正确初始化
     if (targetSO == null){
       AutoCreateAndDisplaySO();
     }
   }
   
   private void OnNodePortsUpdated(string ports){
-    // 当端口更新时，确保SO对象和属性树保持有效
     if (targetSO == null){
       AutoCreateAndDisplaySO();
     }

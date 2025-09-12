@@ -49,8 +49,6 @@ public class TimelineNodeView : BaseSONodeView
             InitializeTimeline();
             isInitialized = true;
         }
-        
-        // 不在这里注册，而是在播放时注册
     }
     
     public override void Disable()
@@ -160,6 +158,7 @@ public class TimelineNodeView : BaseSONodeView
     /// </summary>
     protected override void SetupInspector()
     {
+        base.SetupInspector();
         var timelineContainer = CreateDefaultGUIContainer();
         timelineContainer.onGUIHandler = OnTimelineGUI;
         // 将Timeline容器添加到控件容器中
@@ -224,10 +223,8 @@ public class TimelineNodeView : BaseSONodeView
         }
         
         EditorGUILayout.EndHorizontal();
-        
         // 绘制播放进度条
         DrawPlaybackProgressBar();
-        
         // 绘制时间轴
         DrawTimelineRuler();
         
@@ -251,18 +248,7 @@ public class TimelineNodeView : BaseSONodeView
         // 显示当前帧信息
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField($"当前帧: {timelineSO.currentFrame} / {timelineSO.totalFrames}");
-        
-        // 显示播放状态和模式
-        string playStatus = timelineSO.isPlaying ? "播放中" : "已暂停";
-        string playMode = Application.isPlaying ? "运行时模式" : "编辑器模式";
-        EditorGUILayout.LabelField($"播放状态: {playStatus} ({playMode})");
         EditorGUILayout.LabelField($"播放时间: {timelineSO.playTime:F2}s");
-        
-        // 显示编辑器播放状态
-        if (!Application.isPlaying && timelineSO.isPlaying)
-        {
-            EditorGUILayout.HelpBox("编辑器模式下播放中 - 无需运行Unity即可预览Timeline", MessageType.Info);
-        }
     }
     
     /// <summary>
@@ -306,10 +292,8 @@ public class TimelineNodeView : BaseSONodeView
         
         // 获取时间轴区域
         Rect timelineRect = GUILayoutUtility.GetRect(0, 60, GUILayout.ExpandWidth(true));
-        
         // 绘制背景渐变
         DrawGradientBackground(timelineRect);
-        
         // 绘制边框
         DrawTimelineBorder(timelineRect);
         
@@ -320,19 +304,14 @@ public class TimelineNodeView : BaseSONodeView
         
         // 绘制刻度线
         DrawTimelineTicks(timelineRect, totalFrames, frameWidth);
-        
         // 绘制关键帧标记
         DrawKeyFrameMarkers(timelineRect, frameWidth);
-        
         // 绘制当前帧指示器
         DrawCurrentFrameIndicator(timelineRect, currentFrame, frameWidth);
-        
         // 绘制时间标签
         DrawTimeLabels(timelineRect, totalFrames);
-        
         // 处理鼠标点击和拖动
         HandleTimelineClick(timelineRect, frameWidth);
-        
         // 设置鼠标光标
         if (timelineRect.Contains(Event.current.mousePosition))
         {

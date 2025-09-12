@@ -9,9 +9,10 @@ using UnityEngine;
 [Serializable]
 public class TimelineSO : SerializedScriptableObject
 {
-    [Header("Timeline 设置")]
-    [LabelText("Timeline 名称")]
-    [Tooltip("Timeline的名称")]
+    // [Header("Timeline 设置")]
+    // [LabelText("Timeline 名称")]
+    // [Tooltip("Timeline的名称")]
+    [HideInInspector]
     public string timelineName = "Simple Timeline";
     
     [LabelText("总帧数")]

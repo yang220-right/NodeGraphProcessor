@@ -23,7 +23,7 @@ MonoBehaviour:
     SerializationNodes: []
   timelineName: "\u65B0\u65F6\u95F4\u8F74"
   totalFrames: 31
-  currentFrame: 29
+  currentFrame: 28
   playbackSpeed: 0.1
   isPlaying: 1
   loopPlayback: 1
@@ -48,5 +48,5 @@ MonoBehaviour:
     frameContent: Frame 4 Content
     isKeyFrame: 0
     frameColor: {r: 1, g: 1, b: 1, a: 1}
-  playTime: 0.98833245
+  playTime: 0.9383325
   frameRate: 30

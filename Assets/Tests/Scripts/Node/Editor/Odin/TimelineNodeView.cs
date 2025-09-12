@@ -105,6 +105,21 @@ public class TimelineNodeView : BaseSONodeView
             {
                 timelineNode.currentFrame = timelineSO.currentFrame;
                 timelineNode.isPlaying = timelineSO.isPlaying;
+                timelineNode.trackCount = timelineSO.tracks != null ? timelineSO.tracks.Length : 0;
+                
+                // 更新轨道值
+                if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+                {
+                    timelineNode.trackValues = new float[timelineSO.tracks.Length];
+                    for (int i = 0; i < timelineSO.tracks.Length; i++)
+                    {
+                        timelineNode.trackValues[i] = timelineSO.GetTrackValueAtFrame(i, timelineSO.currentFrame);
+                    }
+                }
+                else
+                {
+                    timelineNode.trackValues = new float[0];
+                }
             }
             
             // 标记需要重绘
@@ -175,9 +190,14 @@ public class TimelineNodeView : BaseSONodeView
             EditorGUILayout.HelpBox("TimelineSO 未初始化", MessageType.Warning);
             return;
         }
-        
         // 绘制Timeline控制按钮
         DrawTimelineControls();
+        // 绘制轨道时间轴
+        DrawTrackTimeline();
+        // 绘制轨道管理界面
+        DrawTrackManagement();
+        // 绘制时间轴额外信息
+        DrawTimeLineCurrentInfo();
     }
     
     /// <summary>
@@ -227,24 +247,10 @@ public class TimelineNodeView : BaseSONodeView
         DrawPlaybackProgressBar();
         // 绘制时间轴
         DrawTimelineRuler();
-        
-        // 帧跳转控制
-        EditorGUILayout.Space(5);
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("跳转到帧:", GUILayout.Width(80));
-        int targetFrame = EditorGUILayout.IntField(timelineSO.currentFrame, GUILayout.Width(60));
-        if (targetFrame != timelineSO.currentFrame)
-        {
-            timelineSO.currentFrame = Mathf.Clamp(targetFrame, 0, timelineSO.totalFrames - 1);
-            timelineSO.GoToFrame();
-        }
-        
-        if (GUILayout.Button("跳转", GUILayout.Width(50)))
-        {
-            timelineSO.GoToFrame();
-        }
-        EditorGUILayout.EndHorizontal();
-        
+    }
+
+    private void DrawTimeLineCurrentInfo()
+    {
         // 显示当前帧信息
         EditorGUILayout.Space(5);
         EditorGUILayout.LabelField($"当前帧: {timelineSO.currentFrame} / {timelineSO.totalFrames}");
@@ -502,6 +508,21 @@ public class TimelineNodeView : BaseSONodeView
         if (nodeTarget is TimelineNode timelineNode)
         {
             timelineNode.currentFrame = timelineSO.currentFrame;
+            timelineNode.trackCount = timelineSO.tracks != null ? timelineSO.tracks.Length : 0;
+            
+            // 更新轨道值
+            if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+            {
+                timelineNode.trackValues = new float[timelineSO.tracks.Length];
+                for (int i = 0; i < timelineSO.tracks.Length; i++)
+                {
+                    timelineNode.trackValues[i] = timelineSO.GetTrackValueAtFrame(i, timelineSO.currentFrame);
+                }
+            }
+            else
+            {
+                timelineNode.trackValues = new float[0];
+            }
         }
         
         // 标记需要重绘
@@ -548,5 +569,372 @@ public class TimelineNodeView : BaseSONodeView
         // 绘制内边框（高光效果）
         EditorGUI.DrawRect(new Rect(rect.x + 1, rect.y + 1, rect.width - 2, 1), new Color(0.8f, 0.8f, 0.8f, 0.3f));
         EditorGUI.DrawRect(new Rect(rect.x + 1, rect.y + 1, 1, rect.height - 2), new Color(0.8f, 0.8f, 0.8f, 0.3f));
+    }
+    
+    /// <summary>
+    /// 绘制轨道管理界面
+    /// </summary>
+    private void DrawTrackManagement()
+    {
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("轨道管理", EditorStyles.boldLabel);
+        
+        // 轨道操作按钮
+        EditorGUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("➕ 添加动画轨道", GUILayout.Height(25)))
+        {
+            timelineSO.AddTrack("动画轨道", TimelineSO.TrackType.Animation);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        if (GUILayout.Button("🎵 添加音频轨道", GUILayout.Height(25)))
+        {
+            timelineSO.AddTrack("音频轨道", TimelineSO.TrackType.Audio);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        if (GUILayout.Button("⚡ 添加事件轨道", GUILayout.Height(25)))
+        {
+            timelineSO.AddTrack("事件轨道", TimelineSO.TrackType.Event);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("📜 添加脚本轨道", GUILayout.Height(25)))
+        {
+            timelineSO.AddTrack("脚本轨道", TimelineSO.TrackType.Script);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        if (GUILayout.Button("🔧 添加自定义轨道", GUILayout.Height(25)))
+        {
+            timelineSO.AddTrack("自定义轨道", TimelineSO.TrackType.Custom);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        if (GUILayout.Button("🗑️ 清除所有轨道", GUILayout.Height(25)))
+        {
+            if (EditorUtility.DisplayDialog("确认删除", "确定要删除所有轨道吗？", "确定", "取消"))
+            {
+                timelineSO.tracks = new TimelineSO.TrackData[0];
+                EditorUtility.SetDirty(timelineSO);
+            }
+        }
+        
+        if (GUILayout.Button("📝 添加示例轨道", GUILayout.Height(25)))
+        {
+            AddExampleTracks();
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // 显示轨道列表
+        if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+        {
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField($"轨道列表 ({timelineSO.tracks.Length} 个轨道)", EditorStyles.boldLabel);
+            
+            for (int i = 0; i < timelineSO.tracks.Length; i++)
+            {
+                DrawTrackItem(i);
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("暂无轨道，请添加轨道", MessageType.Info);
+        }
+    }
+    
+    /// <summary>
+    /// 绘制单个轨道项
+    /// </summary>
+    private void DrawTrackItem(int trackIndex)
+    {
+        var track = timelineSO.tracks[trackIndex];
+        if (track == null) return;
+        
+        EditorGUILayout.BeginVertical("box");
+        
+        // 轨道头部信息
+        EditorGUILayout.BeginHorizontal();
+        
+        // 轨道启用/禁用开关
+        track.isEnabled = EditorGUILayout.Toggle(track.isEnabled, GUILayout.Width(20));
+        
+        // 轨道锁定开关
+        track.isLocked = EditorGUILayout.Toggle(track.isLocked, GUILayout.Width(20));
+        
+        // 轨道颜色
+        track.trackColor = EditorGUILayout.ColorField(track.trackColor, GUILayout.Width(30));
+        
+        // 轨道名称
+        track.trackName = EditorGUILayout.TextField(track.trackName);
+        
+        // 轨道类型
+        track.trackType = (TimelineSO.TrackType)EditorGUILayout.EnumPopup(track.trackType, GUILayout.Width(80));
+        
+        // 删除按钮
+        if (GUILayout.Button("❌", GUILayout.Width(30), GUILayout.Height(20)))
+        {
+            if (EditorUtility.DisplayDialog("确认删除", $"确定要删除轨道 '{track.trackName}' 吗？", "确定", "取消"))
+            {
+                timelineSO.RemoveTrack(trackIndex);
+                EditorUtility.SetDirty(timelineSO);
+                return;
+            }
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // 轨道详细信息
+        EditorGUILayout.BeginHorizontal();
+        
+        // 轨道高度
+        EditorGUILayout.LabelField("高度:", GUILayout.Width(40));
+        track.trackHeight = EditorGUILayout.Slider(track.trackHeight, 20f, 100f);
+        
+        // 关键帧数量
+        int keyFrameCount = track.keyFrames != null ? track.keyFrames.Length : 0;
+        EditorGUILayout.LabelField($"关键帧: {keyFrameCount}", GUILayout.Width(80));
+        
+        // 添加关键帧按钮
+        if (GUILayout.Button("添加关键帧", GUILayout.Width(80), GUILayout.Height(20)))
+        {
+            timelineSO.AddKeyFrameToTrack(trackIndex, timelineSO.currentFrame, 0f);
+            EditorUtility.SetDirty(timelineSO);
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // 显示关键帧信息
+        if (keyFrameCount > 0)
+        {
+            EditorGUILayout.BeginVertical("helpBox");
+            EditorGUILayout.LabelField("关键帧信息:", EditorStyles.miniBoldLabel);
+            
+            for (int i = 0; i < keyFrameCount; i++)
+            {
+                var keyFrame = track.keyFrames[i];
+                EditorGUILayout.BeginHorizontal();
+                
+                EditorGUILayout.LabelField($"帧 {keyFrame.frame}:", GUILayout.Width(50));
+                keyFrame.value = EditorGUILayout.FloatField(keyFrame.value, GUILayout.Width(60));
+                keyFrame.interpolationType = (TimelineSO.InterpolationType)EditorGUILayout.EnumPopup(keyFrame.interpolationType, GUILayout.Width(80));
+                
+                if (GUILayout.Button("删除", GUILayout.Width(40), GUILayout.Height(16)))
+                {
+                    timelineSO.RemoveKeyFrameFromTrack(trackIndex, i);
+                    EditorUtility.SetDirty(timelineSO);
+                    break;
+                }
+                
+                EditorGUILayout.EndHorizontal();
+            }
+            
+            EditorGUILayout.EndVertical();
+        }
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    /// <summary>
+    /// 绘制轨道时间轴
+    /// </summary>
+    private void DrawTrackTimeline()
+    {
+        if (timelineSO.tracks == null || timelineSO.tracks.Length == 0)
+        {
+            return;
+        }
+        
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("轨道时间轴", EditorStyles.boldLabel);
+        
+        // 计算时间轴区域
+        float trackAreaHeight = 0f;
+        foreach (var track in timelineSO.tracks)
+        {
+            if (track.isEnabled)
+            {
+                trackAreaHeight += track.trackHeight + 2f; // 2f for spacing
+            }
+        }
+        
+        Rect trackAreaRect = GUILayoutUtility.GetRect(0, trackAreaHeight, GUILayout.ExpandWidth(true));
+        
+        // 绘制轨道区域背景
+        DrawTrackAreaBackground(trackAreaRect);
+        
+        // 绘制每个轨道
+        float currentY = trackAreaRect.y;
+        for (int i = 0; i < timelineSO.tracks.Length; i++)
+        {
+            var track = timelineSO.tracks[i];
+            if (!track.isEnabled) continue;
+            
+            Rect trackRect = new Rect(trackAreaRect.x, currentY, trackAreaRect.width, track.trackHeight);
+            DrawSingleTrack(trackRect, track, i);
+            
+            currentY += track.trackHeight + 2f;
+        }
+        
+        // 绘制当前帧指示线
+        DrawCurrentFrameIndicatorForTracks(trackAreaRect);
+    }
+    
+    /// <summary>
+    /// 绘制轨道区域背景
+    /// </summary>
+    private void DrawTrackAreaBackground(Rect rect)
+    {
+        // 绘制基础背景
+        EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 1f));
+        
+        // 绘制网格线
+        float frameWidth = rect.width / timelineSO.totalFrames;
+        for (int i = 0; i <= timelineSO.totalFrames; i += 10)
+        {
+            float x = rect.x + i * frameWidth;
+            EditorGUI.DrawRect(new Rect(x, rect.y, 1, rect.height), new Color(0.3f, 0.3f, 0.3f, 0.5f));
+        }
+        
+        // 绘制边框
+        EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, 1), Color.gray);
+        EditorGUI.DrawRect(new Rect(rect.x, rect.y + rect.height - 1, rect.width, 1), Color.gray);
+        EditorGUI.DrawRect(new Rect(rect.x, rect.y, 1, rect.height), Color.gray);
+        EditorGUI.DrawRect(new Rect(rect.x + rect.width - 1, rect.y, 1, rect.height), Color.gray);
+    }
+    
+    /// <summary>
+    /// 绘制单个轨道
+    /// </summary>
+    private void DrawSingleTrack(Rect trackRect, TimelineSO.TrackData track, int trackIndex)
+    {
+        // 绘制轨道背景
+        Color trackBgColor = track.isLocked ? 
+            new Color(track.trackColor.r * 0.3f, track.trackColor.g * 0.3f, track.trackColor.b * 0.3f, 0.5f) :
+            new Color(track.trackColor.r * 0.2f, track.trackColor.g * 0.2f, track.trackColor.b * 0.2f, 0.3f);
+        
+        EditorGUI.DrawRect(trackRect, trackBgColor);
+        
+        // 绘制轨道边框
+        Color borderColor = track.isLocked ? Color.red : track.trackColor;
+        EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.y, trackRect.width, 1), borderColor);
+        EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.y + trackRect.height - 1, trackRect.width, 1), borderColor);
+        
+        // 绘制轨道名称
+        GUI.Label(new Rect(trackRect.x + 5, trackRect.y + 2, 100, 20), track.trackName, EditorStyles.whiteLabel);
+        
+        // 绘制关键帧
+        if (track.keyFrames != null)
+        {
+            float frameWidth = trackRect.width / timelineSO.totalFrames;
+            
+            foreach (var keyFrame in track.keyFrames)
+            {
+                float x = trackRect.x + keyFrame.frame * frameWidth;
+                Rect keyFrameRect = new Rect(x - 3, trackRect.y + trackRect.height / 2 - 3, 6, 6);
+                
+                // 绘制关键帧
+                EditorGUI.DrawRect(keyFrameRect, track.trackColor);
+                
+                // 绘制关键帧边框
+                EditorGUI.DrawRect(new Rect(keyFrameRect.x, keyFrameRect.y, keyFrameRect.width, 1), Color.white);
+                EditorGUI.DrawRect(new Rect(keyFrameRect.x, keyFrameRect.y + keyFrameRect.height - 1, keyFrameRect.width, 1), Color.white);
+                EditorGUI.DrawRect(new Rect(keyFrameRect.x, keyFrameRect.y, 1, keyFrameRect.height), Color.white);
+                EditorGUI.DrawRect(new Rect(keyFrameRect.x + keyFrameRect.width - 1, keyFrameRect.y, 1, keyFrameRect.height), Color.white);
+            }
+        }
+        
+        // 绘制轨道值曲线（如果有多个关键帧）
+        if (track.keyFrames != null && track.keyFrames.Length > 1)
+        {
+            DrawTrackValueCurve(trackRect, track);
+        }
+    }
+    
+    /// <summary>
+    /// 绘制轨道值曲线
+    /// </summary>
+    private void DrawTrackValueCurve(Rect trackRect, TimelineSO.TrackData track)
+    {
+        if (track.keyFrames.Length < 2) return;
+        
+        float frameWidth = trackRect.width / timelineSO.totalFrames;
+        Vector3[] curvePoints = new Vector3[track.keyFrames.Length];
+        
+        // 计算曲线点
+        for (int i = 0; i < track.keyFrames.Length; i++)
+        {
+            float x = trackRect.x + track.keyFrames[i].frame * frameWidth;
+            float y = trackRect.y + trackRect.height / 2 - (track.keyFrames[i].value * trackRect.height / 4); // 缩放值到轨道高度
+            curvePoints[i] = new Vector3(x, y, 0);
+        }
+        
+        // 绘制曲线
+        Handles.color = track.trackColor;
+        Handles.DrawPolyLine(curvePoints);
+        Handles.color = Color.white;
+    }
+    
+    /// <summary>
+    /// 为轨道绘制当前帧指示线
+    /// </summary>
+    private void DrawCurrentFrameIndicatorForTracks(Rect trackAreaRect)
+    {
+        float frameWidth = trackAreaRect.width / timelineSO.totalFrames;
+        float x = trackAreaRect.x + timelineSO.currentFrame * frameWidth;
+        
+        // 绘制当前帧指示线
+        EditorGUI.DrawRect(new Rect(x - 1, trackAreaRect.y, 3, trackAreaRect.height), Color.red);
+        EditorGUI.DrawRect(new Rect(x, trackAreaRect.y, 1, trackAreaRect.height), Color.white);
+    }
+    
+    /// <summary>
+    /// 添加示例轨道
+    /// </summary>
+    private void AddExampleTracks()
+    {
+        // 清除现有轨道
+        timelineSO.tracks = new TimelineSO.TrackData[0];
+        
+        // 添加动画轨道
+        timelineSO.AddTrack("位置X", TimelineSO.TrackType.Animation);
+        timelineSO.AddKeyFrameToTrack(0, 0, 0f);
+        timelineSO.AddKeyFrameToTrack(0, 30, 10f);
+        timelineSO.AddKeyFrameToTrack(0, 60, 5f);
+        
+        // 添加动画轨道
+        timelineSO.AddTrack("位置Y", TimelineSO.TrackType.Animation);
+        timelineSO.AddKeyFrameToTrack(1, 0, 0f);
+        timelineSO.AddKeyFrameToTrack(1, 20, 5f);
+        timelineSO.AddKeyFrameToTrack(1, 40, 0f);
+        timelineSO.AddKeyFrameToTrack(1, 60, -5f);
+        
+        // 添加音频轨道
+        timelineSO.AddTrack("音量", TimelineSO.TrackType.Audio);
+        timelineSO.AddKeyFrameToTrack(2, 0, 0f);
+        timelineSO.AddKeyFrameToTrack(2, 10, 1f);
+        timelineSO.AddKeyFrameToTrack(2, 50, 0.5f);
+        timelineSO.AddKeyFrameToTrack(2, 60, 0f);
+        
+        // 添加事件轨道
+        timelineSO.AddTrack("事件触发器", TimelineSO.TrackType.Event);
+        timelineSO.AddKeyFrameToTrack(3, 15, 1f);
+        timelineSO.AddKeyFrameToTrack(3, 35, 1f);
+        timelineSO.AddKeyFrameToTrack(3, 55, 1f);
+        
+        // 添加脚本轨道
+        timelineSO.AddTrack("脚本执行", TimelineSO.TrackType.Script);
+        timelineSO.AddKeyFrameToTrack(4, 5, 1f);
+        timelineSO.AddKeyFrameToTrack(4, 25, 1f);
+        timelineSO.AddKeyFrameToTrack(4, 45, 1f);
+        
+        EditorUtility.SetDirty(timelineSO);
+        Debug.Log("已添加示例轨道，包含各种类型的轨道和关键帧");
     }
 }

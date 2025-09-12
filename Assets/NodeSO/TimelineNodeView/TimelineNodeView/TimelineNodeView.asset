@@ -23,10 +23,11 @@ MonoBehaviour:
     SerializationNodes: []
   timelineName: Simple Timeline
   totalFrames: 100
-  currentFrame: 0
-  playbackSpeed: 1
-  isPlaying: 0
+  currentFrame: 43
+  playbackSpeed: 0.47
+  isPlaying: 1
   loopPlayback: 1
+  tracks: []
   frameData: []
-  playTime: 0
+  playTime: 1.4335033
   frameRate: 30

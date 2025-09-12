@@ -19,5 +19,11 @@ public class TimelineNode : BaseNode
     [Output(name = "Is Playing")]
     public bool isPlaying;
     
+    [Output(name = "Track Count")]
+    public int trackCount;
+    
+    [Output(name = "Track Values")]
+    public float[] trackValues;
+    
     public override string name => "Timeline Frame Node";
 }

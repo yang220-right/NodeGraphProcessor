@@ -39,9 +39,7 @@ public class TimelineNodeView : BaseSONodeView
         
         // 确保TimelineSO被正确初始化
         if (timelineSO == null && targetSO is TimelineSO ts)
-        {
             timelineSO = ts;
-        }
         
         // 初始化帧数据
         if (timelineSO != null && !isInitialized)
@@ -74,13 +72,7 @@ public class TimelineNodeView : BaseSONodeView
         
         // 如果帧数据为空，自动初始化
         if (timelineSO.frameData == null || timelineSO.frameData.Length == 0)
-        {
             timelineSO.InitializeFrameData();
-        }
-        
-        // 设置保存路径
-        SetSavePath("Assets/NodeSO/TimelineNodeView");
-        SetFileName("TimelineNodeView");
     }
     
     /// <summary>
@@ -108,36 +100,23 @@ public class TimelineNodeView : BaseSONodeView
                 timelineNode.trackCount = timelineSO.tracks != null ? timelineSO.tracks.Length : 0;
                 
                 // 更新轨道值
-                if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+                if (timelineSO.tracks is { Length: > 0 })
                 {
                     timelineNode.trackValues = new float[timelineSO.tracks.Length];
                     for (int i = 0; i < timelineSO.tracks.Length; i++)
-                    {
                         timelineNode.trackValues[i] = timelineSO.GetTrackValueAtFrame(i, timelineSO.currentFrame);
-                    }
                 }
-                else
-                {
-                    timelineNode.trackValues = new float[0];
-                }
+                else timelineNode.trackValues = new float[0];
             }
             
             // 标记需要重绘
             if (imguiContainer != null)
-            {
                 imguiContainer.MarkDirtyRepaint();
-            }
             
             // 标记场景为已修改
             if (!Application.isPlaying)
             {
                 EditorUtility.SetDirty(timelineSO);
-            }
-            
-            // 每10帧打印一次调试信息
-            if (timelineSO.currentFrame % 10 == 0)
-            {
-                Debug.Log($"编辑器播放中 - 当前帧: {timelineSO.currentFrame}, 播放时间: {timelineSO.playTime:F2}s");
             }
         }
     }
@@ -151,7 +130,6 @@ public class TimelineNodeView : BaseSONodeView
         {
             isEditorPlaying = true;
             EditorApplication.update += OnEditorUpdate;
-            Debug.Log("编辑器播放已启动");
         }
     }
     
@@ -164,7 +142,6 @@ public class TimelineNodeView : BaseSONodeView
         {
             isEditorPlaying = false;
             EditorApplication.update -= OnEditorUpdate;
-            Debug.Log("编辑器播放已停止");
         }
     }
     
@@ -530,12 +507,6 @@ public class TimelineNodeView : BaseSONodeView
         {
             imguiContainer.MarkDirtyRepaint();
         }
-        
-        // 拖动时打印调试信息（可选）
-        if (isDragging)
-        {
-            Debug.Log($"拖动到帧: {frame}/{timelineSO.totalFrames}");
-        }
     }
     
     /// <summary>
@@ -723,7 +694,6 @@ public class TimelineNodeView : BaseSONodeView
                 
                 EditorGUILayout.LabelField($"帧 {keyFrame.frame}:", GUILayout.Width(50));
                 keyFrame.value = EditorGUILayout.FloatField(keyFrame.value, GUILayout.Width(60));
-                keyFrame.interpolationType = (TimelineSO.InterpolationType)EditorGUILayout.EnumPopup(keyFrame.interpolationType, GUILayout.Width(80));
                 
                 if (GUILayout.Button("删除", GUILayout.Width(40), GUILayout.Height(16)))
                 {
@@ -747,9 +717,7 @@ public class TimelineNodeView : BaseSONodeView
     private void DrawTrackTimeline()
     {
         if (timelineSO.tracks == null || timelineSO.tracks.Length == 0)
-        {
             return;
-        }
         
         EditorGUILayout.Space(10);
         EditorGUILayout.LabelField("轨道时间轴", EditorStyles.boldLabel);
@@ -850,35 +818,7 @@ public class TimelineNodeView : BaseSONodeView
             }
         }
         
-        // 绘制轨道值曲线（如果有多个关键帧）
-        if (track.keyFrames != null && track.keyFrames.Length > 1)
-        {
-            DrawTrackValueCurve(trackRect, track);
-        }
-    }
-    
-    /// <summary>
-    /// 绘制轨道值曲线
-    /// </summary>
-    private void DrawTrackValueCurve(Rect trackRect, TimelineSO.TrackData track)
-    {
-        if (track.keyFrames.Length < 2) return;
         
-        float frameWidth = trackRect.width / timelineSO.totalFrames;
-        Vector3[] curvePoints = new Vector3[track.keyFrames.Length];
-        
-        // 计算曲线点
-        for (int i = 0; i < track.keyFrames.Length; i++)
-        {
-            float x = trackRect.x + track.keyFrames[i].frame * frameWidth;
-            float y = trackRect.y + trackRect.height / 2 - (track.keyFrames[i].value * trackRect.height / 4); // 缩放值到轨道高度
-            curvePoints[i] = new Vector3(x, y, 0);
-        }
-        
-        // 绘制曲线
-        Handles.color = track.trackColor;
-        Handles.DrawPolyLine(curvePoints);
-        Handles.color = Color.white;
     }
     
     /// <summary>
@@ -935,6 +875,5 @@ public class TimelineNodeView : BaseSONodeView
         timelineSO.AddKeyFrameToTrack(4, 45, 1f);
         
         EditorUtility.SetDirty(timelineSO);
-        Debug.Log("已添加示例轨道，包含各种类型的轨道和关键帧");
     }
 }

@@ -9,21 +9,11 @@ using UnityEngine;
 [Serializable]
 public class TimelineSO : SerializedScriptableObject
 {
-    // [Header("Timeline 设置")]
-    // [LabelText("Timeline 名称")]
-    // [Tooltip("Timeline的名称")]
-    [HideInInspector]
-    public string timelineName = "Simple Timeline";
-    
     [LabelText("总帧数")]
     [Tooltip("Timeline的总帧数")]
     [MinValue(1)]
     public int totalFrames = 100;
     
-    // [LabelText("当前帧")]
-    // [Tooltip("当前播放的帧")]
-    // [ReadOnly]
-    // [ProgressBar(0, 100, ColorMember = "GetFrameColor", MaxGetter = "GetMaxFrames")]
     [HideInInspector]
     public int currentFrame = 0;
     
@@ -75,31 +65,8 @@ public class TimelineSO : SerializedScriptableObject
         [ReadOnly]
         public int frameNumber;
         
-        [LabelText("帧内容")]
-        [TextArea(2, 4)]
-        public string frameContent = "";
-        
         [LabelText("是否关键帧")]
         public bool isKeyFrame = false;
-        
-        [LabelText("颜色标记")]
-        [HideLabel]
-        public Color frameColor = Color.white;
-        
-        [LabelText("操作")]
-        [Button("设置为关键帧")]
-        public void SetAsKeyFrame()
-        {
-            isKeyFrame = true;
-            frameColor = Color.yellow;
-        }
-        
-        [Button("清除关键帧")]
-        public void ClearKeyFrame()
-        {
-            isKeyFrame = false;
-            frameColor = Color.white;
-        }
     }
     
     /// <summary>
@@ -131,45 +98,12 @@ public class TimelineSO : SerializedScriptableObject
         [LabelText("轨道高度")]
         [Tooltip("轨道在时间轴上的高度")]
         [Range(20f, 100f)]
-        public float trackHeight = 40f;
+        public float trackHeight = 20f;
         
         [LabelText("关键帧数据")]
         [Tooltip("轨道的关键帧数据")]
         [HideInInspector]
         public KeyFrameData[] keyFrames = new KeyFrameData[0];
-        
-        [LabelText("轨道属性")]
-        [Tooltip("轨道的自定义属性")]
-        [HideInInspector]
-        public TrackProperty[] properties = new TrackProperty[0];
-        
-        [Button("添加关键帧")]
-        public void AddKeyFrame()
-        {
-            var newKeyFrame = new KeyFrameData
-            {
-                frame = 0,
-                value = 0f,
-                interpolationType = InterpolationType.Linear
-            };
-            
-            var newArray = new KeyFrameData[keyFrames.Length + 1];
-            keyFrames.CopyTo(newArray, 0);
-            newArray[keyFrames.Length] = newKeyFrame;
-            keyFrames = newArray;
-        }
-        
-        [Button("清除所有关键帧")]
-        public void ClearKeyFrames()
-        {
-            keyFrames = new KeyFrameData[0];
-        }
-        
-        [Button("删除轨道")]
-        public void DeleteTrack()
-        {
-            // 这个功能需要在TimelineSO中实现
-        }
     }
     
     /// <summary>
@@ -202,90 +136,6 @@ public class TimelineSO : SerializedScriptableObject
         [LabelText("数值")]
         [Tooltip("关键帧的数值")]
         public float value = 0f;
-        
-        [LabelText("插值类型")]
-        [Tooltip("关键帧之间的插值类型")]
-        public InterpolationType interpolationType = InterpolationType.Linear;
-        
-        [LabelText("缓动曲线")]
-        [Tooltip("关键帧的缓动曲线")]
-        public AnimationCurve easingCurve = AnimationCurve.Linear(0, 0, 1, 1);
-        
-        [LabelText("是否选中")]
-        [Tooltip("关键帧是否被选中")]
-        public bool isSelected = false;
-    }
-    
-    /// <summary>
-    /// 插值类型枚举
-    /// </summary>
-    public enum InterpolationType
-    {
-        [LabelText("线性插值")]
-        Linear,
-        [LabelText("贝塞尔插值")]
-        Bezier,
-        [LabelText("步进插值")]
-        Step,
-        [LabelText("自定义曲线")]
-        Custom
-    }
-    
-    /// <summary>
-    /// 轨道属性数据结构
-    /// </summary>
-    [Serializable]
-    public class TrackProperty
-    {
-        [LabelText("属性名称")]
-        [Tooltip("属性的名称")]
-        public string propertyName = "新属性";
-        
-        [LabelText("属性类型")]
-        [Tooltip("属性的数据类型")]
-        public PropertyType propertyType = PropertyType.Float;
-        
-        [LabelText("属性值")]
-        [Tooltip("属性的当前值")]
-        public object propertyValue;
-        
-        [LabelText("是否可见")]
-        [Tooltip("属性是否在Inspector中可见")]
-        public bool isVisible = true;
-    }
-    
-    /// <summary>
-    /// 属性类型枚举
-    /// </summary>
-    public enum PropertyType
-    {
-        [LabelText("浮点数")]
-        Float,
-        [LabelText("整数")]
-        Int,
-        [LabelText("布尔值")]
-        Bool,
-        [LabelText("字符串")]
-        String,
-        [LabelText("颜色")]
-        Color,
-        [LabelText("向量2")]
-        Vector2,
-        [LabelText("向量3")]
-        Vector3,
-        [LabelText("对象引用")]
-        Object
-    }
-    
-    /// <summary>
-    /// 获取当前帧的颜色
-    /// </summary>
-    private Color GetFrameColor()
-    {
-        if (isPlaying)
-            return Color.green;
-        else
-            return Color.red;
     }
     
     /// <summary>
@@ -299,13 +149,11 @@ public class TimelineSO : SerializedScriptableObject
     public void Play()
     {
         isPlaying = true;
-        Debug.Log($"Timeline '{timelineName}' 开始播放 - 总帧数: {totalFrames}, 帧率: {frameRate}");
     }
     
     public void Pause()
     {
         isPlaying = false;
-        Debug.Log($"Timeline '{timelineName}' 已暂停");
     }
     
     public void Stop()
@@ -313,7 +161,6 @@ public class TimelineSO : SerializedScriptableObject
         isPlaying = false;
         currentFrame = 0;
         playTime = 0f;
-        Debug.Log($"Timeline '{timelineName}' 已停止");
     }
     
     public void Reset()
@@ -321,14 +168,12 @@ public class TimelineSO : SerializedScriptableObject
         isPlaying = false;
         currentFrame = 0;
         playTime = 0f;
-        Debug.Log($"Timeline '{timelineName}' 已重置");
     }
     
     public void GoToFrame()
     {
         currentFrame = Mathf.Clamp(currentFrame, 0, totalFrames - 1);
         playTime = currentFrame / frameRate;
-        Debug.Log($"Timeline '{timelineName}' 跳转到第 {currentFrame} 帧");
     }
     
     public void InitializeFrameData()
@@ -339,12 +184,9 @@ public class TimelineSO : SerializedScriptableObject
             frameData[i] = new FrameData
             {
                 frameNumber = i,
-                frameContent = $"Frame {i} Content",
                 isKeyFrame = false,
-                frameColor = Color.white
             };
         }
-        Debug.Log($"Timeline '{timelineName}' 帧数据已初始化，共 {totalFrames} 帧");
     }
     
     /// <summary>
@@ -362,7 +204,6 @@ public class TimelineSO : SerializedScriptableObject
         if (newFrame != currentFrame)
         {
             currentFrame = newFrame;
-            Debug.Log($"Timeline更新 - 帧: {currentFrame}, 时间: {playTime:F2}s, 增量: {deltaTime:F3}s");
             
             if (currentFrame >= totalFrames)
             {
@@ -370,13 +211,11 @@ public class TimelineSO : SerializedScriptableObject
                 {
                     currentFrame = 0;
                     playTime = 0f;
-                    Debug.Log("Timeline循环播放");
                 }
                 else
                 {
                     currentFrame = totalFrames - 1;
                     isPlaying = false;
-                    Debug.Log("Timeline播放结束");
                 }
             }
         }
@@ -399,27 +238,6 @@ public class TimelineSO : SerializedScriptableObject
     }
     
     /// <summary>
-    /// 获取当前帧的数据
-    /// </summary>
-    public FrameData GetCurrentFrameData()
-    {
-        if (frameData == null || frameData.Length == 0 || currentFrame < 0 || currentFrame >= frameData.Length)
-            return null;
-            
-        return frameData[currentFrame];
-    }
-    
-    /// <summary>
-    /// 设置帧内容
-    /// </summary>
-    public void SetFrameContent(int frame, string content)
-    {
-        if (frameData == null || frame < 0 || frame >= frameData.Length) return;
-        
-        frameData[frame].frameContent = content;
-    }
-    
-    /// <summary>
     /// 添加新轨道
     /// </summary>
     public void AddTrack(string trackName = "新轨道", TrackType trackType = TrackType.Animation)
@@ -431,17 +249,14 @@ public class TimelineSO : SerializedScriptableObject
             trackColor = GetTrackColorByType(trackType),
             isEnabled = true,
             isLocked = false,
-            trackHeight = 40f,
+            trackHeight = 20f,
             keyFrames = new KeyFrameData[0],
-            properties = new TrackProperty[0]
         };
         
         var newArray = new TrackData[tracks.Length + 1];
         tracks.CopyTo(newArray, 0);
         newArray[tracks.Length] = newTrack;
         tracks = newArray;
-        
-        Debug.Log($"已添加新轨道: {trackName} (类型: {trackType})");
     }
     
     /// <summary>
@@ -460,8 +275,6 @@ public class TimelineSO : SerializedScriptableObject
             }
         }
         tracks = newArray;
-        
-        Debug.Log($"已删除轨道索引: {trackIndex}");
     }
     
     /// <summary>
@@ -501,17 +314,12 @@ public class TimelineSO : SerializedScriptableObject
         {
             frame = frame,
             value = value,
-            interpolationType = InterpolationType.Linear,
-            easingCurve = AnimationCurve.Linear(0, 0, 1, 1),
-            isSelected = false
         };
         
         var newArray = new KeyFrameData[track.keyFrames.Length + 1];
         track.keyFrames.CopyTo(newArray, 0);
         newArray[track.keyFrames.Length] = newKeyFrame;
         track.keyFrames = newArray;
-        
-        Debug.Log($"已在轨道 {track.trackName} 添加关键帧: 帧{frame}, 值{value}");
     }
     
     /// <summary>
@@ -531,8 +339,6 @@ public class TimelineSO : SerializedScriptableObject
             }
         }
         track.keyFrames = newArray;
-        
-        Debug.Log($"已从轨道 {track.trackName} 删除关键帧索引: {keyFrameIndex}");
     }
     
     /// <summary>
@@ -565,35 +371,17 @@ public class TimelineSO : SerializedScriptableObject
                 break;
             }
         }
-        
         // 如果当前帧正好是关键帧，直接返回
         if (prevKeyFrame != null && prevKeyFrame.frame == frame)
             return prevKeyFrame.value;
-        
         // 如果当前帧在第一个关键帧之前，返回第一个关键帧的值
         if (prevKeyFrame == null)
             return track.keyFrames[0].value;
-        
         // 如果当前帧在最后一个关键帧之后，返回最后一个关键帧的值
         if (nextKeyFrame == null)
             return track.keyFrames[track.keyFrames.Length - 1].value;
-        
         // 在两个关键帧之间进行插值
         float t = (float)(frame - prevKeyFrame.frame) / (nextKeyFrame.frame - prevKeyFrame.frame);
-        
-        switch (prevKeyFrame.interpolationType)
-        {
-            case InterpolationType.Linear:
-                return Mathf.Lerp(prevKeyFrame.value, nextKeyFrame.value, t);
-            case InterpolationType.Step:
-                return prevKeyFrame.value;
-            case InterpolationType.Bezier:
-                // 简单的贝塞尔插值
-                return Mathf.Lerp(prevKeyFrame.value, nextKeyFrame.value, t * t * (3f - 2f * t));
-            case InterpolationType.Custom:
-                return Mathf.Lerp(prevKeyFrame.value, nextKeyFrame.value, prevKeyFrame.easingCurve.Evaluate(t));
-            default:
-                return Mathf.Lerp(prevKeyFrame.value, nextKeyFrame.value, t);
-        }
+        return Mathf.Lerp(prevKeyFrame.value, nextKeyFrame.value, t);
     }
 }

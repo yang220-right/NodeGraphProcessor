@@ -42,8 +42,8 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -546, y: -610, z: 0}
-  scale: {x: 1.15, y: 1.15, z: 1}
+  position: {x: -483, y: 15, z: 0}
+  scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
     RefIds:
@@ -106,18 +106,20 @@ MonoBehaviour:
         computeOrder: 3
         position:
           serializedVersion: 2
-          x: 541.13043
-          y: 31.000063
+          x: 611.8861
+          y: -176.99998
           width: 500
-          height: 1249
+          height: 1779
         expanded: 0
         debug: 0
         nodeLock: 0
         frameInput: 0
-        currentFrame: 30
+        currentFrame: 24
         isPlaying: 1
-        trackCount: 3
+        trackCount: 5
         trackValues:
-        - 0
-        - 0
+        - 5
+        - 4
+        - 0.825
+        - 1
         - 1

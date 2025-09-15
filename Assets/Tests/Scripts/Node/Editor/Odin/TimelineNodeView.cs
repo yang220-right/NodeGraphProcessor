@@ -16,6 +16,10 @@ public class TimelineNodeView : BaseSONodeView
     private bool isInitialized = false;
     private bool isEditorPlaying = false;
     private bool isDragging = false;
+    private bool isTrackManagementFolded = false;
+    private bool isTrackListFolded = false;
+    private bool isTrackTimelineFolded = false;
+    private bool[] trackItemFolded;
     
     protected override void SetWidth()
     {
@@ -46,6 +50,19 @@ public class TimelineNodeView : BaseSONodeView
         {
             InitializeTimeline();
             isInitialized = true;
+        }
+        
+        // 初始化轨道折叠状态数组
+        if (timelineSO != null && timelineSO.tracks != null)
+        {
+            if (trackItemFolded == null || trackItemFolded.Length != timelineSO.tracks.Length)
+            {
+                trackItemFolded = new bool[timelineSO.tracks.Length];
+                for (int i = 0; i < trackItemFolded.Length; i++)
+                {
+                    trackItemFolded[i] = false; // 默认展开
+                }
+            }
         }
     }
     
@@ -169,10 +186,12 @@ public class TimelineNodeView : BaseSONodeView
         }
         // 绘制Timeline控制按钮
         DrawTimelineControls();
-        // 绘制轨道时间轴
-        DrawTrackTimeline();
         // 绘制轨道管理界面
         DrawTrackManagement();
+        // 绘制轨道时间轴
+        DrawTrackTimeline();
+        // 绘制轨道列表界面
+        DrawTrackList();
         // 绘制时间轴额外信息
         DrawTimeLineCurrentInfo();
     }
@@ -548,7 +567,18 @@ public class TimelineNodeView : BaseSONodeView
     private void DrawTrackManagement()
     {
         EditorGUILayout.Space(10);
+        
+        // 轨道管理标题和折叠按钮
+        EditorGUILayout.BeginHorizontal();
+        string foldIcon = isTrackManagementFolded ? "▶" : "▼";
+        if (GUILayout.Button(foldIcon, GUILayout.Width(20), GUILayout.Height(20)))
+        {
+            isTrackManagementFolded = !isTrackManagementFolded;
+        }
         EditorGUILayout.LabelField("轨道管理", EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+        
+        if (isTrackManagementFolded) return;
         
         // 轨道操作按钮
         EditorGUILayout.BeginHorizontal();
@@ -602,12 +632,62 @@ public class TimelineNodeView : BaseSONodeView
         }
         
         EditorGUILayout.EndHorizontal();
+    }
+    
+    /// <summary>
+    /// 绘制轨道列表界面
+    /// </summary>
+    private void DrawTrackList()
+    {
+        EditorGUILayout.Space(10);
+        
+        // 轨道列表标题和折叠按钮
+        EditorGUILayout.BeginHorizontal();
+        string foldIcon = isTrackListFolded ? "▶" : "▼";
+        if (GUILayout.Button(foldIcon, GUILayout.Width(20), GUILayout.Height(20)))
+        {
+            isTrackListFolded = !isTrackListFolded;
+        }
+        string trackCountText = timelineSO.tracks != null ? $"轨道列表 ({timelineSO.tracks.Length} 个轨道)" : "轨道列表";
+        EditorGUILayout.LabelField(trackCountText, EditorStyles.boldLabel);
+        EditorGUILayout.EndHorizontal();
+        
+        if (isTrackListFolded) return;
+        
+        // 轨道列表控制按钮
+        if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+        {
+            EditorGUILayout.BeginHorizontal();
+            
+            if (GUILayout.Button("全部折叠", GUILayout.Height(20)))
+            {
+                if (trackItemFolded != null)
+                {
+                    for (int i = 0; i < trackItemFolded.Length; i++)
+                    {
+                        trackItemFolded[i] = true;
+                    }
+                }
+            }
+            
+            if (GUILayout.Button("全部展开", GUILayout.Height(20)))
+            {
+                if (trackItemFolded != null)
+                {
+                    for (int i = 0; i < trackItemFolded.Length; i++)
+                    {
+                        trackItemFolded[i] = false;
+                    }
+                }
+            }
+            
+            EditorGUILayout.EndHorizontal();
+        }
         
         // 显示轨道列表
         if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
         {
             EditorGUILayout.Space(5);
-            EditorGUILayout.LabelField($"轨道列表 ({timelineSO.tracks.Length} 个轨道)", EditorStyles.boldLabel);
             
             for (int i = 0; i < timelineSO.tracks.Length; i++)
             {
@@ -628,27 +708,63 @@ public class TimelineNodeView : BaseSONodeView
         var track = timelineSO.tracks[trackIndex];
         if (track == null) return;
         
+        // 确保折叠状态数组有效
+        if (trackItemFolded == null || trackIndex >= trackItemFolded.Length)
+        {
+            trackItemFolded = new bool[timelineSO.tracks.Length];
+            for (int i = 0; i < trackItemFolded.Length; i++)
+            {
+                trackItemFolded[i] = false;
+            }
+        }
+        
         EditorGUILayout.BeginVertical("box");
         
         // 轨道头部信息
         EditorGUILayout.BeginHorizontal();
         
+        // 轨道折叠按钮
+        string foldIcon = trackItemFolded[trackIndex] ? "▶" : "▼";
+        if (GUILayout.Button(foldIcon, GUILayout.Width(20), GUILayout.Height(20)))
+        {
+            trackItemFolded[trackIndex] = !trackItemFolded[trackIndex];
+        }
+        
+        // 锁定状态图标
+        if (track.isLocked)
+        {
+            EditorGUILayout.LabelField("🔒", GUILayout.Width(20), GUILayout.Height(20));
+        }
+        else
+        {
+            EditorGUILayout.LabelField("", GUILayout.Width(20), GUILayout.Height(20));
+        }
+        
         // 轨道启用/禁用开关
+        GUI.enabled = !track.isLocked;
         track.isEnabled = EditorGUILayout.Toggle(track.isEnabled, GUILayout.Width(20));
+        GUI.enabled = true;
         
         // 轨道锁定开关
         track.isLocked = EditorGUILayout.Toggle(track.isLocked, GUILayout.Width(20));
         
         // 轨道颜色
+        GUI.enabled = !track.isLocked;
         track.trackColor = EditorGUILayout.ColorField(track.trackColor, GUILayout.Width(30));
+        GUI.enabled = true;
         
         // 轨道名称
+        GUI.enabled = !track.isLocked;
         track.trackName = EditorGUILayout.TextField(track.trackName);
+        GUI.enabled = true;
         
         // 轨道类型
+        GUI.enabled = !track.isLocked;
         track.trackType = (TimelineSO.TrackType)EditorGUILayout.EnumPopup(track.trackType, GUILayout.Width(80));
+        GUI.enabled = true;
         
         // 删除按钮
+        GUI.enabled = !track.isLocked;
         if (GUILayout.Button("X", GUILayout.Width(30), GUILayout.Height(20)))
         {
             if (EditorUtility.DisplayDialog("确认删除", $"确定要删除轨道 '{track.trackName}' 吗？", "确定", "取消"))
@@ -658,8 +774,16 @@ public class TimelineNodeView : BaseSONodeView
                 return;
             }
         }
+        GUI.enabled = true;
         
         EditorGUILayout.EndHorizontal();
+        
+        // 如果轨道被折叠，只显示基本信息
+        if (trackItemFolded[trackIndex])
+        {
+            EditorGUILayout.EndVertical();
+            return;
+        }
         
         // 轨道详细信息
         EditorGUILayout.BeginHorizontal();
@@ -673,11 +797,13 @@ public class TimelineNodeView : BaseSONodeView
         EditorGUILayout.LabelField($"关键帧: {keyFrameCount}", GUILayout.Width(80));
         
         // 添加关键帧按钮
+        GUI.enabled = !track.isLocked;
         if (GUILayout.Button("添加关键帧", GUILayout.Width(80), GUILayout.Height(20)))
         {
             timelineSO.AddKeyFrameToTrack(trackIndex, timelineSO.currentFrame, 0f);
             EditorUtility.SetDirty(timelineSO);
         }
+        GUI.enabled = true;
         
         EditorGUILayout.EndHorizontal();
         
@@ -687,20 +813,28 @@ public class TimelineNodeView : BaseSONodeView
             EditorGUILayout.BeginVertical("helpBox");
             EditorGUILayout.LabelField("关键帧信息:", EditorStyles.miniBoldLabel);
             
+            
             for (int i = 0; i < keyFrameCount; i++)
             {
                 var keyFrame = track.keyFrames[i];
                 EditorGUILayout.BeginHorizontal();
                 
                 EditorGUILayout.LabelField($"帧 {keyFrame.frame}:", GUILayout.Width(50));
-                keyFrame.value = EditorGUILayout.FloatField(keyFrame.value, GUILayout.Width(60));
                 
+                // 关键帧数值编辑
+                GUI.enabled = !track.isLocked;
+                keyFrame.value = EditorGUILayout.FloatField(keyFrame.value, GUILayout.Width(60));
+                GUI.enabled = true;
+                
+                // 删除关键帧按钮
+                GUI.enabled = !track.isLocked;
                 if (GUILayout.Button("删除", GUILayout.Width(40), GUILayout.Height(16)))
                 {
                     timelineSO.RemoveKeyFrameFromTrack(trackIndex, i);
                     EditorUtility.SetDirty(timelineSO);
                     break;
                 }
+                GUI.enabled = true;
                 
                 EditorGUILayout.EndHorizontal();
             }
@@ -720,7 +854,31 @@ public class TimelineNodeView : BaseSONodeView
             return;
         
         EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("轨道时间轴", EditorStyles.boldLabel);
+        
+        // 轨道时间轴标题和折叠按钮
+        EditorGUILayout.BeginHorizontal();
+        string foldIcon = isTrackTimelineFolded ? "▶" : "▼";
+        if (GUILayout.Button(foldIcon, GUILayout.Width(20), GUILayout.Height(20)))
+        {
+            isTrackTimelineFolded = !isTrackTimelineFolded;
+        }
+        string timelineCountText = timelineSO.tracks != null ? $"轨道时间轴 ({timelineSO.tracks.Length} 个轨道)" : "轨道时间轴";
+        EditorGUILayout.LabelField(timelineCountText, EditorStyles.boldLabel);
+        
+        // 时间轴控制按钮
+        if (GUILayout.Button("全部折叠", GUILayout.Width(60), GUILayout.Height(20)))
+        {
+            isTrackTimelineFolded = true;
+        }
+        
+        if (GUILayout.Button("全部展开", GUILayout.Width(60), GUILayout.Height(20)))
+        {
+            isTrackTimelineFolded = false;
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        if (isTrackTimelineFolded) return;
         
         // 计算时间轴区域
         float trackAreaHeight = 0f;
@@ -746,6 +904,9 @@ public class TimelineNodeView : BaseSONodeView
             
             Rect trackRect = new Rect(trackAreaRect.x, currentY, trackAreaRect.width, track.trackHeight);
             DrawSingleTrack(trackRect, track, i);
+            
+            // 处理轨道点击事件
+            HandleTrackClick(trackRect, i);
             
             currentY += track.trackHeight + 2f;
         }
@@ -782,15 +943,31 @@ public class TimelineNodeView : BaseSONodeView
     /// </summary>
     private void DrawSingleTrack(Rect trackRect, TimelineSO.TrackData track, int trackIndex)
     {
+        // 检查鼠标是否悬停在轨道上
+        bool isHovering = trackRect.Contains(Event.current.mousePosition);
+        
         // 绘制轨道背景
         Color trackBgColor = track.isLocked ? 
             new Color(track.trackColor.r * 0.3f, track.trackColor.g * 0.3f, track.trackColor.b * 0.3f, 0.5f) :
             new Color(track.trackColor.r * 0.2f, track.trackColor.g * 0.2f, track.trackColor.b * 0.2f, 0.3f);
         
+        // 如果鼠标悬停，增加亮度
+        if (isHovering)
+        {
+            trackBgColor = new Color(trackBgColor.r * 1.5f, trackBgColor.g * 1.5f, trackBgColor.b * 1.5f, trackBgColor.a);
+        }
+        
         EditorGUI.DrawRect(trackRect, trackBgColor);
         
         // 绘制轨道边框
         Color borderColor = track.isLocked ? Color.red : track.trackColor;
+        
+        // 如果正在拖动，边框颜色更亮
+        if (isDragging && isHovering)
+        {
+            borderColor = new Color(borderColor.r * 1.5f, borderColor.g * 1.5f, borderColor.b * 1.5f, 1f);
+        }
+        
         EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.y, trackRect.width, 1), borderColor);
         EditorGUI.DrawRect(new Rect(trackRect.x, trackRect.y + trackRect.height - 1, trackRect.width, 1), borderColor);
         
@@ -832,6 +1009,55 @@ public class TimelineNodeView : BaseSONodeView
         // 绘制当前帧指示线
         EditorGUI.DrawRect(new Rect(x - 1, trackAreaRect.y, 3, trackAreaRect.height), Color.red);
         EditorGUI.DrawRect(new Rect(x, trackAreaRect.y, 1, trackAreaRect.height), Color.white);
+    }
+    
+    /// <summary>
+    /// 处理轨道点击事件
+    /// </summary>
+    private void HandleTrackClick(Rect trackRect, int trackIndex)
+    {
+        Event e = Event.current;
+        
+        // 检查轨道是否被锁定
+        var track = timelineSO.tracks[trackIndex];
+        if (track.isLocked) return;
+        
+        if (trackRect.Contains(e.mousePosition))
+        {
+            // 计算鼠标位置对应的帧
+            float clickX = e.mousePosition.x - trackRect.x;
+            int targetFrame = Mathf.RoundToInt(clickX / (trackRect.width / timelineSO.totalFrames));
+            targetFrame = Mathf.Clamp(targetFrame, 0, timelineSO.totalFrames - 1);
+            
+            if (e.type == EventType.MouseDown)
+            {
+                // 开始拖动
+                isDragging = true;
+                SetCurrentFrame(targetFrame);
+                e.Use();
+            }
+            else if (e.type == EventType.MouseDrag && isDragging)
+            {
+                // 拖动中
+                SetCurrentFrame(targetFrame);
+                e.Use();
+            }
+            else if (e.type == EventType.MouseUp)
+            {
+                // 结束拖动
+                isDragging = false;
+                SetCurrentFrame(targetFrame);
+                e.Use();
+            }
+            
+            // 设置鼠标光标
+            EditorGUIUtility.AddCursorRect(trackRect, MouseCursor.MoveArrow);
+        }
+        else if (e.type == EventType.MouseUp)
+        {
+            // 在轨道外释放鼠标，结束拖动
+            isDragging = false;
+        }
     }
     
     /// <summary>

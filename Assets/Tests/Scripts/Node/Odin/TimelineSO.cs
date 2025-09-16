@@ -32,10 +32,11 @@ public class TimelineSO : SerializedScriptableObject
     [Tooltip("是否循环播放")]
     public bool loopPlayback = true;
     
-    [Header("轨道系统")]
-    [LabelText("轨道列表")]
-    [Tooltip("Timeline的轨道列表")]
-    [ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "trackName")]
+    // [Header("轨道系统")]
+    // [LabelText("轨道列表")]
+    // [Tooltip("Timeline的轨道列表")]
+    // [ListDrawerSettings(ShowIndexLabels = true, ListElementLabelName = "trackName")]
+    [HideInInspector]
     public TrackData[] tracks = new TrackData[0];
     
     [Header("帧数据")]

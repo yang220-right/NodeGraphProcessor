@@ -281,7 +281,12 @@ public class TimelineNodeView : BaseSONodeView
         
         // 绘制进度文本
         string progressText = $"进度: {progress * 100:F1}% ({timelineSO.currentFrame}/{timelineSO.totalFrames - 1})";
+        // 使用更亮的颜色绘制进度文本
+        var prevColor = GUI.color;
+        // GUI.color = new Color(1f, 1f, 0.8f, 1f); // 更亮的淡黄色
+        GUI.color = Color.black; // 更亮的淡黄色
         GUI.Label(progressRect, progressText, EditorStyles.centeredGreyMiniLabel);
+        GUI.color = prevColor;
     }
     
     /// <summary>

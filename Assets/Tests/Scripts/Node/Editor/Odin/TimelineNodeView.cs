@@ -824,7 +824,50 @@ public class TimelineNodeView : BaseSONodeView
                 var keyFrame = track.keyFrames[i];
                 EditorGUILayout.BeginHorizontal();
                 
-                EditorGUILayout.LabelField($"帧 {keyFrame.frame}:", GUILayout.Width(50));
+                // 关键帧帧号 - 可点击跳转
+                GUIStyle frameButtonStyle = new GUIStyle(GUI.skin.button);
+                // frameButtonStyle.normal.textColor = Color.white;
+                frameButtonStyle.hover.textColor = Color.white;
+                frameButtonStyle.fontSize = 10;
+                frameButtonStyle.fontStyle = FontStyle.Bold;
+                
+                // 设置按钮背景为透明，看起来更像链接
+                frameButtonStyle.normal.background = null;
+                frameButtonStyle.hover.background = null;
+                frameButtonStyle.active.background = null;
+                
+                // 添加工具提示
+                GUIContent frameButtonContent = new GUIContent($"帧 {keyFrame.frame}", "点击跳转到此关键帧");
+                if (GUILayout.Button(frameButtonContent, frameButtonStyle, GUILayout.Width(60), GUILayout.Height(16)))
+                {
+                    // 跳转到关键帧
+                    timelineSO.currentFrame = keyFrame.frame;
+                    timelineSO.GoToFrame();
+                    
+                    // 更新节点输出
+                    if (nodeTarget is TimelineNode timelineNode)
+                    {
+                        timelineNode.currentFrame = timelineSO.currentFrame;
+                        timelineNode.trackCount = timelineSO.tracks != null ? timelineSO.tracks.Length : 0;
+                        
+                        // 更新轨道值
+                        if (timelineSO.tracks != null && timelineSO.tracks.Length > 0)
+                        {
+                            timelineNode.trackValues = new float[timelineSO.tracks.Length];
+                            for (int j = 0; j < timelineSO.tracks.Length; j++)
+                            {
+                                timelineNode.trackValues[j] = timelineSO.GetTrackValueAtFrame(j, timelineSO.currentFrame);
+                            }
+                        }
+                        else timelineNode.trackValues = new float[0];
+                    }
+                    
+                    // 标记需要重绘
+                    if (imguiContainer != null)
+                    {
+                        imguiContainer.MarkDirtyRepaint();
+                    }
+                }
                 
                 // 关键帧数值编辑
                 GUI.enabled = !track.isLocked;

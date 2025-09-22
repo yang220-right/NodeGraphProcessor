@@ -260,7 +260,7 @@ namespace GraphProcessor{
 
       node.position = new Rect(position, new Vector2(100, 100));
 
-      ExceptionToLog.Call(() => node.OnNodeCreated());
+      ExceptionToLog.Call(node.OnNodeCreated);
 
       return node;
     }
@@ -271,7 +271,7 @@ namespace GraphProcessor{
     public void Initialize(BaseGraph graph){
       this.graph = graph;
 
-      ExceptionToLog.Call(() => Enable());
+      ExceptionToLog.Call(Enable);
 
       InitializePorts();
     }
@@ -541,10 +541,10 @@ namespace GraphProcessor{
       inputPorts.Clear();
       outputPorts.Clear();
 
-      ExceptionToLog.Call(() => Disable());
+      ExceptionToLog.Call(Disable);
     }
 
-    internal void DestroyInternal() => ExceptionToLog.Call(() => Destroy());
+    internal void DestroyInternal() => ExceptionToLog.Call(Destroy);
 
     /// <summary>
     /// 仅当节点被创建时调用，而不是实例化时
@@ -655,7 +655,7 @@ namespace GraphProcessor{
     public void OnProcess(){
       inputPorts.PullDatas();
 
-      ExceptionToLog.Call(() => Process());
+      ExceptionToLog.Call(Process);
 
       InvokeOnProcessed();
 
@@ -698,10 +698,10 @@ namespace GraphProcessor{
     /// <param name="input">是否为输入端口</param>
     /// <param name="fieldName">C#字段名</param>
     /// <param name="portData">端口数据</param>
-    public void AddPort(bool input, string fieldName, PortData portData){
+    public void AddPort(bool input, string fieldName, PortData portData)
+    {
       // 如果需要，修复端口数据信息：
-      if (portData.displayType == null)
-        portData.displayType = nodeFields[fieldName].info.FieldType;
+      portData.displayType ??= nodeFields[fieldName].info.FieldType;
 
       if (input)
         inputPorts.Add(new NodePort(this, fieldName, portData));

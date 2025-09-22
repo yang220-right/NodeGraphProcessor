@@ -22,8 +22,8 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   totalFrames: 61
-  currentFrame: 24
-  playbackSpeed: 2.18
+  currentFrame: 4
+  playbackSpeed: 0.5
   isPlaying: 1
   loopPlayback: 1
   tracks:
@@ -105,5 +105,5 @@ MonoBehaviour:
     isKeyFrame: 0
   - frameNumber: 4
     isKeyFrame: 0
-  playTime: 0.8
+  playTime: 0.13333334
   frameRate: 30

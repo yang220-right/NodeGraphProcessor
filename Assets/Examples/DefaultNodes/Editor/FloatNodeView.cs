@@ -7,7 +7,6 @@ public class FloatNodeView : BaseNodeView
 	public override void Enable()
 	{
 		var floatNode = nodeTarget as FloatNode;
-
 		DoubleField floatField = new DoubleField
 		{
 			value = floatNode.input

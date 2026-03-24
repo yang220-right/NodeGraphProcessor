@@ -18,6 +18,7 @@ MonoBehaviour:
   - rid: 6536307005047701524
   - rid: 6536307005047701528
   - rid: 9155479653836652547
+  - rid: 8207090607284289536
   edges:
   - GUID: 907f8127-4214-466f-aab8-f77398897f4e
     owner: {fileID: 11400000}
@@ -42,7 +43,7 @@ MonoBehaviour:
   serializedParameterList: []
   stickyNotes: []
   nodeInspectorReference: {fileID: 0}
-  position: {x: -483, y: 15, z: 0}
+  position: {x: 1180, y: -4907, z: 0}
   scale: {x: 1, y: 1, z: 1}
   references:
     version: 2
@@ -98,6 +99,21 @@ MonoBehaviour:
         nodeLock: 0
         input: {fileID: 0}
         output: {fileID: 0}
+    - rid: 8207090607284289536
+      type: {class: AllUIElementExampleNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeCustomName: 
+        GUID: c634fec2-bf93-46ec-9a3f-33c5786a3005
+        computeOrder: 4
+        position:
+          serializedVersion: 2
+          x: -979.9086
+          y: -106.878845
+          width: 573
+          height: 5434
+        expanded: 0
+        debug: 0
+        nodeLock: 0
     - rid: 9155479653836652547
       type: {class: TimelineNode, ns: , asm: Assembly-CSharp}
       data:
@@ -106,20 +122,21 @@ MonoBehaviour:
         computeOrder: 3
         position:
           serializedVersion: 2
-          x: 611.8861
-          y: -176.99998
+          x: 619
+          y: -78
           width: 500
-          height: 1779
+          height: 913
         expanded: 0
         debug: 0
         nodeLock: 0
         frameInput: 0
-        currentFrame: 24
+        currentFrame: 14
         isPlaying: 1
-        trackCount: 5
+        trackCount: 6
         trackValues:
         - 5
-        - 4
-        - 0.825
+        - 3.5
+        - 0.95
         - 1
         - 1
+        - 0
